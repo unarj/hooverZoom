@@ -3,8 +3,8 @@ Firefox add-on (via Mozilla SDK) for displaying image link targets in a popup pa
 
 Initial release will be fairly basic, popup a window for any A tag with an HREF pointing at an image.
 
-Will include special-case support for imgur.com to load albumbs and scroll-wheel between photos, similar to the hoverZoomn add-on for Chrome.  No Firefox add-on has similar functionality as of yet.
+Will include special-case support for imgur.com to load albumbs and scroll-wheel between photos, similar to the Hover Zoom add-on for Chrome.  No Firefox add-on has similar functionality as of yet.
 
-hoverZoom was my inspiration for begining this journey.
+Hover Zoom was my inspiration for begining this journey, https://chrome.google.com/webstore/detail/nonjdcjchghhkdoolnlbekcfllmednbl
 
 - arj
