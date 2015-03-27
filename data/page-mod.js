@@ -1,17 +1,21 @@
 var hzLinks = document.getElementsByTagName('a');
-for (var i = 0; i < links.length; i++) {
+for (var i = 0; i < hzLinks.length; i++) {
 	hzLinks[i].addEventListener('mouseleave', function(event) { self.port.emit('hide') }, false);
-	hzLinks[i].addEventListener('mouseover', function(event) { hzMouseOn(event.target.innerHTML) }, false);
+	hzLinks[i].addEventListener('mouseenter', function(event) { hzMouseOn(event.target.href) }, false);
 }
 document.addEventListener('wheel', function(event) { self.port.emit('hide') }, false);
 
 var hzImage = new Image;
-image.onerror = function() {
-//	document.body.style.cursor = 'auto';
+hzImage.onerror = function() {
+	document.body.style.cursor = 'auto';
+}
+hzImage.onload = function() {
+	document.body.style.cursor = 'auto';
+	self.port.emit('image', this.src, this.width, this.height, window.innerWidth, window.innerHeight);
 }
 
 function hzMouseOn(target) {
-//	document.body.style.cursor = 'no-drop';
+	document.body.style.cursor = 'wait';
 	var t = document.createElement('a');
 	t.href = target;
 	// imgur gets special treatment...
@@ -21,12 +25,8 @@ function hzMouseOn(target) {
 			self.port.emit('album', t.protocol+"//imgur.com/a/"+p[2]+"?gallery");
 			return;
 		}
-		else if(t.pathname.split('.').length == 1) { target = t.protocol+"//imgur.com/"+p.pop()+".jpg" }
+		else if(t.pathname.split('.').length == 1) { t.href = t.protocol+"//imgur.com/"+p.pop()+".jpg" }
 	}
-	hzImage.onload = function() {
-//		document.body.style.cursor = 'auto';
-		self.port.emit('image', target, this.width, this.height, window.innerWidth, window.innerHeight);
-	}
-	hzImage.src = target;
-//	console.log("pageMod mouseOn: "+target);
+	hzImage.src = t.href;
+//	console.log("pageMod hzMouseOn: "+target);
 }
