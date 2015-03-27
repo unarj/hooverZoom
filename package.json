@@ -1,0 +1,23 @@
+{
+	"name": "hooverZoom",
+	"title": "hooverZoom",
+	"id": "jid1-ypAaFtWSGV9ANQ",
+	"description": "display a link thumbnail image in a fullsize overlay",
+	"author": "arjuna@on-rope.net",
+	"license": "MPL 2.0",
+	"version": "0.1",
+	"preferences": [{
+		"name"			: "blacklist",
+		"title"			: "Blacklist",
+		"description"	: "if checked Domain List is treated like a blacklist, otherwise it's a whitelist",
+		"type"			: "bool",
+		"value"			: true
+	},
+	{
+		"name"			: "domainlist",
+		"title"			: "Domain List",
+		"description"	: "list of domains for black or white list seperated by pipes",
+		"type"			: "string",
+		"value"			: "*.craigslist.org,*.google.com"
+	}]
+}
