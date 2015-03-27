@@ -9,14 +9,14 @@
 	"preferences": [{
 		"name"			: "blacklist",
 		"title"			: "Blacklist",
-		"description"	: "if checked Domain List is treated like a blacklist, otherwise it's a whitelist",
+		"description"	: "If checked Domain List is treated like a blacklist, otherwise it's a whitelist.",
 		"type"			: "bool",
 		"value"			: true
 	},
 	{
 		"name"			: "domainlist",
 		"title"			: "Domain List",
-		"description"	: "list of domains for black or white list seperated by pipes",
+		"description"	: "List of domains for black/white list seperated by commas.",
 		"type"			: "string",
 		"value"			: "*.craigslist.org,*.google.com"
 	}]
