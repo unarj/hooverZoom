@@ -6,3 +6,5 @@ for (var i = 0; i < divs.length; i++) {
 	}
 }
 if(imgs.length) { self.port.emit('album', imgs) }
+
+console.log("album: "+document.URL)
