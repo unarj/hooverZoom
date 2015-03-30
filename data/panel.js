@@ -1,5 +1,4 @@
 document.addEventListener('mousemove', function(event) { hzMotion() }, false);
-document.addEventListener('wheel', function(event) { self.port.emit('wheel', event.movementY) }, false);
 
 self.port.on('image', function(img, x, y) {
 	var i = document.getElementById('panelImg');

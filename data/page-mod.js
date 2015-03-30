@@ -3,7 +3,7 @@ for (var i = 0; i < hzLinks.length; i++) {
 	hzLinks[i].addEventListener('mouseleave', function(event) { self.port.emit('hide') }, false);
 	hzLinks[i].addEventListener('mouseenter', function(event) { hzMouseOn(event.target.href) }, false);
 }
-document.addEventListener('wheel', function(event) { self.port.emit('hide') }, false);
+document.addEventListener('wheel', function(event) { hzMouseWheel(event.deltaY) }, false);
 
 var hzImage = new Image;
 hzImage.onerror = function() {
@@ -48,4 +48,8 @@ function hzMouseOn(target) {
 	}
 	hzImage.src = t.href;
 	if(target != t.href) { console.log("pageMod: "+target+" -> "+t.href) }
+}
+
+function hzMouseWheel(delta) {
+	if(delta) { self.port.emit('wheel', delta) }
 }
