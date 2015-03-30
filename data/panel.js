@@ -8,6 +8,7 @@ self.port.on('image', function(img, x, y) {
 	i.height = y;
 });
 
+//this is a hack but works well enough for now...
 var hzMoved = 0;
 function hzMotion() {
 	if(hzMoved > 15) {
