@@ -18,35 +18,34 @@ function hzMouseOn(target) {
 //	document.body.style.cursor = 'wait';
 	var t = document.createElement('a');
 	t.href = target;
-	if(/imgur\.com$/i.test(t.hostname)) {
-		var p = t.pathname.split('/');
-		console.log(p[1]);
-		switch(p[1]) {
-			case "a" || "gallery":
+	var p = t.hostname.split('.').reverse();
+	switch(p[1]+"."+p[0]) {
+		case "gfycat.com":
+			t.href = t.protocol+"//giant.gfycat.com"+t.pathname;
+			if(t.pathname.split('.').length == 1) {	t.href = t.href+".gif" }
+			break;
+		case "imgflip.com":
+			p = t.pathname.split('/');
+			if(p.length > 2) {
+				p = p[2].split('#');
+				t.href = t.protocol+"//i.imgflip.com/"+p[0]+".jpg";
+			}
+			break;
+		case "imgur.com":
+			p = t.pathname.split('/');
+			if((p[1] == "a") || (p[1] == "gallery")) {
 				self.port.emit('album', t.protocol+"//imgur.com/a/"+p[2]+"?gallery");
 				return;
-		}
-		p = t.pathname.split('.');
-		if(p.length == 1) {
-			t.href = t.protocol+"//i.imgur.com/"+p.pop()+".jpg";
-		} else { 
-			switch(p.pop()) {
-				case "gifv":
-					// would rather load the GIFV, but a javascript image element doesn't seem to like it...
-					t.href = t.protocol+"//i.imgur.com/"+p.pop()+".gif";
-					break;
-			}
-		}
-	}
-	if(/gfycat\.com$/i.test(t.hostname)) {
-		t.href = t.protocol+"//giant.gfycat.com"+t.pathname;
-		p = t.pathname.split('.');
-		if(p.length == 1) {
-			t.href = t.href+".gif";
-		}
+			} else { t.href = t.protocol+"//i.imgur.com/"+p.pop() }
+			p = t.pathname.split('.');
+			if(p.length == 1) { t.href += ".jpg"}
+			else if(p.pop() == "gifv") { t.href = t.protocol+"//i.imgur.com/"+p.pop()+".gif" }
+			break;
+		case "livememe.com":
+			p = t.pathname.split('.');
+			if(p.length == 1) {	t.href = t.protocol+"//i.lvme.me"+p.pop()+".jpg" }
+			break;
 	}
 	hzImage.src = t.href;
-	if(target != t.href) {
-		console.log("pageMod: "+target+" -> "+t.href);
-	}
+	if(target != t.href) { console.log("pageMod: "+target+" -> "+t.href) }
 }
