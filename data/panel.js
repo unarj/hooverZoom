@@ -1,6 +1,6 @@
 document.addEventListener('click', function(event) { self.port.emit('hide') }, false);
 document.addEventListener('mousemove', function(event) { hzMotion() }, false);
-document.addEventListener('wheel', function(event) { hzMouseWheel(event.deltaY) }, false);
+//document.addEventListener('wheel', function(event) { hzMouseWheel(event.deltaY) }, false);
 
 self.port.on('image', function(img, x, y) {
 	var i = document.getElementById('panelImg');
@@ -20,6 +20,6 @@ function hzMotion() {
 	}
 }
 
-function hzMouseWheel(delta) {
-	if(delta) { self.port.emit('wheel', delta) }
-}
+//function hzMouseWheel(delta) {
+//	if(delta) { self.port.emit('wheel', delta) }
+//}
