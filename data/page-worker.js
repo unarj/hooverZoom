@@ -7,7 +7,7 @@ hzImage.onerror = function() {
 }
 hzImage.onload = function() {
 //	document.body.style.cursor = 'auto';
-	self.port.emit('image', this.src, this.width, this.height, window.innerWidth, window.innerHeight, hzImgNum, hzImgs.length);
+	self.port.emit('image', this.src, this.width, this.height);
 }
 
 console.log("pageWorker: "+document.URL);
@@ -16,28 +16,32 @@ t.href = document.URL;
 var p = t.hostname.split('.').reverse();
 switch(p[1]+"."+p[0]) {
 	case "imgur.com":
-		var divs = document.getElementsByTagName('div');
-		for (var i = 0; i < divs.length; i++) {
-			if(/item view/i.test(divs[i].class)) {
-				hzImgs.push() = divs[i].getElementsByTagName('a')[0].href;
+		var els = document.getElementsByTagName('div');
+		console.log(els.length);
+		for(var i=0, l=els.length; i < l; i++) {
+			if(els[i].getAttribute('class') == "image") {
+				var img = t.protocol+"//i.imgur.com/"+els[i].getAttribute('id')+".jpg";
+				new Image().src = img;
+				hzImgs.push(img);
 			}
 		}
 		break;
 }
 
 console.log(hzImgs);
-if(hzImgs.length) {
-	hzCount = 0;
-	hzImage.src = hzImgs[0];
+if(hzImgs.length > 0) {
+	hzImage.src = hzImgs[hzImgNum];
+//	console.log("pageWorker sending: "+hzImgs[hzImgNum]);
 }
 
 self.port.on('wheel', function(delta) {
 	if(delta > 0) {
 		hzImgNum++;
-		if(hzImgNum > hzImgs.length) { hzCount = 0 }
+		if(hzImgNum > hzImgs.length-1) { hzImgNum = 0 }
 	} else {
-		hzCount--;
-		if(hzCount < 0) { hzImgNum = hzImgs.length }
+		hzImgNum--;
+		if(hzImgNum < 0) { hzImgNum = hzImgs.length-1 }
 	}
 	hzImage.src = hzImgs[hzImgNum];
+	console.log("pageWorker sending: "+hzImgs[hzImgNum]+" ("+(hzImgNum+1)+" of "+hzImgs.length+")");
 });

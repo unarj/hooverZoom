@@ -3,7 +3,9 @@ for (var i = 0; i < hzLinks.length; i++) {
 	hzLinks[i].addEventListener('mouseleave', function(event) { self.port.emit('hide') }, false);
 	hzLinks[i].addEventListener('mouseenter', function(event) { hzMouseOn(event.target.href) }, false);
 }
-document.addEventListener('wheel', function(event) { hzMouseWheel(event.deltaY) }, false);
+//document.addEventListener('wheel', function(event) { hzMouseWheel(event.deltaY) }, false);
+window.addEventListener('load', function(event) { hzWinSize() })
+window.addEventListener('resize', function(event) { hzWinSize() })
 
 var hzImage = new Image;
 hzImage.onerror = function() {
@@ -11,7 +13,7 @@ hzImage.onerror = function() {
 }
 hzImage.onload = function() {
 //	document.body.style.cursor = 'auto';
-	self.port.emit('image', this.src, this.width, this.height, window.innerWidth, window.innerHeight);
+	self.port.emit('image', this.src, this.width, this.height );
 }
 
 function hzMouseOn(target) {
@@ -52,4 +54,11 @@ function hzMouseOn(target) {
 
 function hzMouseWheel(delta) {
 	if(delta) { self.port.emit('wheel', delta) }
+}
+
+function hzWinSize() {
+	var x = Math.max(window.innerWidth, document.documentElement.clientWidth);
+	var y = Math.max(window.innerHeight, document.documentElement.clientHeight);
+	self.port.emit('winSize', x, y);
+	console.log("size: "+x+","+y);
 }
