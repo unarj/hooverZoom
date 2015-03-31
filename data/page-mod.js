@@ -1,15 +1,11 @@
 var hzOnAlbum = false;
 var hzLinks = document.getElementsByTagName('a');
 for (var i = 0; i < hzLinks.length; i++) {
-	hzLinks[i].addEventListener('mouseleave', function(event) { self.port.emit('hide') }, false);
-	hzLinks[i].addEventListener('mouseenter', function(event) { hzMouseOn(event.target.href) }, false);
+	hzLinks[i].addEventListener('mouseleave', function(event) { self.port.emit('hide') });
+	hzLinks[i].addEventListener('mouseenter', function(event) { hzMouseOn(event.target.href) });
 }
-document.addEventListener('wheel', function(event) {
-	if(hzOnAlbum) { event.preventDefault() }
-	hzMouseWheel(event.deltaY);
-}, false);
-window.addEventListener('load', function(event) { hzWinSize() })
-window.addEventListener('resize', function(event) { hzWinSize() })
+window.addEventListener('load', function(event) { hzWinSize() });
+window.addEventListener('resize', function(event) { hzWinSize() });
 
 var hzImage = new Image;
 hzImage.onerror = function() {
@@ -56,9 +52,7 @@ function hzMouseOn(target) {
 	if(target != t.href) { console.log("pageMod: "+target+" -> "+t.href) }
 }
 
-function hzMouseWheel(delta) {
-	if(delta) { self.port.emit('wheel', delta) }
-}
+function hzWheel(event) { self.port.emit('wheel', event.deltaY) }
 
 function hzWinSize() {
 	var x = Math.max(window.innerWidth, document.documentElement.clientWidth);
@@ -67,4 +61,7 @@ function hzWinSize() {
 	console.log("size: "+x+","+y);
 }
 
-self.port.on('onAlbum', function(state) {	hzOnAlbum = state });
+self.port.on('onAlbum', function(state) {
+	if(state) { window.addEventListener('wheel', hzWheel) }
+	else { window.removeEventListener('wheel', hzWheel) }
+});
