@@ -10,7 +10,7 @@ hzImage.onload = function() {
 	self.port.emit('image', this.src, this.width, this.height);
 }
 
-console.log("pageWorker: "+document.URL);
+//console.log("pageWorker: "+document.URL);
 var t = document.createElement('a');
 t.href = document.URL;
 var p = t.hostname.split('.').reverse();
@@ -28,10 +28,11 @@ switch(p[1]+"."+p[0]) {
 		break;
 }
 
-console.log(hzImgs);
+//console.log(hzImgs);
 if(hzImgs.length > 0) {
 	hzImage.src = hzImgs[hzImgNum];
-//	console.log("pageWorker sending: "+hzImgs[hzImgNum]);
+	console.log("pageWorker: album loaded");
+	console.log("pageWorker sending: "+hzImgs[hzImgNum]+" ("+(hzImgNum+1)+" of "+hzImgs.length+")");
 }
 
 self.port.on('wheel', function(delta) {

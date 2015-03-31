@@ -1,15 +1,11 @@
 var hzOnAlbum = false;
 var hzLinks = document.getElementsByTagName('a');
 for (var i = 0; i < hzLinks.length; i++) {
-	hzLinks[i].addEventListener('mouseleave', function(event) { self.port.emit('hide') }, false);
-	hzLinks[i].addEventListener('mouseenter', function(event) { hzMouseOn(event.target.href) }, false);
+	hzLinks[i].addEventListener('mouseleave', function(event) { self.port.emit('hide') }, true);
+	hzLinks[i].addEventListener('mouseenter', function(event) { hzMouseOn(event.target.href) }, true);
 }
-document.addEventListener('wheel', function(event) {
-	if(hzOnAlbum) { event.preventDefault() }
-	hzMouseWheel(event.deltaY);
-}, false);
-window.addEventListener('load', function(event) { hzWinSize() })
-window.addEventListener('resize', function(event) { hzWinSize() })
+window.addEventListener('DOMContentLoaded', hzWinSize, false);
+window.addEventListener('resize', hzWinSize, true);
 
 var hzImage = new Image;
 hzImage.onerror = function() {
@@ -56,15 +52,25 @@ function hzMouseOn(target) {
 	if(target != t.href) { console.log("pageMod: "+target+" -> "+t.href) }
 }
 
-function hzMouseWheel(delta) {
-	if(delta) { self.port.emit('wheel', delta) }
+function hzWheel(event) {
+	event.preventDefault();
+	event.stopPropagation();
+	if(event.deltaY) { self.port.emit('wheel', event.deltaY) }
+	console.log("pageMod: mouse wheel event fired");
 }
 
-function hzWinSize() {
-	var x = Math.max(window.innerWidth, document.documentElement.clientWidth);
-	var y = Math.max(window.innerHeight, document.documentElement.clientHeight);
-	self.port.emit('winSize', x, y);
-	console.log("size: "+x+","+y);
+function hzWinSize(event) {
+//	var x = Math.max(window.innerWidth, document.documentElement.clientWidth);
+//	var y = Math.max(window.innerHeight, document.documentElement.clientHeight);
+	self.port.emit('winSize', window.innerWidth, window.innerHeight);
+	console.log("size: "+window.innerWidth+","+window.innerHeight);
 }
 
-self.port.on('onAlbum', function(state) {	hzOnAlbum = state });
+self.port.on('onAlbum', function(state) {
+	if(hzOnAlbum != state) {
+		if(state) { window.addEventListener('wheel', hzWheel, true) }
+		else { window.removeEventListener('wheel', hzWheel) }
+		hzOnAlbum = state;
+		console.log("pageMod: wheel listener state has changed: "+state);
+	}
+});
