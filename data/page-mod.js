@@ -1,9 +1,13 @@
+var hzOnAlbum = false;
 var hzLinks = document.getElementsByTagName('a');
 for (var i = 0; i < hzLinks.length; i++) {
 	hzLinks[i].addEventListener('mouseleave', function(event) { self.port.emit('hide') }, false);
 	hzLinks[i].addEventListener('mouseenter', function(event) { hzMouseOn(event.target.href) }, false);
 }
-//document.addEventListener('wheel', function(event) { hzMouseWheel(event.deltaY) }, false);
+document.addEventListener('wheel', function(event) {
+	if(hzOnAlbum) { event.preventDefault() }
+	hzMouseWheel(event.deltaY);
+}, false);
 window.addEventListener('load', function(event) { hzWinSize() })
 window.addEventListener('resize', function(event) { hzWinSize() })
 
@@ -62,3 +66,5 @@ function hzWinSize() {
 	self.port.emit('winSize', x, y);
 	console.log("size: "+x+","+y);
 }
+
+self.port.on('onAlbum', function(state) {	hzOnAlbum = state });
