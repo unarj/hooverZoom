@@ -1,9 +1,11 @@
-document.addEventListener('click', function(event) { self.port.emit('hide') }, false);
+document.addEventListener('click', function(event) { self.port.emit('click') }, false);
 document.addEventListener('mousemove', hzMotion, true);
 document.addEventListener('wheel', hzWheel, true);
 
+var i = document.getElementById('panelImg');
+var url;
+
 self.port.on('image', function(img, x, y) {
-	var i = document.getElementById('panelImg');
 	i.src = img;
 	i.width = x;
 	i.height = y;
