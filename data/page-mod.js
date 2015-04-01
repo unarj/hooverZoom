@@ -57,14 +57,17 @@ function hzWheel(event) {
 	event.preventDefault();
 	event.stopPropagation();
 	console.log("pageMod hzWheel: "+hzOnAlbum);
+	return false;
 }
 self.port.on('onAlbum', function(state) {
+	if(hzOnAlbum != state) {
 		hzOnAlbum = state;
 		if(hzOnAlbum) {
-			window.addEventListener('wheel', hzWheel, false);
+			window.addEventListener('DOMMouseScroll', hzWheel, false);
 			console.log("added listener")
 		} else {
-			window.removeEventListener('wheel', hzWheel, false);
+			window.removeEventListener('DOMMouseScroll', hzWheel, false);
 			console.log("removed listener")
 		}
+	}
 });
