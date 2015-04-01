@@ -1,11 +1,10 @@
 var hzOnAlbum = false;
 var hzLinks = document.getElementsByTagName('a');
 for (var i = 0; i < hzLinks.length; i++) {
-	hzLinks[i].addEventListener('mouseleave', function(event) { self.port.emit('hide') });
-	hzLinks[i].addEventListener('mouseenter', function(event) { hzMouseOn(event.target.href) });
+	hzLinks[i].addEventListener('mouseleave', function(event) { self.port.emit('hide') }, false);
+	hzLinks[i].addEventListener('mouseenter', hzMouseOn, false);
 }
-window.addEventListener('load', function(event) { hzWinSize() });
-window.addEventListener('resize', function(event) { hzWinSize() });
+//window.addEventListener('wheel', hzWheel, false);
 
 var hzImage = new Image;
 hzImage.onerror = function() {
@@ -13,13 +12,14 @@ hzImage.onerror = function() {
 }
 hzImage.onload = function() {
 //	document.body.style.cursor = 'auto';
+	self.port.emit('winSize', window.innerWidth, window.innerHeight);
 	self.port.emit('image', this.src, this.width, this.height );
 }
 
-function hzMouseOn(target) {
+function hzMouseOn(event) {
 //	document.body.style.cursor = 'wait';
 	var t = document.createElement('a');
-	t.href = target;
+	t.href = event.target;
 	var p = t.hostname.split('.').reverse();
 	switch(p[1]+"."+p[0]) {
 		case "gfycat.com":
@@ -36,6 +36,7 @@ function hzMouseOn(target) {
 		case "imgur.com":
 			p = t.pathname.split('/');
 			if((p[1] == "a") || (p[1] == "gallery")) {
+				self.port.emit('winSize', window.innerWidth, window.innerHeight);
 				self.port.emit('album', t.protocol+"//imgur.com/a/"+p[2]+"?gallery");
 				return;
 			} else { t.href = t.protocol+"//i.imgur.com/"+p.pop() }
@@ -49,19 +50,21 @@ function hzMouseOn(target) {
 			break;
 	}
 	hzImage.src = t.href;
-	if(target != t.href) { console.log("pageMod: "+target+" -> "+t.href) }
+	if(event.target != t.href) { console.log("pageMod: "+event.target+" -> "+t.href) }
 }
 
-function hzWheel(event) { self.port.emit('wheel', event.deltaY) }
-
-function hzWinSize() {
-	var x = Math.max(window.innerWidth, document.documentElement.clientWidth);
-	var y = Math.max(window.innerHeight, document.documentElement.clientHeight);
-	self.port.emit('winSize', x, y);
-	console.log("size: "+x+","+y);
+function hzWheel(event) {
+	event.preventDefault();
+	event.stopPropagation();
+	console.log("pageMod hzWheel: "+hzOnAlbum);
 }
-
 self.port.on('onAlbum', function(state) {
-	if(state) { window.addEventListener('wheel', hzWheel) }
-	else { window.removeEventListener('wheel', hzWheel) }
+		hzOnAlbum = state;
+		if(hzOnAlbum) {
+			window.addEventListener('wheel', hzWheel, false);
+			console.log("added listener")
+		} else {
+			window.removeEventListener('wheel', hzWheel, false);
+			console.log("removed listener")
+		}
 });
