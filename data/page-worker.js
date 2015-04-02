@@ -1,5 +1,3 @@
-self.port.emit('current', document.URL);
-
 var hzImgs = [];
 var hzImgNum = 0;
 var hzImage = new Image;
