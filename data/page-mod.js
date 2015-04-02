@@ -1,4 +1,5 @@
 //console.log("loading pageMod...");
+var hzCurrent = false;
 var hzOnAlbum = false;
 var hzLinks = document.getElementsByTagName('a');
 for (var i=0, l=hzLinks.length ; i < l; i++) {
@@ -12,12 +13,15 @@ hzImage.onerror = function() {
 }
 hzImage.onload = function() {
 //	document.body.style.cursor = 'auto';
-	self.port.emit('winSize', window.innerWidth, window.innerHeight);
-	self.port.emit('image', this.src, this.width, this.height );
+	if(hzCurrent === this.src) {
+		self.port.emit('winSize', window.innerWidth, window.innerHeight);
+		self.port.emit('image', this.src, this.width, this.height);
+	}
 }
 
 function hzMouseOn(event) {
 //	document.body.style.cursor = 'wait';
+	self.port.emit('current', event.target.toString());
 	var t = document.createElement('a');
 	t.href = event.target;
 	var p = t.hostname.split('.').reverse();
@@ -49,12 +53,11 @@ function hzMouseOn(event) {
 			if(p.length == 1) {	t.href = t.protocol+"//i.lvme.me"+p.pop()+".jpg" }
 			break;
 	}
-	hzImage.src = t.href;
-	self.port.emit('current', event.target.toString(), t.href);
+	hzImage.src = hzCurrent = t.href;
 //	if(event.target != t.href) { console.log("pageMod: "+event.target+" -> "+t.href) }
 }
 function hzMouseOff(event) {
-	self.port.emit('current', null, null);
+	hzCurrent = false;
 	self.port.emit('hide');
 }
 

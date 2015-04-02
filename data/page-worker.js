@@ -1,3 +1,5 @@
+self.port.emit('current', document.URL);
+
 var hzImgs = [];
 var hzImgNum = 0;
 var hzImage = new Image;
@@ -29,7 +31,6 @@ switch(p[1]+"."+p[0]) {
 
 if(hzImgs.length > 0) {
 	hzImage.src = hzImgs[hzImgNum];
-	self.port.emit('current', document.URL, hzImgs[hzImgNum]);
 //	console.log("pageWorker sending: "+hzImgs[hzImgNum]);
 }
 
@@ -42,6 +43,5 @@ self.port.on('wheel', function(delta) {
 		if(hzImgNum < 0) { hzImgNum = hzImgs.length-1 }
 	}
 	hzImage.src = hzImgs[hzImgNum];
-	self.port.emit('current', document.URL, hzImgs[hzImgNum]);
 //	console.log("pageWorker sending: "+hzImgs[hzImgNum]+" ("+(hzImgNum+1)+" of "+hzImgs.length+")");
 });
