@@ -54,7 +54,7 @@ function hzMouseOn(event) {
 //	if(event.target != t.href) { console.log("pageMod: "+event.target+" -> "+t.href) }
 }
 function hzMouseOff(event) {
-//	self.port.emit('current', null, null);
+	self.port.emit('current', null, null);
 	self.port.emit('hide');
 }
 
@@ -69,10 +69,8 @@ self.port.on('onAlbum', function(state) {
 		hzOnAlbum = state;
 		if(hzOnAlbum) {
 			window.addEventListener('wheel', hzWheel, false);
-			console.log("added listener");
 		} else {
 			window.removeEventListener('wheel', hzWheel, false);
-			console.log("removed listener");
 		}
 	}
 });

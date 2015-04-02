@@ -3,12 +3,12 @@ document.addEventListener('mousemove', hzMotion, true);
 document.addEventListener('wheel', hzWheel, true);
 
 var i = document.getElementById('panelImg');
-var url;
-
-self.port.on('image', function(img, x, y) {
+var t = document.getElementById('panelText');
+self.port.on('image', function(img, x, y, txt) {
 	i.src = img;
 	i.width = x;
 	i.height = y;
+	t.innerHTML = txt;
 });
 
 //this is a hack but works well enough for now...

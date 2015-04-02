@@ -7,7 +7,7 @@ hzImage.onerror = function() {
 }
 hzImage.onload = function() {
 //	document.body.style.cursor = 'auto';
-	self.port.emit('image', this.src, this.width, this.height);
+	self.port.emit('image', this.src, this.width, this.height, (hzImgNum+1)+"/"+hzImgs.length);
 }
 
 var t = document.createElement('a');
@@ -16,7 +16,7 @@ var p = t.hostname.split('.').reverse();
 switch(p[1]+"."+p[0]) {
 	case "imgur.com":
 		var els = document.getElementsByTagName('div');
-		console.log(els.length);
+//		console.log(els.length);
 		for(var i=0, l=els.length; i < l; i++) {
 			if(els[i].getAttribute('class') == "image") {
 				var img = t.protocol+"//i.imgur.com/"+els[i].getAttribute('id')+".jpg";
@@ -43,5 +43,5 @@ self.port.on('wheel', function(delta) {
 	}
 	hzImage.src = hzImgs[hzImgNum];
 	self.port.emit('current', document.URL, hzImgs[hzImgNum]);
-	console.log("pageWorker sending: "+hzImgs[hzImgNum]+" ("+(hzImgNum+1)+" of "+hzImgs.length+")");
+//	console.log("pageWorker sending: "+hzImgs[hzImgNum]+" ("+(hzImgNum+1)+" of "+hzImgs.length+")");
 });
