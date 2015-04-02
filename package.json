@@ -2,7 +2,7 @@
 	"name": "hoover-zoom",
 	"title": "hooverZoom",
 	"id": "jid1-ypAaFtWSGV9ANQ",
-	"description": "display a link thumbnail image in a fullsize overlay",
+	"description": "Display a linked image in a fullsize overlay on mouse hover.",
 	"author": "arjuna@on-rope.net",
 	"license": "MPL 2.0",
 	"version": "0.1",
@@ -20,13 +20,6 @@
 			"description"	: "List of domains for black/white list seperated by commas.",
 			"type"			: "string",
 			"value"			: "*.craigslist.org,*.imgur.com"
-		},
-		{
-			"name"			: "markVisited",
-			"title"			: "Mark as Visited",
-			"description"	: "Marks a popup image link as visited. **NOT WORKING**",
-			"type"			: "bool",
-			"value"			: true
 		}
 	]
 }
