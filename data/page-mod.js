@@ -54,7 +54,7 @@ function hzMouseOn(event) {
 //	if(event.target != t.href) { console.log("pageMod: "+event.target+" -> "+t.href) }
 }
 function hzMouseOff(event) {
-//	self.port.emit('current', null, null);
+	self.port.emit('current', null, null);
 	self.port.emit('hide');
 }
 
