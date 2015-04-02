@@ -24,7 +24,7 @@
 		{
 			"name"			: "markVisited",
 			"title"			: "Mark as Visited",
-			"description"	: "Marks a popup image link as visited.",
+			"description"	: "Marks a popup image link as visited. **NOT WORKING**",
 			"type"			: "bool",
 			"value"			: true
 		}
