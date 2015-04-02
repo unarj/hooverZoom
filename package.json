@@ -6,18 +6,27 @@
 	"author": "arjuna@on-rope.net",
 	"license": "MPL 2.0",
 	"version": "0.1",
-	"preferences": [{
-		"name"			: "blacklist",
-		"title"			: "Blacklist",
-		"description"	: "If checked Domain List is treated like a blacklist, otherwise it's a whitelist.",
-		"type"			: "bool",
-		"value"			: true
-	},
-	{
-		"name"			: "domainlist",
-		"title"			: "Domain List",
-		"description"	: "List of domains for black/white list seperated by commas.",
-		"type"			: "string",
-		"value"			: "*.craigslist.org,*.imgur.com"
-	}]
+	"preferences": [
+		{
+			"name"			: "blacklist",
+			"title"			: "Blacklist",
+			"description"	: "If checked Domain List is treated like a blacklist, otherwise it's a whitelist.",
+			"type"			: "bool",
+			"value"			: true
+		},
+		{
+			"name"			: "domainlist",
+			"title"			: "Domain List",
+			"description"	: "List of domains for black/white list seperated by commas.",
+			"type"			: "string",
+			"value"			: "*.craigslist.org,*.imgur.com"
+		},
+		{
+			"name"			: "markVisited",
+			"title"			: "Mark as Visited",
+			"description"	: "Marks a popup image link as visited.",
+			"type"			: "bool",
+			"value"			: true
+		}
+	]
 }

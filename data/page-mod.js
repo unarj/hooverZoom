@@ -1,7 +1,7 @@
 //console.log("loading pageMod...");
 var hzOnAlbum = false;
 var hzLinks = document.getElementsByTagName('a');
-for (var i = 0; i < hzLinks.length; i++) {
+for (var i=0, l=hzLinks.length ; i < l; i++) {
 	hzLinks[i].addEventListener('mouseleave', hzMouseOff, false);
 	hzLinks[i].addEventListener('mouseenter', hzMouseOn, false);
 }
@@ -54,7 +54,7 @@ function hzMouseOn(event) {
 //	if(event.target != t.href) { console.log("pageMod: "+event.target+" -> "+t.href) }
 }
 function hzMouseOff(event) {
-	self.port.emit('current', null, null);
+//	self.port.emit('current', null, null);
 	self.port.emit('hide');
 }
 
@@ -75,4 +75,5 @@ self.port.on('onAlbum', function(state) {
 	}
 });
 
+//self.port.on('addHistory', function(url) { if(url) { window.open(url).close() } });
 self.port.on('load', function(url) { window.location.href = url });
