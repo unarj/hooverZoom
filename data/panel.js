@@ -1,6 +1,6 @@
 document.addEventListener('click', function(event) { self.port.emit('click') }, false);
 document.addEventListener('mousemove', hzMotion, true);
-document.addEventListener('wheel', hzWheel, true);
+document.addEventListener('wheel', function(event) { self.port.emit('wheel', event.deltaY) }, true);
 
 var i = document.getElementById('panelImg');
 var t = document.getElementById('panelText');
@@ -20,8 +20,4 @@ function hzMotion(event) {
 	} else {
 		hzMoved++;
 	}
-}
-
-function hzWheel(event) {
-	if(event.deltaY) { self.port.emit('wheel', event.deltaY) }
 }
