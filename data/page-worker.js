@@ -1,22 +1,18 @@
 var hzImgs = [];
 var hzImgNum = 0;
 var hzImage = new Image;
-hzImage.onerror = function() {
-//	document.body.style.cursor = 'auto';
-	self.port.emit('hide');
-}
+hzImage.onerror = function() { self.port.emit('hide') }
 hzImage.onload = function() {
-//	document.body.style.cursor = 'auto';
-	self.port.emit('image', this.src, this.width, this.height, (hzImgNum+1)+"/"+hzImgs.length);
+	self.port.emit('image', this.src, this.naturalWidth, this.naturalHeight, (hzImgNum+1)+"/"+hzImgs.length);
 }
 
 var t = document.createElement('a');
 t.href = document.URL;
+//console.log("pageWorker loading: "+t.href)
 var p = t.hostname.split('.').reverse();
 switch(p[1]+"."+p[0]) {
 	case "imgur.com":
 		var els = document.getElementsByTagName('div');
-//		console.log(els.length);
 		for(var i=0, l=els.length; i < l; i++) {
 			if(els[i].getAttribute('class') == "image") {
 				var img = t.protocol+"//i.imgur.com/"+els[i].getAttribute('id')+".jpg";

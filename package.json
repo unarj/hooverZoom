@@ -5,7 +5,7 @@
 	"description": "Display a linked image in a fullsize overlay on mouse hover.",
 	"author": "arjuna@on-rope.net",
 	"license": "MPL 2.0",
-	"version": "0.11",
+	"version": "0.12",
 	"preferences": [
 		{
 			"name"			: "blacklist",
