@@ -12,12 +12,14 @@ t.href = document.URL;
 var p = t.hostname.split('.').reverse();
 switch(p[1]+"."+p[0]) {
 	case "imgur.com":
+		var delay = 0;
 		var els = document.getElementsByTagName('div');
 		for(var i=0, l=els.length; i < l; i++) {
 			if(els[i].getAttribute('class') == "image") {
 				var img = t.protocol+"//i.imgur.com/"+els[i].getAttribute('id')+".jpg";
-				new Image().src = img;
 				hzImgs.push(img);
+				setTimeout( function(){new Image().src = img}, delay)
+				delay += 500;
 			}
 		}
 		break;

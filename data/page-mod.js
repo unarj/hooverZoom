@@ -3,14 +3,11 @@ var hzCurAlb, hzCurImg, hzCurUrl = false;
 var hzLinks = document.getElementsByTagName('a');
 for (var i=0, l=hzLinks.length ; i < l; i++) {
 	hzLinks[i].addEventListener('mouseenter', hzMouseOn, false);
-	hzLinks[i].addEventListener('mouseleave', hzMouseOff, false);
+	hzLinks[i].addEventListener('mouseout', hzMouseOff, false);
 }
 window.addEventListener('wheel', hzWheel, false);
 
 var hzImage = new Image;
-hzImage.onerror = function() {
-//	hmm...
-}
 hzImage.onload = function() {
 	if(hzCurImg === this.src && this.naturalWidth && this.naturalHeight) {
 		self.port.emit('winSize', window.innerWidth, window.innerHeight);
@@ -60,8 +57,8 @@ function hzMouseOn(event) {
 }
 
 function hzMouseOff(event) {
-	if(event.relatedTarget) {
-		hzImage.src = "";
+	if(!event || event.relatedTarget) {
+		hzImage.src = "about:blank";
 		hzCurImg = hzCurUrl = false;
 		if(hzCurAlb) {
 			hzCurAlb = false;
@@ -82,3 +79,4 @@ function hzWheel(event) {
 
 //self.port.on('addHistory', function(url) { if(url) { window.open(url).close() } });
 self.port.on('click', function() { if(hzCurUrl) { window.location.href = hzCurUrl } });
+self.port.on('mouseOff', function() { hzMouseOff() });
