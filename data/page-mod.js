@@ -24,9 +24,9 @@ function hzMouseOn(event) {
 		var p = t.hostname.split('.').reverse();
 		switch(p[1]+"."+p[0]) {
 			case "gfycat.com":
-				t.href = t.protocol+"//giant.gfycat.com"+t.pathname;
-				if(t.pathname.split('.').length == 1) {	t.href = t.href+".gif" }
-				break;
+				self.port.emit('winSize', window.top.innerWidth, window.top.innerHeight);
+				self.port.emit('worker', t.href);
+				return;
 			case "imgflip.com":
 				p = t.pathname.split('/');
 				if(p.length > 2) {
