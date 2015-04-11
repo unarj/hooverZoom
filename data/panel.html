@@ -8,8 +8,19 @@
 			}
 			body {
 				background-color: gray;
-				font-size: 100%;
 				overflow: hidden;
+			}
+			#panelCell {
+				text-align: center;
+				vertical-align: middle;
+			}
+			#panelContainer{
+				height: 100%;
+				width: 100%;
+			}
+			#panelImg {
+				margin: auto;
+				padding: auto;
 			}
 			#panelText {
 				color: #CCCCAA;
@@ -21,12 +32,12 @@
 		</style>
 	</head>
 	<body>
-		<div id="panelContainer">
-			<img id="panelImg" width="100%" height="100%" src="blank.gif"/>
-			<video autoplay loop>
-				<source id="panelVid" src="blank.gif" type="video/mp4"/>
+		<table id="panelContainer"><tr><td id="panelCell">
+			<img id="panelImg" src="blank.gif"/>
+			<video id="panelVid" autoplay loop>
+				<source src="blank.gif" type="video/mp4"/>
 			</video>
 			<div id="panelText"></div>
-		</div>
+		</td></tr></table>
 	</body>
 </html>

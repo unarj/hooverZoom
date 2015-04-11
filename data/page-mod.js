@@ -9,9 +9,9 @@ window.addEventListener('wheel', hzWheel, false);
 
 var hzImage = new Image;
 hzImage.onload = function() {
-	if(hzCurImg === this.src && this.naturalWidth && this.naturalHeight) {
+	if((hzCurImg === this.src) && this.width && this.height) {
 		self.port.emit('winSize', window.innerWidth, window.innerHeight);
-		self.port.emit('image', this.src, this.naturalWidth, this.naturalHeight);
+		self.port.emit('image', this.src, this.width, this.height);
 	}
 }
 
@@ -39,12 +39,18 @@ function hzMouseOn(event) {
 				if((p[1] == "a") || (p[1] == "gallery")) {
 					hzCurAlb = t.protocol+"//imgur.com/a/"+p[2]+"?gallery"
 					self.port.emit('winSize', window.top.innerWidth, window.top.innerHeight);
-					self.port.emit('album', hzCurAlb);
+					self.port.emit('worker', hzCurAlb);
 					return;
-				} else { t.href = t.protocol+"//i.imgur.com/"+p.pop() }
+				} else {
+					t.href = t.protocol+"//i.imgur.com/"+p.pop();
+				}
 				p = t.pathname.split('.');
 				if(p.length == 1) { t.href += ".jpg"}
-				else if(p.pop() == "gifv") { t.href = t.protocol+"//i.imgur.com/"+p.pop()+".gif" }
+				else if(p.pop() == "gifv") {
+					self.port.emit('winSize', window.top.innerWidth, window.top.innerHeight);
+					self.port.emit('worker', t.href);
+					return;
+				}
 				break;
 			case "livememe.com":
 				p = t.pathname.split('.');
