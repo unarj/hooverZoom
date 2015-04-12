@@ -1,4 +1,4 @@
-document.addEventListener('click', function(event) { self.port.emit('click') }, false);
+document.addEventListener('click', function(event) {  }, false);
 document.addEventListener('mousemove', hzMotion, true);
 document.addEventListener('wheel', function(event) { self.port.emit('wheel', event.deltaY) }, true);
 
@@ -10,6 +10,11 @@ self.port.on('image', function(img, x, y, txt) {
 	i.style.display = 'block';
 	i.width = x;
 	i.height = y;
+	if(y < c.offsetHeight) {
+		i.style.marginTop = Math.round((c.offsetHeight - y) / 2).toString();
+	} else {
+		i.style.marginTop = "0";
+	}
 	i.src = img;
 	hzCaption(txt);
 });
@@ -30,6 +35,10 @@ function hzCaption(str) {
 	t.appendChild(document.createTextNode(str));
 }
 
+function hzClick(event) {
+	if(event.button == 1) { self.port.emit('click', true) }
+	else { self.port.emit('click', false) }
+}
 //this is a hack but works well enough for now...
 var hzMoved = 0;
 function hzMotion(event) {

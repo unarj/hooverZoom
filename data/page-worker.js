@@ -16,7 +16,7 @@ hzImage.onload = function() {
 
 var t = document.createElement('a');
 t.href = document.URL;
-console.log("pageWorker loading: "+t.href)
+//console.log("pageWorker loading: "+t.href)
 
 function hzLoadVideo() {
 	var els = document.getElementsByTagName('meta');		
@@ -36,7 +36,7 @@ function hzLoadVideo() {
 	if(video && width && height) {
 		setTimeout( function(){ self.port.emit('video', video, width, height) }, self.options.delay);
 	}
-	console.log("pageWorker: loading "+video+" ("+width+"x"+height+")");
+//	console.log("pageWorker: loading "+video+" ("+width+"x"+height+")");
 }
 
 self.port.on('wheel', function(delta) {
