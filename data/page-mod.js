@@ -81,6 +81,8 @@ function hzMouseOff(event) {
 
 function hzResize(event) {
 	self.port.emit('winSize', window.innerWidth, window.innerHeight);
+	if(event.type == 'load') { window.removeEventListener('load', hzResize, false) }
+//	console.log(event.type);
 }
 
 function hzWheel(event) {

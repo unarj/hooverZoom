@@ -5,6 +5,7 @@ document.addEventListener('wheel', function(event) { self.port.emit('wheel', eve
 var c = document.getElementById('panelContainer');
 var i = document.getElementById('panelImg');
 var v = document.getElementById('panelVid');
+
 self.port.on('image', function(img, x, y, txt) {
 	v.style.display = 'none';
 	i.style.display = 'block';
@@ -17,7 +18,9 @@ self.port.on('image', function(img, x, y, txt) {
 	}
 	i.src = img;
 	hzCaption(txt);
+//	console.log("panel: set image to "+img);
 });
+
 self.port.on('video', function(vid, x, y, txt) {
 	i.style.display = 'none';
 	v.style.display = 'block';
@@ -39,6 +42,7 @@ function hzClick(event) {
 	if(event.button == 1) { self.port.emit('click', true) }
 	else { self.port.emit('click', false) }
 }
+
 //this is a hack but works well enough for now...
 var hzMoved = 0;
 function hzMotion(event) {
