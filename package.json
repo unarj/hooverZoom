@@ -20,6 +20,19 @@
 			"description"	: "List of domains for black/white list seperated by commas.",
 			"type"			: "string",
 			"value"			: "*.craigslist.org,*.imgur.com"
-		}
-	]
+		},
+		{
+			"name"			: "maxSize",
+			"title"			: "Maximum Popup Size",
+			"description"	: "As a percentage of the main window.",
+			"type"			: "integer",
+			"value"			: 95
+		},
+		{
+			"name"			: "delay",
+			"title"			: "Popup Delay",
+			"description"	: "Expressed in milliseconds.",
+			"type"			: "integer",
+			"value"			: 500
+		}	]
 }

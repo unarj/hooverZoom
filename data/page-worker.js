@@ -1,9 +1,17 @@
 var hzImgs = [];
 var hzImgNum = 0;
 var hzImage = new Image;
+var hzMark = new Date().getTime();
 hzImage.onerror = function() { self.port.emit('hide') }
 hzImage.onload = function() {
-	self.port.emit('image', this.src, this.width, this.height, (hzImgNum+1)+"/"+hzImgs.length);
+	var cur = this.src;
+	var i = self.options.delay - (new Date().getTime() - hzMark);
+	if(i <= 0) {
+		self.port.emit('image', this.src, this.width, this.height, (hzImgNum+1)+"/"+hzImgs.length);
+	} else {
+//		console.log("pageMod: image delayed "+i);
+		setTimeout( function(){ hzImage.src = cur }, i);
+	}
 }
 
 var t = document.createElement('a');
@@ -25,7 +33,9 @@ function hzLoadVideo() {
 				break;					
 		}
 	}
-	if(video && width && height) { self.port.emit('video', video, width, height) }
+	if(video && width && height) {
+		setTimeout( function(){ self.port.emit('video', video, width, height) }, self.options.delay);
+	}
 	console.log("pageWorker: loading "+video+" ("+width+"x"+height+")");
 }
 
