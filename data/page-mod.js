@@ -52,9 +52,13 @@ function hzMouseOn(event) {
 				}
 				p = t.pathname.split('.');
 				if(p.length == 1) { t.href += ".jpg"}
-				else if(p.pop() == "gifv") {
-					self.port.emit('worker', t.href);
-					return;
+				else switch(p.pop()) {
+					case "gif":
+						self.port.emit('worker', t.href+"v");
+						return;
+					case "gifv":
+						self.port.emit('worker', t.href);
+						return;
 				}
 				break;
 			case "livememe.com":

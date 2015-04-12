@@ -1,4 +1,4 @@
-document.addEventListener('click', function(event) {  }, false);
+document.addEventListener('click', hzClick, false);
 document.addEventListener('mousemove', hzMotion, true);
 document.addEventListener('wheel', function(event) { self.port.emit('wheel', event.deltaY) }, true);
 
@@ -39,7 +39,7 @@ function hzCaption(str) {
 }
 
 function hzClick(event) {
-	if(event.button == 1) { self.port.emit('click', true) }
+	if(event.button == 0) { self.port.emit('click', true) }
 	else { self.port.emit('click', false) }
 }
 
