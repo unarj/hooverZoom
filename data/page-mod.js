@@ -22,9 +22,7 @@ function hzMouseOff(e) {
 
 function hzResize(e) {
 	if(hzCurWait) { clearTimeout(hzCurWait) }
-	var x = document.body.clientWidth || window.innerWidth;
-	var y = document.body.clientHeight || window.innerHeight;
-	hzCurWait = setTimeout( function(){ self.port.emit('winSize', x, y); hzCurWait = false }, 100);
+	hzCurWait = setTimeout( function(){ self.port.emit('winSize', window.innerWidth, window.innerHeight) }, 100);
 	if(e.type == 'load') { window.removeEventListener('load', hzResize, false) }
 }
 
