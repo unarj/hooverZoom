@@ -34,7 +34,11 @@ function hzLoadVideo() {
 		}
 	}
 	if(video && width && height) {
-		hzCurWait = setTimeout( function(){ self.port.emit('video', video, width, height) }, self.options.delay);
+		if(hzSkipWait) {
+			self.port.emit('video', video, width, height);
+		} else {
+			hzCurWait = setTimeout( function(){ self.port.emit('video', video, width, height) }, self.options.delay);
+		}
 //		console.log("pageWorker: loading "+video+" ("+width+"x"+height+")");
 	}
 }
@@ -48,8 +52,8 @@ self.port.on('inspect', function(url) {
 		var p = t.hostname.split('.').reverse();
 		switch(p[1]+"."+p[0]) {
 			case "gfycat.com":
-				win.URL = t.href;
-				t.href = '';
+				self.port.emit('load', t.href);
+				t.href = null;
 				break;
 			case "imgflip.com":
 				p = t.pathname.split('/');
@@ -113,6 +117,8 @@ t.href = document.URL;
 var p = t.hostname.split('.').reverse();
 switch(p[1]+"."+p[0]) {
 	case "gfycat.com":
+//		gifycat takes forever to load (MP4 error)...
+		hzSkipWait = true;
 		hzLoadVideo();
 		break;
 	case "imgur.com":
