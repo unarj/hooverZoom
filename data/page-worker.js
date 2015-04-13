@@ -1,30 +1,23 @@
-var hzCurImg, hzCurUrl = false;
+var hzCurWait, hzOnAlbum, hzSkipWait = false;
 var hzImg = new Image;
 	hzImg.onerror = function() { self.port.emit('hide') }
 	hzImg.onload = function() {
-		if(this.src == hzCurImg) {
-			var i = self.options.delay - (new Date().getTime() - hzMark);
-			if(i <= 0) {
-				var txt = this.src;
-				if(hzImgs.length > 0) { txt += " "+(hzImgNum+1)+"/"+hzImgs.length }
-				self.port.emit('image', this.src, this.width, this.height, txt);
-//				console.log("pageWorker showing: "+this.src);
-			} else {
-				var cur = this.src;
-				setTimeout( function(){ hzImg.src = cur }, i);
-//				console.log("pageWorker delaying: "+cur+" for: "+i);
-			}
+		var i = self.options.delay - (new Date().getTime() - hzMark);
+		if(hzSkipWait || i <= 0) {
+			var txt = "";
+			if(hzImgs.length > 0) { txt += " "+(hzImgNum+1)+"/"+hzImgs.length }
+			self.port.emit('image', this.src, this.width, this.height, txt);
+			self.port.emit('album', hzOnAlbum);
+//			console.log("pageWorker showing: "+this.src);
 		} else {
-			console.log("pageWorker img blocked loading of: "+this.src);
+			var cur = this.src;
+			hzCurWait = setTimeout( function(){ hzImg.src = cur }, i);
+//			console.log("pageWorker delaying: "+cur+" for: "+i);
 		}
 	}
 var hzImgNum = 0;
 var hzImgs = [];
 var hzMark = new Date().getTime();
-
-var t = document.createElement('a');
-t.href = document.URL;
-//console.log("pageWorker loading: "+t.href)
 
 function hzLoadVideo() {
 	var els = document.getElementsByTagName('meta');		
@@ -42,18 +35,17 @@ function hzLoadVideo() {
 		}
 	}
 	if(video && width && height) {
-//		delays displaying video create wierdness since there's no "mouseout" call to clear the timer...
-		self.port.emit('video', video, width, height);
+		hzCurWait = setTimeout( function(){ self.port.emit('video', video, width, height) }, self.options.delay);
+		console.log("pageWorker: loading "+video+" ("+width+"x"+height+")");
 	}
-//	console.log("pageWorker: loading "+video+" ("+width+"x"+height+")");
 }
 
 self.port.on('inspect', function(url) {
-	if(!url) { self.port.emit('load', 'about:blank') }
-	else if(url != hzCurUrl) {
+//	console.log("pageWorker inspecting: "+url);
+	if(url) {
 		hzMark = new Date().getTime();	
 		var t = document.createElement('a');
-		t.href = hzCurUrl = url;
+		t.href = url;
 		var p = t.hostname.split('.').reverse();
 		switch(p[1]+"."+p[0]) {
 			case "gfycat.com":
@@ -94,9 +86,14 @@ self.port.on('inspect', function(url) {
 				if(p.length == 1) {	t.href = t.protocol+"//i.lvme.me"+p.pop()+".jpg" }
 				break;
 		}
-		if(t.href) { hzImg.src = hzCurImg = t.href }
+		if(t.href) { hzImg.src = t.href }
 //		console.log(hzImg.src);
 //		document.removeChild(t);
+	} else {
+		clearTimeout(hzCurWait);
+		self.port.emit('album', false);
+		self.port.emit('hide');
+		self.port.emit('load', 'about:blank');		
 	}
 });
 
@@ -108,10 +105,13 @@ self.port.on('wheel', function(delta) {
 		hzImgNum--;
 		if(hzImgNum < 0) { hzImgNum = hzImgs.length-1 }
 	}
-	hzImg.src = hzCurImg = hzImgs[hzImgNum];
+	hzSkipWait = true;
+	hzImg.src = hzImgs[hzImgNum];
 //	console.log("pageWorker sending: "+hzImgs[hzImgNum]+" ("+(hzImgNum+1)+" of "+hzImgs.length+")");
 });
 
+var t = document.createElement('a');
+t.href = document.URL;
 var p = t.hostname.split('.').reverse();
 switch(p[1]+"."+p[0]) {
 	case "gfycat.com":
@@ -132,7 +132,10 @@ switch(p[1]+"."+p[0]) {
 					delay += 500;
 				}
 			}
-			if(hzImgs.length > 0) {	hzImg.src = hzCurImg = hzImgs[hzImgNum] }
+			if(hzImgs.length > 0) {
+				hzImg.src = hzImgs[hzImgNum];
+				hzOnAlbum = true;
+			}
 		}
 		break;
 }
