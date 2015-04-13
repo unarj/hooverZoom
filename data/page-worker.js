@@ -115,7 +115,7 @@ self.port.on('wheel', function(delta) {
 
 if(document.URL != 'about:blank') {
 	t.href = document.URL;
-	console.log("pageWorker loading: "+t.href);
+//	console.log("pageWorker loading: "+t.href);
 	var p = t.hostname.split('.').reverse();
 	switch(p[1]+"."+p[0]) {
 		case "gfycat.com":
