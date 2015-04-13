@@ -36,8 +36,4 @@ function hzWheel(e) {
 }
 
 self.port.on('album', function(state) { hzOnAlbum = state });
-<<<<<<< HEAD
 self.port.on('click', function(state) { if(state && hzCurUrl) { window.location.href = hzCurUrl } });
-=======
-self.port.on('click', function(state) { if(state) { window.location.href = hzCurUrl } });
->>>>>>> f6c51c7c5caee74bc1c6d710bbd19c7293eef14f

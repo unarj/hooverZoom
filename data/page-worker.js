@@ -17,6 +17,7 @@ var hzImg = new Image;
 var hzImgNum = 0;
 var hzImgs = [];
 var hzMark = new Date().getTime();
+var t = document.createElement('a');
 
 function hzLoadVideo() {
 	var els = document.getElementsByTagName('meta');		
@@ -47,7 +48,6 @@ self.port.on('inspect', function(url) {
 //	console.log("pageWorker inspecting: "+url);
 	if(url) {
 		hzMark = new Date().getTime();	
-		var t = document.createElement('a');
 		t.href = url;
 		var p = t.hostname.split('.').reverse();
 		switch(p[1]+"."+p[0]) {
@@ -63,6 +63,7 @@ self.port.on('inspect', function(url) {
 				}
 				break;
 			case "imgur.com":
+				t.pathname = t.pathname.split('#')[0];
 				p = t.pathname.split('/');
 				if((p[1] == "a") || (p[1] == "gallery")) {
 					self.port.emit('load', t.protocol+"//imgur.com/a/"+p[2]+"?gallery");
@@ -112,32 +113,34 @@ self.port.on('wheel', function(delta) {
 //	console.log("pageWorker sending: "+hzImgs[hzImgNum]+" ("+(hzImgNum+1)+" of "+hzImgs.length+")");
 });
 
-var t = document.createElement('a');
-t.href = document.URL;
-var p = t.hostname.split('.').reverse();
-switch(p[1]+"."+p[0]) {
-	case "gfycat.com":
-//		gifycat takes forever to load (MP4 error)...
-		hzSkipWait = true;
-		hzLoadVideo();
-		break;
-	case "imgur.com":
-		p = t.pathname.split('.');
-		if(p.pop() == "gifv") {
+if(document.URL != 'about:blank') {
+	t.href = document.URL;
+	console.log("pageWorker loading: "+t.href);
+	var p = t.hostname.split('.').reverse();
+	switch(p[1]+"."+p[0]) {
+		case "gfycat.com":
+	//		gifycat takes forever to load (MP4 error)...
+			hzSkipWait = true;
 			hzLoadVideo();
-		} else {
-			var delay = 0;
-			var els = document.getElementsByTagName('div');
-			for(var i=0, l=els.length; i < l; i++) {
-				if(els[i].getAttribute('class') == "image") {
-					var img = t.protocol+"//i.imgur.com/"+els[i].getAttribute('id')+".jpg";
-					hzImgs.push(img);
-					setTimeout( function(){ new Image().src = img }, delay);
-					delay += 500;
+			break;
+		case "imgur.com":
+			p = t.pathname.split('.');
+			if(p.pop() == "gifv") {
+				hzLoadVideo();
+			} else {
+				var delay = 0;
+				var els = document.getElementsByTagName('div');
+				for(var i=0, l=els.length; i < l; i++) {
+					if(els[i].getAttribute('class') == "image" || els[i].getAttribute('class') == "post") {
+						var img = t.protocol+"//i.imgur.com/"+els[i].getAttribute('id')+".jpg";
+						hzImgs.push(img);
+						setTimeout( function(){ new Image().src = img }, delay);
+						delay += 500;
+					}
 				}
 			}
-		}
-		break;
+			break;
+	}
 }
 if(hzImgs.length > 0) {
 	hzImg.src = hzImgs[hzImgNum];
