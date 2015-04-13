@@ -1,4 +1,4 @@
-var hzCurWait, hzOnAlbum, hzSkipWait = false;
+var hzCurWait, hzSkipWait = false;
 var hzImg = new Image;
 	hzImg.onerror = function() { self.port.emit('hide') }
 	hzImg.onload = function() {
@@ -7,7 +7,6 @@ var hzImg = new Image;
 			var txt = "";
 			if(hzImgs.length > 0) { txt += " "+(hzImgNum+1)+"/"+hzImgs.length }
 			self.port.emit('image', this.src, this.width, this.height, txt);
-			self.port.emit('album', hzOnAlbum);
 //			console.log("pageWorker showing: "+this.src);
 		} else {
 			var cur = this.src;
@@ -36,7 +35,7 @@ function hzLoadVideo() {
 	}
 	if(video && width && height) {
 		hzCurWait = setTimeout( function(){ self.port.emit('video', video, width, height) }, self.options.delay);
-		console.log("pageWorker: loading "+video+" ("+width+"x"+height+")");
+//		console.log("pageWorker: loading "+video+" ("+width+"x"+height+")");
 	}
 }
 
@@ -91,7 +90,6 @@ self.port.on('inspect', function(url) {
 //		document.removeChild(t);
 	} else {
 		clearTimeout(hzCurWait);
-		self.port.emit('album', false);
 		self.port.emit('hide');
 		self.port.emit('load', 'about:blank');		
 	}
@@ -132,10 +130,12 @@ switch(p[1]+"."+p[0]) {
 					delay += 500;
 				}
 			}
-			if(hzImgs.length > 0) {
-				hzImg.src = hzImgs[hzImgNum];
-				hzOnAlbum = true;
-			}
 		}
 		break;
+}
+if(hzImgs.length > 0) {
+	hzImg.src = hzImgs[hzImgNum];
+	self.port.emit('album', true);
+} else {
+	self.port.emit('album', false);
 }
