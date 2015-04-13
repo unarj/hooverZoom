@@ -132,7 +132,7 @@ switch(p[1]+"."+p[0]) {
 				if(els[i].getAttribute('class') == "image") {
 					var img = t.protocol+"//i.imgur.com/"+els[i].getAttribute('id')+".jpg";
 					hzImgs.push(img);
-					setTimeout( function(){new Image().src = img}, delay)
+					setTimeout( function(){ new Image().src = img }, delay);
 					delay += 500;
 				}
 			}

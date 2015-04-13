@@ -1,4 +1,4 @@
-var hzCurUrl, hzOnAlbum = false;
+var hzCurUrl, hzCurWait, hzOnAlbum = false;
 var hzLinks = document.getElementsByTagName('a');
 for (var i=0, l=hzLinks.length ; i < l; i++) {
 	hzLinks[i].addEventListener('mouseenter', hzMouseOn, false);
@@ -21,7 +21,8 @@ function hzMouseOff(e) {
 }
 
 function hzResize(e) {
-	self.port.emit('winSize', window.innerWidth, window.innerHeight);
+	if(hzCurWait) { clearTimeout(hzCurWait) }
+	hzCurWait = setTimeout( function(){ self.port.emit('winSize', window.innerWidth, window.innerHeight) }, 100);
 	if(e.type == 'load') { window.removeEventListener('load', hzResize, false) }
 }
 
@@ -35,4 +36,8 @@ function hzWheel(e) {
 }
 
 self.port.on('album', function(state) { hzOnAlbum = state });
+<<<<<<< HEAD
 self.port.on('click', function(state) { if(state && hzCurUrl) { window.location.href = hzCurUrl } });
+=======
+self.port.on('click', function(state) { if(state) { window.location.href = hzCurUrl } });
+>>>>>>> f6c51c7c5caee74bc1c6d710bbd19c7293eef14f
