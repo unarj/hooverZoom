@@ -1,4 +1,4 @@
-var hzCurUrl, hzOnAlbum = false;
+var hzCurUrl, hzCurWait, hzOnAlbum = false;
 var hzLinks = document.getElementsByTagName('a');
 for (var i=0, l=hzLinks.length ; i < l; i++) {
 	hzLinks[i].addEventListener('mouseenter', hzMouseOn, false);
@@ -21,7 +21,10 @@ function hzMouseOff(e) {
 }
 
 function hzResize(e) {
-	self.port.emit('winSize', window.innerWidth, window.innerHeight);
+	if(hzCurWait) { clearTimeout(hzCurWait) }
+	var x = document.body.clientWidth || window.innerWidth;
+	var y = document.body.clientHeight || window.innerHeight;
+	hzCurWait = setTimeout( function(){ self.port.emit('winSize', x, y); hzCurWait = false }, 100);
 	if(e.type == 'load') { window.removeEventListener('load', hzResize, false) }
 }
 
