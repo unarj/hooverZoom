@@ -35,4 +35,4 @@ function hzWheel(e) {
 }
 
 self.port.on('album', function(state) { hzOnAlbum = state });
-self.port.on('click', function(state) { if(state) { window.location.href = hzCurUrl } });
+self.port.on('click', function(state) { if(state && hzCurUrl) { window.location.href = hzCurUrl } });
