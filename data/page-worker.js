@@ -1,23 +1,25 @@
-var hzCurWait, hzSkipWait = false;
 var hzImg = new Image;
 	hzImg.onerror = function() { self.port.emit('hide') }
 	hzImg.onload = function() {
 		var i = self.options.delay - (new Date().getTime() - hzMark);
-		if(hzSkipWait || i <= 0) {
+		if(i <= 0) {
 			var txt = "";
 			if(hzImgs.length > 0) {
 				txt += " "+(hzImgNum+1)+"/"+hzImgs.length;
 				self.port.emit('album', true);
 			}
 			self.port.emit('image', this.src, this.width, this.height, txt);
-//			console.log("pageWorker showing: "+this.src);
 		} else {
 			var cur = this.src;
 			hzCurWait = setTimeout( function(){ hzImg.src = cur }, i);
-//			console.log("pageWorker delaying: "+cur+" for: "+i);
 		}
 	}
+
+var hzCurWait = false;
+var hzImgNum = 0;
+var hzImgs = [];
 var hzMark = new Date().getTime();
+var hzTarget = document.createElement('a');
 
 function hzLoadVideo() {
 	var els = document.getElementsByTagName('meta');		
@@ -35,74 +37,65 @@ function hzLoadVideo() {
 		}
 	}
 	if(video && width && height) {
-		if(hzSkipWait) {
-			self.port.emit('video', video, width, height);
-		} else {
-			hzCurWait = setTimeout( function(){ self.port.emit('video', video, width, height) }, self.options.delay);
-		}
-//		console.log("pageWorker: loading "+video+" ("+width+"x"+height+")");
+		hzCurWait = setTimeout( function(){ self.port.emit('video', video, width, height) }, self.options.delay);
 	}
 }
 
-var t = document.createElement('a');
 self.port.on('inspect', function(url) {
-//	console.log("pageWorker inspecting: "+url);
+	clearTimeout(hzCurWait);
 	if(url) {
-		hzMark = new Date().getTime();	
-		t.href = url;
-		var p = t.hostname.split('.').reverse();
+		hzMark = new Date().getTime();
+		hzImgNum = 0;
+		hzImgs = [];
+		hzTarget.href = url;
+		var p = hzTarget.hostname.split('.').reverse();
 		switch(p[1]+"."+p[0]) {
-			case "gfycat.com":
-				self.port.emit('load', t.href);
-				t.href = null;
+			case "gfycahzTarget.com":
+				self.port.emit('load', hzTarget.href);
+				hzTarget.href = null;
 				break;
 			case "imgflip.com":
-				p = t.pathname.split('/');
+				p = hzTarget.pathname.split('/');
 				if(p.length > 2) {
 					p = p[2].split('#');
-					t.href = t.protocol+"//i.imgflip.com/"+p[0]+".jpg";
+					hzTarget.href = hzTarget.protocol+"//i.imgflip.com/"+p[0]+".jpg";
 				}
 				break;
 			case "imgur.com":
-				t.pathname = t.pathname.split('#')[0];
-				p = t.pathname.split('/');
+				hzTarget.pathname = hzTarget.pathname.split('#')[0];
+				p = hzTarget.pathname.split('/');
 				if((p[1] == "a") || (p[1] == "gallery")) {
-					self.port.emit('load', t.protocol+"//imgur.com/a/"+p[2]+"?gallery");
-					t.href = null;
+					self.port.emit('load', hzTarget.protocol+"//imgur.com/a/"+p[2]+"?gallery");
+					hzTarget.href = null;
 					break;
 				} else {
-					t.href = t.protocol+"//i.imgur.com/"+p.pop();
+					hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+p.pop();
 				}
-				p = t.pathname.split('.');
-				if(p.length == 1) { t.href += ".jpg"}
+				p = hzTarget.pathname.split('.');
+				if(p.length == 1) { hzTarget.href += ".jpg"}
 				else switch(p.pop()) {
 					case "gif":
-						self.port.emit('load', t.href+"v");
-						t.href = null;
+						self.port.emit('load', hzTarget.href+"v");
+						hzTarget.href = null;
 						break;
 					case "gifv":
-						self.port.emit('load', t.href);
-						t.href = null;
+						self.port.emit('load', hzTarget.href);
+						hzTarget.href = null;
 						break;
 				}
 				break;
 			case "livememe.com":
-				p = t.pathname.split('.');
-				if(p.length == 1) {	t.href = t.protocol+"//i.lvme.me"+p.pop()+".jpg" }
+				p = hzTarget.pathname.split('.');
+				if(p.length == 1) {	hzTarget.href = hzTarget.protocol+"//i.lvme.me"+p.pop()+".jpg" }
 				break;
 		}
-		if(t.href) { hzImg.src = t.href }
+		if(hzTarget.href) { hzImg.src = hzTarget.href }
 //		console.log(hzImg.src);
-//		document.removeChild(t);
 	} else {
-		clearTimeout(hzCurWait);
-		self.port.emit('hide');
-		self.port.emit('load', 'about:blank');		
+		self.port.emit('load', 'about:blank');
 	}
 });
 
-var hzImgNum = 0;
-var hzImgs = [];
 self.port.on('wheel', function(delta) {
 	if(delta > 0) {
 		hzImgNum++;
@@ -111,23 +104,20 @@ self.port.on('wheel', function(delta) {
 		hzImgNum--;
 		if(hzImgNum < 0) { hzImgNum = hzImgs.length-1 }
 	}
-	hzSkipWait = true;
 	hzImg.src = hzImgs[hzImgNum];
 //	console.log("pageWorker sending: "+hzImgs[hzImgNum]+" ("+(hzImgNum+1)+" of "+hzImgs.length+")");
 });
 
 if(document.URL != 'about:blank') {
-	t.href = document.URL;
-//	console.log("pageWorker loading: "+t.href);
-	var p = t.hostname.split('.').reverse();
+	hzTarget.href = document.URL;
+	console.log("pageWorker loading: "+hzTarget.href);
+	var p = hzTarget.hostname.split('.').reverse();
 	switch(p[1]+"."+p[0]) {
-		case "gfycat.com":
-	//		gifycat takes forever to load (MP4 error)...
-			hzSkipWait = true;
+		case "gfycahzTarget.com":
 			hzLoadVideo();
 			break;
 		case "imgur.com":
-			p = t.pathname.split('.');
+			p = hzTarget.pathname.split('.');
 			if(p.pop() == "gifv") {
 				hzLoadVideo();
 			} else {
@@ -135,7 +125,7 @@ if(document.URL != 'about:blank') {
 				var els = document.getElementsByTagName('div');
 				for(var i=0, l=els.length; i < l; i++) {
 					if(els[i].getAttribute('class') == "image" || els[i].getAttribute('class') == "post") {
-						var img = t.protocol+"//i.imgur.com/"+els[i].getAttribute('id')+".jpg";
+						var img = hzTarget.protocol+"//i.imgur.com/"+els[i].getAttribute('id')+".jpg";
 						hzImgs.push(img);
 						setTimeout( function(){ new Image().src = img }, delay);
 						delay += 500;
@@ -144,5 +134,7 @@ if(document.URL != 'about:blank') {
 			}
 			break;
 	}
-	if(hzImgs.length > 0) { hzImg.src = hzImgs[hzImgNum] }
+	if(hzImgs.length > 0) { console.log(hzImgs.length); hzImg.src = hzImgs[hzImgNum] }
+} else {
+	self.port.emit('hide');
 }
