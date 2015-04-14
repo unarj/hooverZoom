@@ -7,6 +7,7 @@ var i = document.getElementById('panelImg');
 var v = document.getElementById('panelVid');
 
 self.port.on('image', function(img, x, y, txt) {
+	v.src = "blank.gif";
 	v.style.display = 'none';
 	i.style.display = 'block';
 	i.width = x;
@@ -22,6 +23,7 @@ self.port.on('image', function(img, x, y, txt) {
 });
 
 self.port.on('video', function(vid, x, y, txt) {
+	i.src = "blank.gif";
 	i.style.display = 'none';
 	v.style.display = 'block';
 	v.width = x;
