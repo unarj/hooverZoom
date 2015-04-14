@@ -14,10 +14,7 @@ var hzImg = new Image;
 //			console.log("pageWorker delaying: "+cur+" for: "+i);
 		}
 	}
-var hzImgNum = 0;
-var hzImgs = [];
 var hzMark = new Date().getTime();
-var t = document.createElement('a');
 
 function hzLoadVideo() {
 	var els = document.getElementsByTagName('meta');		
@@ -44,6 +41,7 @@ function hzLoadVideo() {
 	}
 }
 
+var t = document.createElement('a');
 self.port.on('inspect', function(url) {
 //	console.log("pageWorker inspecting: "+url);
 	if(url) {
@@ -100,6 +98,8 @@ self.port.on('inspect', function(url) {
 	}
 });
 
+var hzImgNum = 0;
+var hzImgs = [];
 self.port.on('wheel', function(delta) {
 	if(delta > 0) {
 		hzImgNum++;

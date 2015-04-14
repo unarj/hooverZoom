@@ -22,6 +22,13 @@
 			"value"			: "*.craigslist.org,*.imgur.com"
 		},
 		{
+			"name"			: "addHist",
+			"title"			: "Add to History",
+			"description"	: "Do you want to add popup follows as having been viewed?",
+			"type"			: "bool",
+			"value"			: true
+		},
+		{
 			"name"			: "maxSize",
 			"title"			: "Maximum Popup Size",
 			"description"	: "As a percentage of the main window.",
