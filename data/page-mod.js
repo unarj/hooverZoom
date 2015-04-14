@@ -1,8 +1,8 @@
 var hzCurUrl, hzCurWait, hzOnAlbum = false;
 var hzLinks = document.getElementsByTagName('a');
 for (var i=0, l=hzLinks.length ; i < l; i++) {
-	hzLinks[i].addEventListener('mouseenter', hzMouseOn, true);
-	hzLinks[i].addEventListener('mouseout', hzMouseOff, true);
+	hzLinks[i].addEventListener('mouseenter', hzMouseOn, false);
+	hzLinks[i].addEventListener('mouseout', hzMouseOff, false);
 }
 window.addEventListener('load', hzResize, false);
 window.addEventListener('resize', hzResize, false);
@@ -22,6 +22,7 @@ function hzMouseOff(e) {
 
 function hzResize(e) {
 	if(hzCurWait) { clearTimeout(hzCurWait) }
+	// this doesn't account for browser zoom level, need to fix...
 	hzCurWait = setTimeout( function(){ self.port.emit('winSize', window.innerWidth, window.innerHeight) }, 100);
 	if(e.type == 'load') { window.removeEventListener('load', hzResize, false) }
 }
