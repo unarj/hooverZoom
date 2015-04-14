@@ -5,7 +5,10 @@ var hzImg = new Image;
 		var i = self.options.delay - (new Date().getTime() - hzMark);
 		if(hzSkipWait || i <= 0) {
 			var txt = "";
-			if(hzImgs.length > 0) { txt += " "+(hzImgNum+1)+"/"+hzImgs.length }
+			if(hzImgs.length > 0) {
+				txt += " "+(hzImgNum+1)+"/"+hzImgs.length;
+				self.port.emit('album', true);
+			}
 			self.port.emit('image', this.src, this.width, this.height, txt);
 //			console.log("pageWorker showing: "+this.src);
 		} else {
@@ -141,8 +144,5 @@ if(document.URL != 'about:blank') {
 			}
 			break;
 	}
-	if(hzImgs.length > 0) {
-		hzImg.src = hzImgs[hzImgNum];
-		self.port.emit('album', true);
-	}
+	if(hzImgs.length > 0) { hzImg.src = hzImgs[hzImgNum] }
 }
