@@ -45,8 +45,6 @@ self.port.on('inspect', function(url) {
 	clearTimeout(hzCurWait);
 	if(url) {
 		hzMark = new Date().getTime();
-		hzImgNum = 0;
-		hzImgs = [];
 		hzTarget.href = url;
 		var p = hzTarget.hostname.split('.').reverse();
 		switch(p[1]+"."+p[0]) {
@@ -110,7 +108,7 @@ self.port.on('wheel', function(delta) {
 
 if(document.URL != 'about:blank') {
 	hzTarget.href = document.URL;
-	console.log("pageWorker loading: "+hzTarget.href);
+//	console.log("pageWorker loading: "+hzTarget.href);
 	var p = hzTarget.hostname.split('.').reverse();
 	switch(p[1]+"."+p[0]) {
 		case "gfycahzTarget.com":
@@ -134,7 +132,7 @@ if(document.URL != 'about:blank') {
 			}
 			break;
 	}
-	if(hzImgs.length > 0) { console.log(hzImgs.length); hzImg.src = hzImgs[hzImgNum] }
+	if(hzImgs.length > 0) { hzImg.src = hzImgs[hzImgNum] }
 } else {
 	self.port.emit('hide');
 }

@@ -2,7 +2,7 @@ var hzCurUrl, hzCurWait, hzOnAlbum = false;
 var hzLinks = document.getElementsByTagName('a');
 for (var i=0, l=hzLinks.length ; i < l; i++) {
 	hzLinks[i].addEventListener('mouseenter', hzMouseOn, false);
-	hzLinks[i].addEventListener('mouseleave', hzMouseOff, false);
+	hzLinks[i].addEventListener('mouseout', hzMouseOff, false);
 }
 window.addEventListener('load', hzResize, false);
 window.addEventListener('resize', hzResize, false);
@@ -16,7 +16,7 @@ function hzMouseOn(e) {
 function hzMouseOff(e) {
 	if(!e || e.relatedTarget) {
 		hzCurUrl = hzOnAlbum = false;
-		self.port.emit('worker');
+		self.port.emit('worker', false);
 	}
 }
 
@@ -34,6 +34,8 @@ function hzWheel(e) {
 		e.preventDefault();
 		e.stopPropagation();
 		return false;
+	} else {
+		hzMouseOff(null);
 	}
 }
 
