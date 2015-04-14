@@ -22,8 +22,9 @@ function hzMouseOff(e) {
 
 function hzResize(e) {
 	if(hzCurWait) { clearTimeout(hzCurWait) }
-	// this doesn't account for browser zoom level, need to fix...
-	hzCurWait = setTimeout( function(){ self.port.emit('winSize', window.innerWidth, window.innerHeight) }, 100);
+	var x = window.devicePixelRatio * window.innerWidth;
+	var y = window.devicePixelRatio * window.innerHeight;
+	hzCurWait = setTimeout( function(){ self.port.emit('winSize', x, y) }, 100);
 	if(e.type == 'load') { window.removeEventListener('load', hzResize, false) }
 }
 
