@@ -141,10 +141,8 @@ if(document.URL != 'about:blank') {
 			}
 			break;
 	}
-}
-if(hzImgs.length > 0) {
-	hzImg.src = hzImgs[hzImgNum];
-	self.port.emit('album', true);
-} else {
-	self.port.emit('album', false);
+	if(hzImgs.length > 0) {
+		hzImg.src = hzImgs[hzImgNum];
+		self.port.emit('album', true);
+	}
 }
