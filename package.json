@@ -5,8 +5,15 @@
 	"description": "Display a linked image in a fullsize overlay on mouse hover.",
 	"author": "arjuna@on-rope.net",
 	"license": "MPL 2.0",
-	"version": "0.18",
+	"version": "0.19",
 	"preferences": [
+		{
+			"name"			: "addHist",
+			"title"			: "Add to History",
+			"description"	: "Do you want to mark popups as having been viewed?",
+			"type"			: "bool",
+			"value"			: true
+		},
 		{
 			"name"			: "blacklist",
 			"title"			: "Blacklist",
@@ -22,13 +29,6 @@
 			"value"			: "*.craigslist.org,*.imgur.com"
 		},
 		{
-			"name"			: "addHist",
-			"title"			: "Add to History",
-			"description"	: "Do you want to add popup follows as having been viewed?",
-			"type"			: "bool",
-			"value"			: true
-		},
-		{
 			"name"			: "maxSize",
 			"title"			: "Maximum Popup Size",
 			"description"	: "As a percentage of the main window.",
@@ -41,5 +41,6 @@
 			"description"	: "Expressed in milliseconds.",
 			"type"			: "integer",
 			"value"			: 500
-		}	]
+		}
+	]
 }

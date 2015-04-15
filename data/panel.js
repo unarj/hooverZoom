@@ -1,6 +1,6 @@
 document.addEventListener('click', hzClick, false);
 document.addEventListener('mousemove', hzMotion, true);
-document.addEventListener('wheel', function(event) { self.port.emit('wheel', event.deltaY) }, true);
+document.addEventListener('wheel', function(e) { self.port.emit('wheel', e.deltaY) }, true);
 
 var c = document.getElementById('panelContainer');
 var i = document.getElementById('panelImg');
@@ -40,8 +40,8 @@ function hzCaption(str) {
 	t.appendChild(document.createTextNode(str));
 }
 
-function hzClick(event) {
-	if(event.button == 0) { self.port.emit('click', true) }
+function hzClick(e) {
+	if(e.button == 0) { self.port.emit('click', true) }
 	else { self.port.emit('click', false) }
 }
 

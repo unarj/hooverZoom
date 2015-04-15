@@ -22,14 +22,14 @@ function hzMouseOff(e) {
 
 function hzResize(e) {
 	if(hzCurWait) { clearTimeout(hzCurWait) }
-	// thought I had a winner with the top formula, but it's causing large popups on my laptop...
-//	var x = window.devicePixelRatio * window.innerWidth;
-//	var y = window.devicePixelRatio * window.innerHeight;
-	var r = window.screen.availWidth / document.documentElement.clientWidth;
+	hzCurWait = setTimeout( function(){ hzReportSize() }, 100);
+	if(e.type == 'load') { window.removeEventListener('load', hzResize, false) }
+}
+function hzReportSize() {
+	var r = window.devicePixelRatio;
 	var x = r * document.documentElement.clientWidth;
 	var y = r * document.documentElement.clientHeight;
-	hzCurWait = setTimeout( function(){ self.port.emit('winSize', x, y) }, 100);
-	if(e.type == 'load') { window.removeEventListener('load', hzResize, false) }
+	self.port.emit('winSize', x, y);
 }
 
 function hzWheel(e) {

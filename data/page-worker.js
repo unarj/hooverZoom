@@ -37,7 +37,7 @@ function hzLoadVideo() {
 		}
 	}
 	if(video && width && height) {
-		hzCurWait = setTimeout( function(){ self.port.emit('video', video, width, height) }, self.options.delay);
+		hzCurWait = setTimeout( function(){ self.port.emit('video', video, width, height) }, self.options.delay)
 	}
 }
 
@@ -48,15 +48,16 @@ self.port.on('inspect', function(url) {
 		hzTarget.href = url;
 		var p = hzTarget.hostname.split('.').reverse();
 		switch(p[1]+"."+p[0]) {
-			case "gfycahzTarget.com":
-				self.port.emit('load', hzTarget.href);
+			case "gfycat.com":
+				p = hzTarget.pathname.split('.')[0];
+				self.port.emit('load', hzTarget.protocol+"//gfycat.com/"+p);
 				hzTarget.href = null;
 				break;
 			case "imgflip.com":
 				p = hzTarget.pathname.split('/');
 				if(p.length > 2) {
-					p = p[2].split('#');
-					hzTarget.href = hzTarget.protocol+"//i.imgflip.com/"+p[0]+".jpg";
+					p = p[2].split('#')[0];
+					hzTarget.href = hzTarget.protocol+"//i.imgflip.com/"+p+".jpg";
 				}
 				break;
 			case "imgur.com":
@@ -111,7 +112,7 @@ if(document.URL != 'about:blank') {
 //	console.log("pageWorker loading: "+hzTarget.href);
 	var p = hzTarget.hostname.split('.').reverse();
 	switch(p[1]+"."+p[0]) {
-		case "gfycahzTarget.com":
+		case "gfycat.com":
 			hzLoadVideo();
 			break;
 		case "imgur.com":
