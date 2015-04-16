@@ -1,13 +1,16 @@
-document.addEventListener('click', hzClick, false);
-document.addEventListener('mousemove', hzMotion, true);
-document.addEventListener('wheel', function(e) { self.port.emit('wheel', e.deltaY) }, true);
-
 var c = document.getElementById('panelContainer');
 var i = document.getElementById('panelImg');
 var t = document.getElementById('panelText');
 var v = document.getElementById('panelVid');
 
+document.addEventListener('click', hzClick, false);
+document.addEventListener('mouseleave', function(){ self.port.emit('hide') }, false);
+document.addEventListener('mousemove', hzMotion, true);
+document.addEventListener('wheel', function(e) { self.port.emit('wheel', e.deltaY) }, true);
+
+
 self.port.on('image', function(img, x, y, txt) {
+	hzOrigin = false;
 	v.src = "blank.gif";
 	v.style.display = 'none';
 	i.style.display = 'block';
@@ -24,6 +27,7 @@ self.port.on('image', function(img, x, y, txt) {
 });
 
 self.port.on('video', function(vid, x, y, txt) {
+	hzOrigin = false;
 	i.src = "blank.gif";
 	i.style.display = 'none';
 	v.style.display = 'block';
@@ -46,13 +50,18 @@ function hzClick(e) {
 }
 
 // ideally the popup would hide when it's no longer over the element that caused it to show, but since we don't have
-// any visibility under the popup make a best-guess...
-var hzHeight, hzMoved = 0;
+// any visibility under the popup we make a best-guess...
+var hzMargin, hzMoved = 0;
+var hzOrigin = false;
 function hzMotion(e) {
-	if(hzMoved == 0) { hzHeight = window.devicePixelRatio * document.documentElement.clientHeight }
-	hzMoved += e.clientX;
-	if(hzMoved > (hzHeight / 100)) {
-		hzMoved = 0;
-		self.port.emit('hide');
-	}
+	if(!hzOrigin) {
+		hzOrigin = [e.screenX, e.screenY];
+		hzMargin = [window.devicePixelRatio * screen.width * 0.03, window.devicePixelRatio * screen.height * 0.01];
+	} else {
+		hzMoved = [Math.abs(hzOrigin[0] - e.screenX), Math.abs(hzOrigin[1] - e.screenY)];
+	if((hzMoved[0] > hzMargin[0]) || (hzMoved[1] > hzMargin[1])) {
+			hzOrigin = false;
+			self.port.emit('hide');
+		}
+	}	
 }
