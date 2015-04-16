@@ -63,6 +63,7 @@ self.port.on('inspect', function(url) {
 			case "imgur.com":
 				hzTarget.pathname = hzTarget.pathname.split('#')[0];
 				p = hzTarget.pathname.split('/');
+				if(p[p.length-1] == 'new') { p.pop() }
 				if((p[1] == "a") || (p[1] == "gallery")) {
 					self.port.emit('load', hzTarget.protocol+"//imgur.com/a/"+p[2]+"?gallery");
 					hzTarget.href = null;
