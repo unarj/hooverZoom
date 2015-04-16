@@ -134,6 +134,4 @@ if(document.URL != 'about:blank') {
 			break;
 	}
 	if(hzImgs.length > 0) { hzImg.src = hzImgs[hzImgNum] }
-} else {
-	self.port.emit('hide');
 }
