@@ -16,7 +16,7 @@ function hzMouseOn(e) {
 function hzMouseOff(e) {
 	if(!e || e.relatedTarget) {
 		hzCurUrl = hzOnAlbum = false;
-		self.port.emit('worker', false);
+		self.port.emit('hide');
 	}
 }
 
