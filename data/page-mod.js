@@ -16,7 +16,7 @@ function hzMouseOn(e) {
 function hzMouseOff(e) {
 	if(!e || e.relatedTarget) {
 		hzCurUrl = hzOnAlbum = false;
-		self.port.emit('worker', false);
+		self.port.emit('worker', false, this.height);
 	}
 }
 
@@ -26,9 +26,8 @@ function hzResize(e) {
 	if(e.type == 'load') { window.removeEventListener('load', hzResize, false) }
 }
 function hzReportSize() {
-	var r = window.devicePixelRatio;
-	var x = r * document.documentElement.clientWidth;
-	var y = r * document.documentElement.clientHeight;
+	var x = window.devicePixelRatio * document.documentElement.clientWidth;
+	var y = window.devicePixelRatio * document.documentElement.clientHeight;
 	self.port.emit('winSize', x, y);
 }
 
