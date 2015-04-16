@@ -28,7 +28,7 @@ self.port.on('video', function(vid, x, y, txt) {
 	v.style.display = 'block';
 	v.width = x;
 	v.height = y;
-    v.src = vid;
+	v.src = vid;
 	hzCaption(txt);
 //	console.log("panel: set video to "+vid);
 });
