@@ -4,6 +4,7 @@ document.addEventListener('wheel', function(e) { self.port.emit('wheel', e.delta
 
 var c = document.getElementById('panelContainer');
 var i = document.getElementById('panelImg');
+var t = document.getElementById('panelText');
 var v = document.getElementById('panelVid');
 
 self.port.on('image', function(img, x, y, txt) {
@@ -33,7 +34,6 @@ self.port.on('video', function(vid, x, y, txt) {
 //	console.log("panel: set video to "+vid);
 });
 
-var t = document.getElementById('panelText');
 function hzCaption(str) {
 	str = str || "";
 	while(t.firstChild) { t.removeChild(t.firstChild) }
