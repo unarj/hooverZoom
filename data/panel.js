@@ -45,13 +45,14 @@ function hzClick(e) {
 	else { self.port.emit('click', false) }
 }
 
-//this is a hack but works well enough for now...
-var hzMoved = 0;
-function hzMotion(event) {
-	if(hzMoved > 15) {
+// ideally the popup would hide when it's no longer over the element that caused it to show, but since we don't have
+// any visibility under the popup make a best-guess...
+var hzHeight, hzMoved = 0;
+function hzMotion(e) {
+	if(hzMoved == 0) { hzHeight = window.devicePixelRatio * document.documentElement.clientHeight }
+	hzMoved += e.clientX;
+	if(hzMoved > (hzHeight / 100)) {
 		hzMoved = 0;
 		self.port.emit('hide');
-	} else {
-		hzMoved++;
 	}
 }
