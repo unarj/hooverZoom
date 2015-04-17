@@ -97,7 +97,7 @@ self.port.on('inspect', function(url) {
 				if(p.length == 1) { hzTarget.href = hzTarget.protocol+"//i.lvme.me"+p.pop()+".jpg" }
 				break;
 		}
-		if(hzTarget.href) { hzImg.src = hzTarget.href }
+		hzImg.src = hzTarget.href;
 //		console.log(hzImg.src);
 	} else {
 		self.port.emit('load', 'about:blank');
