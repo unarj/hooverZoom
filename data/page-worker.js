@@ -61,6 +61,7 @@ self.port.on('inspect', function(url) {
 				}
 				break;
 			case "imgur.com":
+				hzTarget.pathname = hzTarget.pathname.split('?')[0];
 				hzTarget.pathname = hzTarget.pathname.split('#')[0];
 				p = hzTarget.pathname.split('/');
 				if(p[p.length-1] == 'new') { p.pop() }
