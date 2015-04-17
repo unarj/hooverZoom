@@ -1,5 +1,5 @@
 var hzImg = new Image();
-hzImg.onerror = function() { console.log("pageWorker error loading: "+this.src); self.port.emit('hide') }
+//hzImg.onerror = function() { console.log("pageWorker error loading: "+this.src); self.port.emit('hide') }
 hzImg.onload = function() {
 	var i = self.options.delay - (new Date().getTime() - hzMark);
 	if(i <= 0) {
@@ -63,15 +63,26 @@ self.port.on('inspect', function(url) {
 				break;
 			case "imgur.com":
 				p = hzTarget.pathname.split('/');
+				hzTarget.href = hzTarget.href.split('?')[0].split('#')[0];
 				switch(p[1]) {
 					case "a":
-						// albums seem to need the ?gallery tag to return all image handles, otherwise only get first 10...
-						self.port.emit('load', hzTarget.protocol+"//imgur.com/a/"+p[2]+"?gallery");
-						hzTarget.href = null;
-						break;
 					case "gallery":
-						// galleries seem to act diferent than albums, can be a single image so /a/ fails...
-						self.port.emit('load', hzTarget.protocol+"//imgur.com/gallery/"+p[2]);
+						// albums seem to need the ?gallery tag to return all image handles, otherwise only get first 10...
+						var delay = 0;
+						console.log("pageWorker loading: "+"https://api.imgur.com/3/album/"+p[2]);
+						$.getJSON("https://api.imgur.com/3/album/"+p[2], function(d) {
+							$.each(d['data']['images'], function(i,v){
+								var img = hzTarget.protocol+"//i.imgur.com/"+v['id']+".jpg";
+								hzImgs.push(img);
+								setTimeout( function(){ new Image().src = img }, delay);
+								delay += 500;
+							});
+							if(hzImgs.length > 0) { hzImg.src = hzImgs[hzImgNum] }
+							else {
+								// if JSON don't work try the old way...
+								self.port.emit('load', hzTarget.protocol+"//imgur.com/a/"+p[2]+"?gallery");
+							}
+						});
 						hzTarget.href = null;
 						break;
 					default:
@@ -101,6 +112,8 @@ self.port.on('inspect', function(url) {
 		if(hzTarget.href) { hzImg.src = hzTarget.href }
 //		console.log(hzImg.src);
 	} else {
+		hzImgNum = 0;
+		hzImgs = [];
 		self.port.emit('load', 'about:blank');
 	}
 });
@@ -127,9 +140,8 @@ if(document.URL != 'about:blank') {
 			break;
 		case "imgur.com":
 			p = hzTarget.pathname.split('.');
-			if(p.pop() == "gifv") {
-				hzLoadVideo();
-			} else {
+			if(p.pop() == "gifv") { hzLoadVideo() }
+			else {
 				var delay = 0;
 				var els = document.getElementsByTagName('div');
 				for(var i=0, l=els.length; i < l; i++) {
@@ -140,8 +152,8 @@ if(document.URL != 'about:blank') {
 						delay += 500;
 					}
 				}
+				if(hzImgs.length > 0) { hzImg.src = hzImgs[hzImgNum] }
 			}
 			break;
 	}
-	if(hzImgs.length > 0) { hzImg.src = hzImgs[hzImgNum] }
 }
