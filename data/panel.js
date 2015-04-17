@@ -45,8 +45,8 @@ function hzCaption(str) {
 }
 
 function hzClick(e) {
-	self.port.emit('click');
-	if(e.button == 0) { self.port.emit('hide') }
+	self.port.emit('hide');
+	if(e.button == 0) { self.port.emit('click') }
 }
 
 // ideally the popup would hide when it's no longer over the element that caused it to show, but since we don't have
