@@ -102,7 +102,7 @@ self.port.on('wheel', function(delta) {
 	if(delta > 0) {
 		hzImgNum++;
 		if(hzImgNum > hzImgs.length-1) { hzImgNum = 0 }
-	} else {
+	} else if(delta < 0) {
 		hzImgNum--;
 		if(hzImgNum < 0) { hzImgNum = hzImgs.length-1 }
 	}
