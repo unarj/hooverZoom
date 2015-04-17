@@ -56,10 +56,10 @@ var hzOrigin = false;
 function hzMotion(e) {
 	if(!hzOrigin) {
 		hzOrigin = [e.screenX, e.screenY];
-		hzMargin = [window.devicePixelRatio * screen.width * 0.03, window.devicePixelRatio * screen.height * 0.01];
+		hzMargin = [window.devicePixelRatio * screen.width * 0.04, window.devicePixelRatio * screen.height * 0.015];
 	} else {
 		hzMoved = [Math.abs(hzOrigin[0] - e.screenX), Math.abs(hzOrigin[1] - e.screenY)];
-	if((hzMoved[0] > hzMargin[0]) || (hzMoved[1] > hzMargin[1])) {
+		if((hzMoved[0] > hzMargin[0]) || (hzMoved[1] > hzMargin[1])) {
 			hzOrigin = false;
 			self.port.emit('hide');
 		}
