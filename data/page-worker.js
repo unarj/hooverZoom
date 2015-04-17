@@ -88,7 +88,7 @@ self.port.on('inspect', function(url) {
 				break;
 			case "livememe.com":
 				p = hzTarget.pathname.split('.');
-				if(p.length == 1) {	hzTarget.href = hzTarget.protocol+"//i.lvme.me"+p.pop()+".jpg" }
+				if(p.length == 1) { hzTarget.href = hzTarget.protocol+"//i.lvme.me"+p.pop()+".jpg" }
 				break;
 		}
 		if(hzTarget.href) { hzImg.src = hzTarget.href }
