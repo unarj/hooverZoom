@@ -27,9 +27,7 @@ function hzResize(e) {
 	if(e.type == 'load') { window.removeEventListener('load', hzResize, false) }
 }
 function hzReportSize() {
-	var x = window.devicePixelRatio * document.documentElement.clientWidth;
-	var y = window.devicePixelRatio * document.documentElement.clientHeight;
-	self.port.emit('winSize', x, y);
+	self.port.emit('winSize', window.devicePixelRatio * document.documentElement.clientWidth, window.devicePixelRatio * document.documentElement.clientHeight);
 }
 
 function hzWheel(e) {
