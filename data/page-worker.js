@@ -1,5 +1,5 @@
 var hzImg = new Image();
-hzImg.onerror = function() { self.port.emit('hide') }
+hzImg.onerror = function() { console.log("pageWorker error loading: "+this.src); self.port.emit('hide') }
 hzImg.onload = function() {
 	var i = self.options.delay - (new Date().getTime() - hzMark);
 	if(i <= 0) {
