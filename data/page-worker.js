@@ -68,21 +68,28 @@ self.port.on('inspect', function(url) {
 					case "a":
 					case "gallery":
 						// albums seem to need the ?gallery tag to return all image handles, otherwise only get first 10...
-						var delay = 0;
-						console.log("pageWorker loading: "+"https://api.imgur.com/3/album/"+p[2]);
-						$.getJSON("https://api.imgur.com/3/album/"+p[2], function(d) {
-							$.each(d['data']['images'], function(i,v){
-								var img = hzTarget.protocol+"//i.imgur.com/"+v['id']+".jpg";
-								hzImgs.push(img);
-								setTimeout( function(){ new Image().src = img }, delay);
-								delay += 500;
-							});
-							if(hzImgs.length > 0) { hzImg.src = hzImgs[hzImgNum] }
-							else {
-								// if JSON don't work try the old way...
+						console.log("pageWorker loading: https://api.imgur.com/3/album/"+p[2]);
+						$.ajax({
+							url: "https://api.imgur.com/3/album/"+p[2],
+							type: 'GET',
+							datatype: 'json',
+							success: function(d) {
+								var delay = 0;
+								$.each(d['data']['images'], function(i,v){
+									var img = hzTarget.protocol+"//i.imgur.com/"+v['id']+".jpg";
+									hzImgs.push(img);
+									setTimeout( function(){ new Image().src = img }, delay);
+									delay += 500;
+								});
+								if(hzImgs.length > 0) { hzImg.src = hzImgs[hzImgNum] }
+							},
+							error: function() {
 								self.port.emit('load', hzTarget.protocol+"//imgur.com/a/"+p[2]+"?gallery");
+							},
+							beforeSend: function(h) {
+								  h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057');
 							}
-						});
+						});   
 						hzTarget.href = null;
 						break;
 					default:
