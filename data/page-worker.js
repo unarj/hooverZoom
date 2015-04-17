@@ -43,6 +43,7 @@ function hzLoadVideo() {
 
 self.port.on('inspect', function(url) {
 	clearTimeout(hzCurWait);
+	hzImg.src = null;
 	if(url) {
 		hzMark = new Date().getTime();
 		hzTarget.href = url;
@@ -97,7 +98,7 @@ self.port.on('inspect', function(url) {
 				if(p.length == 1) { hzTarget.href = hzTarget.protocol+"//i.lvme.me"+p.pop()+".jpg" }
 				break;
 		}
-		hzImg.src = hzTarget.href;
+		if(hzTarget.href) { hzImg.src = hzTarget.href }
 //		console.log(hzImg.src);
 	} else {
 		self.port.emit('load', 'about:blank');
