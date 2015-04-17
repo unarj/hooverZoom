@@ -1,13 +1,12 @@
-var c = document.getElementById('panelContainer');
-var i = document.getElementById('panelImg');
-var t = document.getElementById('panelText');
-var v = document.getElementById('panelVid');
-
 document.addEventListener('click', hzClick, false);
 document.addEventListener('mouseleave', function(){ self.port.emit('hide') }, false);
 document.addEventListener('mousemove', hzMotion, true);
 document.addEventListener('wheel', function(e) { self.port.emit('wheel', e.deltaY) }, true);
 
+var c = document.getElementById('panelContainer');
+var i = document.getElementById('panelImg');
+var t = document.getElementById('panelText');
+var v = document.getElementById('panelVid');
 
 self.port.on('image', function(img, x, y, txt) {
 	hzOrigin = false;
@@ -56,6 +55,7 @@ var hzOrigin = false;
 function hzMotion(e) {
 	if(!hzOrigin) {
 		hzOrigin = [e.screenX, e.screenY];
+		// not sure if we need to account for the pixel ratio, needs testing...
 		hzMargin = [window.devicePixelRatio * screen.width * 0.04, window.devicePixelRatio * screen.height * 0.015];
 	} else {
 		hzMoved = [Math.abs(hzOrigin[0] - e.screenX), Math.abs(hzOrigin[1] - e.screenY)];
