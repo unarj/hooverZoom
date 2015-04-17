@@ -1,6 +1,6 @@
 var hzCurUrl, hzCurWait, hzOnAlbum = false;
 var hzLinks = document.getElementsByTagName('a');
-for (var i=0, l=hzLinks.length ; i < l; i++) {
+for (var i=0, l=hzLinks.length; i < l; i++) {
 	hzLinks[i].addEventListener('mouseenter', hzMouseOn, false);
 	hzLinks[i].addEventListener('mouseleave', hzMouseOff, false);
 }
@@ -21,7 +21,7 @@ function hzMouseOff(e) {
 }
 
 function hzResize(e) {
-	if(hzCurWait) { clearTimeout(hzCurWait) }
+	clearTimeout(hzCurWait);
 	hzCurWait = setTimeout( function(){ hzReportSize() }, 100);
 	if(e.type == 'load') { window.removeEventListener('load', hzResize, false) }
 }
