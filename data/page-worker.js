@@ -70,6 +70,7 @@ self.port.on('inspect', function(url) {
 					break;
 				} else {
 					hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+p.pop();
+					console.log(hzTarget.href);
 				}
 				p = hzTarget.pathname.split('.');
 				if(p.length == 1) { hzTarget.href += ".jpg"}
