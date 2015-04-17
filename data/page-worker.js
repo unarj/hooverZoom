@@ -61,29 +61,35 @@ self.port.on('inspect', function(url) {
 				}
 				break;
 			case "imgur.com":
-				hzTarget.pathname = hzTarget.pathname.split('?')[0];
-				hzTarget.pathname = hzTarget.pathname.split('#')[0];
 				p = hzTarget.pathname.split('/');
-				if(p[p.length-1] == 'new') { p.pop() }
-				if((p[1] == "a") || (p[1] == "gallery")) {
-					self.port.emit('load', hzTarget.protocol+"//imgur.com/a/"+p[2]+"?gallery");
-					hzTarget.href = null;
-					break;
-				} else {
-					hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+p.pop();
-					console.log(hzTarget.href);
-				}
-				p = hzTarget.pathname.split('.');
-				if(p.length == 1) { hzTarget.href += ".jpg"}
-				else switch(p.pop()) {
-					case "gif":
-						self.port.emit('load', hzTarget.href+"v");
+				switch(p[1]) {
+					case "a":
+						// albums seem to need the ?gallery tag to return all image handles, otherwise only get first 10...
+						self.port.emit('load', hzTarget.protocol+"//imgur.com/a/"+p[2]+"?gallery");
 						hzTarget.href = null;
 						break;
-					case "gifv":
-						self.port.emit('load', hzTarget.href);
+					case "gallery":
+						// galleries seem to act diferent than albums, can be a single image so /a/ fails...
+						self.port.emit('load', hzTarget.protocol+"//imgur.com/gallery/"+p[2]);
 						hzTarget.href = null;
 						break;
+					default:
+						// imgur uses lots of different access URLs, trying to normalize them is difficult...
+						if(p[p.length-1] == 'new') { p.pop() }
+						hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+p.pop().split('?')[0].split('#')[0];
+						// if there's no extension we'll guess JPG (safe), if there's a GIF load the MP4 version (much faster/smaller)...
+						p = hzTarget.pathname.split('.');
+						if(p.length == 1) { hzTarget.href += ".jpg" }
+						else switch(p.pop()) {
+							case "gif":
+								self.port.emit('load', hzTarget.href+"v");
+								hzTarget.href = null;
+								break;
+							case "gifv":
+								self.port.emit('load', hzTarget.href);
+								hzTarget.href = null;
+								break;
+						}
 				}
 				break;
 			case "livememe.com":
