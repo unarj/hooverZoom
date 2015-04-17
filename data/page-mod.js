@@ -14,8 +14,9 @@ function hzMouseOn(e) {
 }
 
 function hzMouseOff(e) {
+	// e.relatedTarget seems to be empty if the panel caused this event...
 	if(!e || e.relatedTarget) {
-		hzCurUrl = hzOnAlbum = false;
+		hzCurUrl, hzOnAlbum = false;
 		self.port.emit('hide');
 	}
 }
