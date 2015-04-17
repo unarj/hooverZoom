@@ -1,19 +1,19 @@
-var hzImg = new Image;
-	hzImg.onerror = function() { self.port.emit('hide') }
-	hzImg.onload = function() {
-		var i = self.options.delay - (new Date().getTime() - hzMark);
-		if(i <= 0) {
-			var txt = "";
-			if(hzImgs.length > 0) {
-				txt += " "+(hzImgNum+1)+"/"+hzImgs.length;
-				self.port.emit('album', true);
-			}
-			self.port.emit('image', this.src, this.width, this.height, txt);
-		} else {
-			var cur = this.src;
-			hzCurWait = setTimeout( function(){ hzImg.src = cur }, i);
+var hzImg = new Image();
+hzImg.onerror = function() { self.port.emit('hide') }
+hzImg.onload = function() {
+	var i = self.options.delay - (new Date().getTime() - hzMark);
+	if(i <= 0) {
+		var txt = "";
+		if(hzImgs.length > 0) {
+			txt += " "+(hzImgNum+1)+"/"+hzImgs.length;
+			self.port.emit('album', true);
 		}
+		self.port.emit('image', this.src, this.width, this.height, txt);
+	} else {
+		var cur = this.src;
+		hzCurWait = setTimeout( function(){ hzImg.src = cur }, i);
 	}
+}
 
 var hzCurWait = false;
 var hzImgNum = 0;
