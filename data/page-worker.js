@@ -1,25 +1,47 @@
 var hzImg = new Image();
 //hzImg.onerror = function() { console.log("pageWorker error loading: "+this.src); self.port.emit('hide') }
 hzImg.onload = function() {
-	var i = self.options.delay - (new Date().getTime() - hzMark);
-	if(i <= 0) {
-		var txt = "";
-		if(hzImgs.length > 0) {
-			txt += " "+(hzImgNum+1)+"/"+hzImgs.length;
-			self.port.emit('album', true);
+//	console.log("this: "+this.curUrl+" - that: "+hzCurUrl);
+	if(this.curUrl = hzCurUrl) {
+		var i = self.options.delay - (new Date().getTime() - hzMark);
+		if(i <= 0) {
+			var txt = "";
+			if(hzImgs.length > 0) {
+				txt += " "+(hzImgNum+1)+"/"+hzImgs.length;
+				self.port.emit('album', true);
+			}
+			self.port.emit('image', this.src, this.width, this.height, txt);
+		} else {
+			var cur = this.src;
+			hzCurWait = setTimeout( function(){ hzImg.src = cur }, i);
 		}
-		self.port.emit('image', this.src, this.width, this.height, txt);
 	} else {
-		var cur = this.src;
-		hzCurWait = setTimeout( function(){ hzImg.src = cur }, i);
+		this.src = "";
+		hzImgNum = 0;
+		hzImgs = [];
 	}
 }
 
-var hzCurWait = false;
+var hzCurUrl, hzCurWait = false;
 var hzImgNum = 0;
 var hzImgs = [];
 var hzMark = new Date().getTime();
 var hzTarget = document.createElement('a');
+
+function hzLoadAlbum(d) {
+	var delay = 0;
+	if(d['data']['images']) {
+		$.each(d['data']['images'], function(i,v){
+			var i = hzTarget.protocol+"//i.imgur.com/"+v['id']+".jpg";
+			hzImgs.push(i);
+			setTimeout( function(){ new Image().src = i }, delay);
+			delay += 500;
+		});
+	} else if(d['data']['id']) {
+		hzImg.src = hzTarget.protocol+"//i.imgur.com/"+d['data']['id']+".jpg";
+	}
+	if(hzImgs.length > 0) { hzImg.src = hzImgs[hzImgNum] }
+}
 
 function hzLoadVideo() {
 	var els = document.getElementsByTagName('meta');		
@@ -43,7 +65,9 @@ function hzLoadVideo() {
 
 self.port.on('inspect', function(url) {
 	clearTimeout(hzCurWait);
-	hzImg.src = null;
+	hzCurUrl = url;
+	hzImg.src = "";
+//	hzImg.curUrl = url;
 	if(url) {
 		hzMark = new Date().getTime();
 		hzTarget.href = url;
@@ -52,7 +76,7 @@ self.port.on('inspect', function(url) {
 			case "gfycat.com":
 				p = hzTarget.pathname.split('.')[0];
 				self.port.emit('load', hzTarget.protocol+"//gfycat.com/"+p);
-				hzTarget.href = null;
+				hzTarget.href = "";
 				break;
 			case "imgflip.com":
 				p = hzTarget.pathname.split('/');
@@ -62,51 +86,36 @@ self.port.on('inspect', function(url) {
 				}
 				break;
 			case "imgur.com":
+				var alb = "";
+				hzTarget.href = hzTarget.href.split('?')[0].split('#')[0].split(',')[0];
 				p = hzTarget.pathname.split('/');
-				hzTarget.href = hzTarget.href.split('?')[0].split('#')[0];
 				switch(p[1]) {
 					case "a":
+						alb = "https://api.imgur.com/3/album/"+p[2];
 					case "gallery":
-						// albums seem to need the ?gallery tag to return all image handles, otherwise only get first 10...
-						console.log("pageWorker loading: https://api.imgur.com/3/album/"+p[2]);
+						alb = alb || "https://api.imgur.com/3/gallery/"+p[2];
+//						console.log("loading: "+alb);
 						$.ajax({
-							url: "https://api.imgur.com/3/album/"+p[2],
+							url: alb,
 							type: 'GET',
 							datatype: 'json',
-							success: function(d) {
-								var delay = 0;
-								$.each(d['data']['images'], function(i,v){
-									var img = hzTarget.protocol+"//i.imgur.com/"+v['id']+".jpg";
-									hzImgs.push(img);
-									setTimeout( function(){ new Image().src = img }, delay);
-									delay += 500;
-								});
-								if(hzImgs.length > 0) { hzImg.src = hzImgs[hzImgNum] }
-							},
-							error: function() {
-								self.port.emit('load', hzTarget.protocol+"//imgur.com/a/"+p[2]+"?gallery");
-							},
-							beforeSend: function(h) {
-								  h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057');
-							}
-						});   
-						hzTarget.href = null;
+							success: hzLoadAlbum,
+							beforeSend: function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') }
+						});
+						hzTarget.href = "";
 						break;
 					default:
-						// imgur uses lots of different access URLs, trying to normalize them is difficult...
 						if(p[p.length-1] == 'new') { p.pop() }
-						hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+p.pop().split('?')[0].split('#')[0];
-						// if there's no extension we'll guess JPG (safe), if there's a GIF load the MP4 version (much faster/smaller)...
 						p = hzTarget.pathname.split('.');
 						if(p.length == 1) { hzTarget.href += ".jpg" }
 						else switch(p.pop()) {
 							case "gif":
 								self.port.emit('load', hzTarget.href+"v");
-								hzTarget.href = null;
+								hzTarget.href = "";
 								break;
 							case "gifv":
 								self.port.emit('load', hzTarget.href);
-								hzTarget.href = null;
+								hzTarget.href = "";
 								break;
 						}
 				}
@@ -116,8 +125,11 @@ self.port.on('inspect', function(url) {
 				if(p.length == 1) { hzTarget.href = hzTarget.protocol+"//i.lvme.me"+p.pop()+".jpg" }
 				break;
 		}
-		if(hzTarget.href) { hzImg.src = hzTarget.href }
-//		console.log(hzImg.src);
+		if(hzTarget.href) {
+			hzImg.src = hzTarget.href;
+			hzImg.curUrl = url;
+		}
+//		console.log("img.src: "+hzImg.curUrl+" - curimg: "+hzCurUrl);
 	} else {
 		hzImgNum = 0;
 		hzImgs = [];
@@ -148,19 +160,20 @@ if(document.URL != 'about:blank') {
 		case "imgur.com":
 			p = hzTarget.pathname.split('.');
 			if(p.pop() == "gifv") { hzLoadVideo() }
-			else {
-				var delay = 0;
-				var els = document.getElementsByTagName('div');
-				for(var i=0, l=els.length; i < l; i++) {
-					if(els[i].getAttribute('class') == "image" || els[i].getAttribute('class') == "post") {
-						var img = hzTarget.protocol+"//i.imgur.com/"+els[i].getAttribute('id')+".jpg";
-						hzImgs.push(img);
-						setTimeout( function(){ new Image().src = img }, delay);
-						delay += 500;
-					}
-				}
-				if(hzImgs.length > 0) { hzImg.src = hzImgs[hzImgNum] }
-			}
+// shouldn't need this anymore, loading through API now...
+//			else {
+//				var delay = 0;
+//				var els = document.getElementsByTagName('div');
+//				for(var i=0, l=els.length; i < l; i++) {
+//					if(els[i].getAttribute('class') == "image" || els[i].getAttribute('class') == "post") {
+//						var img = hzTarget.protocol+"//i.imgur.com/"+els[i].getAttribute('id')+".jpg";
+//						hzImgs.push(img);
+//						setTimeout( function(){ new Image().src = img }, delay);
+//						delay += 500;
+//					}
+//				}
+//				if(hzImgs.length > 0) { hzImg.src = hzImgs[hzImgNum] }
+//			}
 			break;
 	}
 }

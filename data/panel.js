@@ -10,7 +10,7 @@ var v = document.getElementById('panelVid');
 
 self.port.on('image', function(img, x, y, txt) {
 	hzOrigin = false;
-	v.src = "blank.gif";
+	v.src = "";
 	v.style.display = 'none';
 	i.style.display = 'block';
 	i.width = x;
@@ -27,7 +27,7 @@ self.port.on('image', function(img, x, y, txt) {
 
 self.port.on('video', function(vid, x, y, txt) {
 	hzOrigin = false;
-	i.src = "blank.gif";
+	i.src = "";
 	i.style.display = 'none';
 	v.style.display = 'block';
 	v.width = x;
