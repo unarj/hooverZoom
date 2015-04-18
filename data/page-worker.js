@@ -120,7 +120,7 @@ self.port.on('inspect', function(url) {
 								break;
 						}
 						hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
-						console.log(hzTarget.href);
+//						console.log(hzTarget.href);
 				}
 				break;
 			case "livememe.com":
