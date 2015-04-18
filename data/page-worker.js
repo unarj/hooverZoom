@@ -106,6 +106,7 @@ self.port.on('inspect', function(url) {
 						break;
 					default:
 						if(p[p.length-1] == 'new') { p.pop() }
+						hzTarget.pathname.split('/')
 						p = hzTarget.pathname.split('.');
 						if(p.length == 1) { hzTarget.href += ".jpg" }
 						else switch(p.pop()) {
@@ -118,6 +119,8 @@ self.port.on('inspect', function(url) {
 								hzTarget.href = "";
 								break;
 						}
+						hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
+						console.log(hzTarget.href);
 				}
 				break;
 			case "livememe.com":
