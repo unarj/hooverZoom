@@ -1,32 +1,24 @@
-var hzImg = new Image();
-//hzImg.onerror = function() { console.log("pageWorker error loading: "+this.src); self.port.emit('hide') }
-hzImg.onload = function() {
-//	console.log("this: "+this.curUrl+" - that: "+hzCurUrl);
-	if(this.curUrl = hzCurUrl) {
-		var i = self.options.delay - (new Date().getTime() - hzMark);
-		if(i <= 0) {
-			var txt = "";
-			if(hzImgs.length > 0) {
-				txt += " "+(hzImgNum+1)+"/"+hzImgs.length;
-				self.port.emit('album', true);
-			}
-			self.port.emit('image', this.src, this.width, this.height, txt);
-		} else {
-			var cur = this.src;
-			hzCurWait = setTimeout( function(){ hzImg.src = cur }, i);
-		}
-	} else {
-		this.src = "";
-		hzImgNum = 0;
-		hzImgs = [];
-	}
-}
-
-var hzCurUrl, hzCurWait = false;
+var hzCurWait = false;
 var hzImgNum = 0;
 var hzImgs = [];
 var hzMark = new Date().getTime();
 var hzTarget = document.createElement('a');
+var hzImg = new Image();
+//hzImg.onerror = function() { console.log("pageWorker error loading: "+this.src); self.port.emit('hide') }
+hzImg.onload = function() {
+	var i = self.options.delay - (new Date().getTime() - hzMark);
+	if(i <= 0) {
+		var txt = "";
+		if(hzImgs.length > 0) {
+			txt += " "+(hzImgNum+1)+"/"+hzImgs.length;
+			self.port.emit('album', true);
+		}
+		self.port.emit('image', this.src, this.width, this.height, txt);
+	} else {
+		var cur = this.src;
+		hzCurWait = setTimeout( function(){ hzImg.src = cur }, i);
+	}
+}
 
 function hzLoadAlbum(d) {
 	var delay = 0;
@@ -38,9 +30,9 @@ function hzLoadAlbum(d) {
 			delay += 500;
 		});
 	} else if(d['data']['id']) {
-		hzImg.src = hzTarget.protocol+"//i.imgur.com/"+d['data']['id']+".jpg";
+		hzImg.src = hzCurImg = hzTarget.protocol+"//i.imgur.com/"+d['data']['id']+".jpg";
 	}
-	if(hzImgs.length > 0) { hzImg.src = hzImgs[hzImgNum] }
+	if(hzImgs.length > 0) {	hzImg.src = hzImgs[hzImgNum] }
 }
 
 function hzLoadVideo() {
@@ -63,29 +55,33 @@ function hzLoadVideo() {
 	}
 }
 
-self.port.on('inspect', function(url) {
+function hzReset() {
 	clearTimeout(hzCurWait);
-	hzCurUrl = url;
-	hzImg.src = "";
-//	hzImg.curUrl = url;
+	hzImg.src = null;
+	hzImgNum = 0;
+	hzImgs = [];
+	self.port.emit('load', 'about:blank');
+	self.port.emit('hide');
+}
+
+self.port.on('inspect', function(url) {
+	hzReset();
 	if(url) {
 		hzMark = new Date().getTime();
 		hzTarget.href = url;
 		var p = hzTarget.hostname.split('.').reverse();
-		switch(p[1]+"."+p[0]) {
-			case "gfycat.com":
-				p = hzTarget.pathname.split('.')[0];
-				self.port.emit('load', hzTarget.protocol+"//gfycat.com/"+p);
-				hzTarget.href = "";
+		switch(p[1]) {
+			case "gfycat":
+				self.port.emit('load', hzTarget.protocol+"//gfycat.com/"+hzTarget.pathname.split('.')[0]);
+				hzTarget.href = null;
 				break;
-			case "imgflip.com":
+			case "imgflip":
 				p = hzTarget.pathname.split('/');
 				if(p.length > 2) {
-					p = p[2].split('#')[0];
-					hzTarget.href = hzTarget.protocol+"//i.imgflip.com/"+p+".jpg";
+					hzTarget.href = hzTarget.protocol+"//i.imgflip.com/"+p[2].split('#')[0]+".jpg";
 				}
 				break;
-			case "imgur.com":
+			case "imgur":
 				var alb = "";
 				hzTarget.href = hzTarget.href.split('?')[0].split('#')[0].split(',')[0];
 				p = hzTarget.pathname.split('/');
@@ -94,49 +90,46 @@ self.port.on('inspect', function(url) {
 						alb = "https://api.imgur.com/3/album/"+p[2];
 					case "gallery":
 						alb = alb || "https://api.imgur.com/3/gallery/"+p[2];
-//						console.log("loading: "+alb);
 						$.ajax({
-							url: alb,
-							type: 'GET',
-							datatype: 'json',
+							url: alb, type: 'GET', datatype: 'json',
 							success: hzLoadAlbum,
 							beforeSend: function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') }
 						});
-						hzTarget.href = "";
+						hzTarget.href = null;
 						break;
 					default:
-						if(p[p.length-1] == 'new') { p.pop() }
-						hzTarget.pathname.split('/')
-						p = hzTarget.pathname.split('.');
-						if(p.length == 1) { hzTarget.href += ".jpg" }
-						else switch(p.pop()) {
+						if(hzTarget.pathname.split('.').length == 1) { hzTarget.href += ".jpg" }
+						switch(hzTarget.pathname.split('.').reverse()[0]) {
 							case "gif":
 								self.port.emit('load', hzTarget.href+"v");
-								hzTarget.href = "";
+								hzTarget.href = null;
 								break;
 							case "gifv":
 								self.port.emit('load', hzTarget.href);
-								hzTarget.href = "";
+								hzTarget.href = null;
 								break;
+							default:
+								hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
 						}
-						hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
 //						console.log(hzTarget.href);
 				}
 				break;
-			case "livememe.com":
+			case "instagram":
+				self.port.emit('load', hzTarget.href);
+				hzTarget.href = null;
+				break;
+			case "livememe":
 				p = hzTarget.pathname.split('.');
 				if(p.length == 1) { hzTarget.href = hzTarget.protocol+"//i.lvme.me"+p.pop()+".jpg" }
 				break;
 		}
-		if(hzTarget.href) {
-			hzImg.src = hzTarget.href;
-			hzImg.curUrl = url;
-		}
+		if(hzTarget.href) { hzImg.src = hzTarget.href }
 //		console.log("img.src: "+hzImg.curUrl+" - curimg: "+hzCurUrl);
-	} else {
-		hzImgNum = 0;
-		hzImgs = [];
-		self.port.emit('load', 'about:blank');
+//	} else {
+//		hzImgNum = 0;
+//		hzImgs = [];
+//		self.port.emit('load', 'about:blank');
+//		self.port.emit('hide');
 	}
 });
 
@@ -155,28 +148,19 @@ self.port.on('wheel', function(delta) {
 if(document.URL != 'about:blank') {
 	hzTarget.href = document.URL;
 //	console.log("pageWorker loading: "+hzTarget.href);
-	var p = hzTarget.hostname.split('.').reverse();
-	switch(p[1]+"."+p[0]) {
-		case "gfycat.com":
+	switch(hzTarget.hostname.split('.').reverse()[1]) {
+		case "gfycat":
 			hzLoadVideo();
 			break;
-		case "imgur.com":
-			p = hzTarget.pathname.split('.');
-			if(p.pop() == "gifv") { hzLoadVideo() }
-// shouldn't need this anymore, loading through API now...
-//			else {
-//				var delay = 0;
-//				var els = document.getElementsByTagName('div');
-//				for(var i=0, l=els.length; i < l; i++) {
-//					if(els[i].getAttribute('class') == "image" || els[i].getAttribute('class') == "post") {
-//						var img = hzTarget.protocol+"//i.imgur.com/"+els[i].getAttribute('id')+".jpg";
-//						hzImgs.push(img);
-//						setTimeout( function(){ new Image().src = img }, delay);
-//						delay += 500;
-//					}
-//				}
-//				if(hzImgs.length > 0) { hzImg.src = hzImgs[hzImgNum] }
-//			}
+		case "imgur":
+			if(hzTarget.pathname.split('.').pop() == "gifv") { hzLoadVideo() }
 			break;
+		default:
+			var els = document.getElementsByTagName('meta');
+				for(var i=0, l=els.length; i < l; i++) {
+				if(els[i].getAttribute('property') == "og:image") {
+					hzImg.src = els[i].getAttribute('content');
+				}
+			}
 	}
 }
