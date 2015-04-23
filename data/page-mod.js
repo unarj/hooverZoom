@@ -1,12 +1,22 @@
-var hzCurUrl, hzCurWait, hzOnAlbum = false;
 var hzLinks = document.getElementsByTagName('a');
+var hzObservers = [];
 for (var i=0, l=hzLinks.length; i < l; i++) {
-	hzLinks[i].addEventListener('mouseenter', hzMouseOn, false);
-	hzLinks[i].addEventListener('mouseleave', hzMouseOff, false);
+	// mozilla editor requested to avoid use of mouse events because of frequency...
+//	hzLinks[i].addEventListener('mouseenter', hzMouseOn, false);
+//	hzLinks[i].addEventListener('mouseleave', hzMouseOff, false);
+	hzObservers[i] = new MutationObserver(function(ms) {
+		ms.forEach(function(m) {
+			console.log(m.type+" "+m.attributeName);
+		});
+	});
+	hzObservers[i].observe(hzLinks[i], {attributes:true, childList:true, characterData:true});
 }
+window.addEventListener('focus', hzResize, false);
 window.addEventListener('load', hzResize, false);
 window.addEventListener('resize', hzResize, false);
 window.addEventListener('wheel', hzWheel, false);
+
+var hzCurUrl, hzCurWait, hzOnAlbum = false;
 
 function hzMouseOn(e) {
 	hzCurUrl = e.target.toString();
