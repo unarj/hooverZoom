@@ -71,6 +71,11 @@ self.port.on('inspect', function(url) {
 		hzTarget.href = url;
 		var p = hzTarget.hostname.split('.').reverse();
 		switch(p[1]) {
+// need to use Flickr's API, trying to load the page fails (js errors, guessing intentional)... and Yahoo wants a valid phone number to sign up for an account...  fuck that, bitches
+			case "flickr":
+				self.port.emit('load', hzTarget.href);
+				hzTarget.href = null;
+				break;
 			case "gfycat":
 				self.port.emit('load', hzTarget.protocol+"//gfycat.com/"+hzTarget.pathname.split('.')[0]);
 				hzTarget.href = null;
@@ -90,7 +95,7 @@ self.port.on('inspect', function(url) {
 						alb = "https://api.imgur.com/3/album/"+p[2];
 					case "gallery":
 						alb = alb || "https://api.imgur.com/3/gallery/"+p[2];
-						$.ajax({
+						hzCurWait = $.ajax({
 							url: alb, type: 'GET', datatype: 'json',
 							success: hzLoadAlbum,
 							beforeSend: function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') }
@@ -147,7 +152,7 @@ self.port.on('wheel', function(delta) {
 
 if(document.URL != 'about:blank') {
 	hzTarget.href = document.URL;
-//	console.log("pageWorker loading: "+hzTarget.href);
+	console.log("pageWorker loading: "+hzTarget.href);
 	switch(hzTarget.hostname.split('.').reverse()[1]) {
 		case "gfycat":
 			hzLoadVideo();

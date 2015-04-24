@@ -53,12 +53,15 @@ function hzMotion(e) {
 	if(!hzOrigin) {
 		hzOrigin = [e.screenX, e.screenY];
 		// not sure if we need to account for the pixel ratio, needs testing...
-		hzMargin = [window.devicePixelRatio * screen.width * 0.03, window.devicePixelRatio * screen.height * 0.015];
+//		hzMargin = [window.devicePixelRatio * screen.width * 0.02, window.devicePixelRatio * screen.height * 0.015];
+		hzMargin = [screen.width * 0.02, screen.height * 0.015];
+//		console.log(hzOrigin+" "+hzMargin);
 	} else {
 		hzMoved = [Math.abs(hzOrigin[0] - e.screenX), Math.abs(hzOrigin[1] - e.screenY)];
 		if((hzMoved[0] > hzMargin[0]) || (hzMoved[1] > hzMargin[1])) {
 			hzOrigin = false;
 			self.port.emit('hide');
 		}
+//		console.log(hzMoved);
 	}	
 }

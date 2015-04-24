@@ -25,10 +25,11 @@ function hzMouseOn(e) {
 
 function hzMouseOff(e) {
 	// e.relatedTarget seems to be empty if the panel caused this event...
-	if(!e || e.relatedTarget) {
+	if(e && e.relatedTarget) {
 		hzCurUrl, hzOnAlbum = false;
 		self.port.emit('hide');
 	}
+//	if(e){ console.log("target: "+e.target+" - related: "+e.relatedTarget) }
 }
 
 function hzResize(e) {
