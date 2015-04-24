@@ -4,7 +4,6 @@ var hzImgs = [];
 var hzMark = new Date().getTime();
 var hzTarget = document.createElement('a');
 var hzImg = new Image();
-//hzImg.onerror = function() { console.log("pageWorker error loading: "+this.src); self.port.emit('hide') }
 hzImg.onload = function() {
 	var i = self.options.delay - (new Date().getTime() - hzMark);
 	if(i <= 0) {
@@ -62,7 +61,6 @@ function hzReset() {
 	hzImgNum = 0;
 	hzImgs = [];
 	self.port.emit('load', 'about:blank');
-	self.port.emit('hide');
 }
 
 self.port.on('inspect', function(url) {
