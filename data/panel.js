@@ -5,7 +5,7 @@ var v = document.getElementById('panelVid');
 
 document.addEventListener('click', hzClick, false);
 document.addEventListener('mousemove', hzMotion, true);
-document.addEventListener('mouseout', function(){ self.port.emit('hide') }, false);  //y u no work?!?
+document.addEventListener('mouseleave', function(){ self.port.emit('hide') }, false);  //y u no work?!?
 document.addEventListener('wheel', function(e) { self.port.emit('wheel', e.deltaY) }, true);
 
 self.port.on('image', function(img, x, y, txt) {

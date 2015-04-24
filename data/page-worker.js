@@ -152,7 +152,7 @@ self.port.on('wheel', function(delta) {
 
 if(document.URL != 'about:blank') {
 	hzTarget.href = document.URL;
-	console.log("pageWorker loading: "+hzTarget.href);
+//	console.log("pageWorker loading: "+hzTarget.href);
 	switch(hzTarget.hostname.split('.').reverse()[1]) {
 		case "gfycat":
 			hzLoadVideo();
