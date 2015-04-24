@@ -56,6 +56,7 @@ function hzLoadVideo() {
 }
 
 function hzReset() {
+	hzMark = new Date().getTime();
 	clearTimeout(hzCurWait);
 	hzImg.src = null;
 	hzImgNum = 0;
@@ -130,11 +131,6 @@ self.port.on('inspect', function(url) {
 		}
 		if(hzTarget.href) { hzImg.src = hzTarget.href }
 //		console.log("img.src: "+hzImg.curUrl+" - curimg: "+hzCurUrl);
-//	} else {
-//		hzImgNum = 0;
-//		hzImgs = [];
-//		self.port.emit('load', 'about:blank');
-//		self.port.emit('hide');
 	}
 });
 
