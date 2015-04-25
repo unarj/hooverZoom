@@ -1,3 +1,4 @@
+var hzCurUrl = document.URL;
 var hzCurWait = false;
 var hzImgNum = 0;
 var hzImgs = [];
@@ -12,7 +13,7 @@ hzImg.onload = function() {
 			txt += " "+(hzImgNum+1)+"/"+hzImgs.length;
 			self.port.emit('album', true);
 		}
-		self.port.emit('image', this.src, this.width, this.height, txt);
+		self.port.emit('image', this.src, hzCurUrl, this.width, this.height, txt);
 	} else {
 		var cur = this.src;
 		hzCurWait = setTimeout( function(){ hzImg.src = cur }, i);
@@ -50,7 +51,7 @@ function hzLoadVideo() {
 		}
 	}
 	if(video && width && height) {
-		hzCurWait = setTimeout( function(){ self.port.emit('video', video, width, height) }, self.options.delay)
+		hzCurWait = setTimeout( function(){ self.port.emit('video', video, hzCurUrl, width, height, "") }, self.options.delay)
 	}
 }
 
@@ -64,9 +65,9 @@ function hzReset() {
 }
 
 self.port.on('inspect', function(url) {
+	hzCurUrl = url;
 	hzReset();
 	if(url) {
-		hzMark = new Date().getTime();
 		hzTarget.href = url;
 		var p = hzTarget.hostname.split('.').reverse();
 		switch(p[1]) {
