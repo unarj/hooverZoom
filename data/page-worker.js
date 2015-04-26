@@ -1,4 +1,3 @@
-var hzCurUrl = document.URL;
 var hzCurWait = false;
 var hzImgNum = 0;
 var hzImgs = [];
@@ -13,12 +12,13 @@ hzImg.onload = function() {
 			txt += " "+(hzImgNum+1)+"/"+hzImgs.length;
 			self.port.emit('album', true);
 		}
-		self.port.emit('image', this.src, hzCurUrl, this.width, this.height, txt);
+		self.port.emit('image', this.src, this.curUrl, this.width, this.height, txt);
 	} else {
 		var cur = this.src;
 		hzCurWait = setTimeout( function(){ hzImg.src = cur }, i);
 	}
 }
+hzImg.curUrl = false;
 
 function hzLoadAlbum(d) {
 	var delay = 0;
@@ -52,14 +52,14 @@ function hzLoadVideo() {
 	}
 	if(video && width && height) {
 //		console.log("pageworker video: "+video+" ("+hzCurUrl+") "+width+","+height);
-		hzCurWait = setTimeout( function(){ self.port.emit('video', video, hzCurUrl, width, height, "") }, self.options.delay)
+		hzCurWait = setTimeout( function(){ self.port.emit('video', video, width, height, "") }, self.options.delay)
 	}
 }
 
 self.port.on('inspect', function(url) {
 	clearTimeout(hzCurWait);
-	hzCurUrl = url;
 	hzMark = new Date().getTime();
+	hzImg.curUrl = url;
 	hzImg.src = null;
 	hzImgNum = 0;
 	hzImgs = [];
