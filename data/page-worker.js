@@ -51,22 +51,18 @@ function hzLoadVideo() {
 		}
 	}
 	if(video && width && height) {
+//		console.log("pageworker video: "+video+" ("+hzCurUrl+") "+width+","+height);
 		hzCurWait = setTimeout( function(){ self.port.emit('video', video, hzCurUrl, width, height, "") }, self.options.delay)
 	}
 }
 
-function hzReset() {
-	hzMark = new Date().getTime();
+self.port.on('inspect', function(url) {
 	clearTimeout(hzCurWait);
+	hzCurUrl = url;
+	hzMark = new Date().getTime();
 	hzImg.src = null;
 	hzImgNum = 0;
 	hzImgs = [];
-	self.port.emit('load', 'about:blank');
-}
-
-self.port.on('inspect', function(url) {
-	hzCurUrl = url;
-	hzReset();
 	if(url) {
 		hzTarget.href = url;
 		var p = hzTarget.hostname.split('.').reverse();
@@ -130,6 +126,8 @@ self.port.on('inspect', function(url) {
 		}
 		if(hzTarget.href) { hzImg.src = hzTarget.href }
 //		console.log("img.src: "+hzImg.curUrl+" - curimg: "+hzCurUrl);
+	} else {
+		self.port.emit('load', 'about:blank');
 	}
 });
 
