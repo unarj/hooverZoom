@@ -20,7 +20,8 @@ function hzMouseOff(e) {
 	// e.relatedTarget seems to be empty if the panel caused this event...
 	if(e && e.relatedTarget) {
 //		console.log("target: "+e.target+" - related: "+e.relatedTarget);
-		hzCurUrl, hzOnAlbum = false;
+		hzCurUrl= false;
+		hzOnAlbum = false;
 		self.port.emit('hide');
 	}
 }
@@ -42,7 +43,9 @@ function hzWheel(e) {
 		e.stopPropagation();
 		return false;
 	} else {
-		hzMouseOff(null);
+		hzCurUrl= false;
+		hzOnAlbum = false;
+		self.port.emit('hide');
 	}
 }
 

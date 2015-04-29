@@ -67,6 +67,10 @@ self.port.on('inspect', function(url) {
 		hzTarget.href = url;
 		var p = hzTarget.hostname.split('.').reverse();
 		switch(p[1]) {
+			case "deviantart":
+				self.port.emit('load', hzTarget.href);
+				hzTarget.href = null;
+				break;
 // need to use Flickr's API, trying to load the page fails (js errors, guessing intentional)... and Yahoo wants a valid phone number to sign up for an account...  fuck that, bitches
 			case "flickr":
 				self.port.emit('load', hzTarget.href);
@@ -151,12 +155,15 @@ if(document.URL != 'about:blank') {
 			hzLoadVideo();
 			break;
 		case "imgur":
-			if(hzTarget.pathname.split('.').pop() == "gifv") { hzLoadVideo() }
-			break;
+			if(hzTarget.pathname.split('.').pop() == "gifv") {
+				hzLoadVideo();
+				break;
+			}
 		default:
 			var els = document.getElementsByTagName('meta');
 				for(var i=0, l=els.length; i < l; i++) {
 				if(els[i].getAttribute('property') == "og:image") {
+					hzImg.curUrl = true;
 					hzImg.src = els[i].getAttribute('content');
 				}
 			}
