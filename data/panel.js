@@ -1,12 +1,12 @@
 var c = document.getElementById('panelContainer');
+c.addEventListener('click',function(e) { self.port.emit('click', e.button) }, false);
+c.addEventListener('mousemove', hzMotion, false);
+c.addEventListener('mouseleave', function(){ self.port.emit('hide') }, false);  //y u no work?!?
+c.addEventListener('wheel', function(e) { self.port.emit('wheel', e.deltaY) }, false);
+
 var i = document.getElementById('panelImg');
 var t = document.getElementById('panelText');
 var v = document.getElementById('panelVid');
-
-document.addEventListener('click', hzClick, false);
-document.addEventListener('mousemove', hzMotion, true);
-document.addEventListener('mouseleave', function(){ self.port.emit('hide') }, false);  //y u no work?!?
-document.addEventListener('wheel', function(e) { self.port.emit('wheel', e.deltaY) }, true);
 
 self.port.on('image', function(img, x, y, txt) {
 	hzOrigin = false;
@@ -38,11 +38,6 @@ function hzCaption(str) {
 	str = str || "";
 	while(t.firstChild) { t.removeChild(t.firstChild) }
 	t.appendChild(document.createTextNode(str));
-}
-
-function hzClick(e) {
-	self.port.emit('hide');
-	if(e.button == 0) { self.port.emit('click') }
 }
 
 // ideally the popup would hide when it's no longer over the element that caused it to show, but since we don't have

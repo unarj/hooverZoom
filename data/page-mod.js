@@ -18,7 +18,7 @@ function hzMouseOn(e) {
 
 function hzMouseOff(e) {
 	// e.relatedTarget seems to be empty if the panel caused this event...
-	if(e && e.relatedTarget) {
+	if(!e || e.relatedTarget) {
 //		console.log("target: "+e.target+" - related: "+e.relatedTarget);
 		hzCurUrl= false;
 		hzOnAlbum = false;
@@ -43,11 +43,14 @@ function hzWheel(e) {
 		e.stopPropagation();
 		return false;
 	} else {
-		hzCurUrl= false;
-		hzOnAlbum = false;
-		self.port.emit('hide');
+		hzMouseOff(null);
 	}
 }
 
 self.port.on('album', function(state) { hzOnAlbum = state });
-self.port.on('click', function() { if(hzCurUrl) { window.location.href = hzCurUrl } });
+self.port.on('click', function(b) {
+	if(b == 0 && hzCurUrl) { window.location.href = hzCurUrl }
+	hzMouseOff(null);
+});
+
+ 

@@ -68,16 +68,16 @@ self.port.on('inspect', function(url) {
 		var p = hzTarget.hostname.split('.').reverse();
 		switch(p[1]) {
 			case "deviantart":
-				self.port.emit('load', hzTarget.href);
+				self.port.emit('load', url, hzTarget.href);
 				hzTarget.href = null;
 				break;
 // need to use Flickr's API, trying to load the page fails (js errors, guessing intentional)... and Yahoo wants a valid phone number to sign up for an account...  fuck that, bitches
 			case "flickr":
-				self.port.emit('load', hzTarget.href);
+				self.port.emit('load', url, hzTarget.href);
 				hzTarget.href = null;
 				break;
 			case "gfycat":
-				self.port.emit('load', hzTarget.protocol+"//gfycat.com/"+hzTarget.pathname.split('.')[0]);
+				self.port.emit('load', url, hzTarget.protocol+"//gfycat.com/"+hzTarget.pathname.split('.')[0]);
 				hzTarget.href = null;
 				break;
 			case "imgflip":
@@ -106,11 +106,11 @@ self.port.on('inspect', function(url) {
 						if(hzTarget.pathname.split('.').length == 1) { hzTarget.href += ".jpg" }
 						switch(hzTarget.pathname.split('.').reverse()[0]) {
 							case "gif":
-								self.port.emit('load', hzTarget.href+"v");
+								self.port.emit('load', url, hzTarget.href+"v");
 								hzTarget.href = null;
 								break;
 							case "gifv":
-								self.port.emit('load', hzTarget.href);
+								self.port.emit('load', url, hzTarget.href);
 								hzTarget.href = null;
 								break;
 							default:
@@ -120,7 +120,7 @@ self.port.on('inspect', function(url) {
 				}
 				break;
 			case "instagram":
-				self.port.emit('load', hzTarget.href);
+				self.port.emit('load', url, hzTarget.href);
 				hzTarget.href = null;
 				break;
 			case "livememe":
@@ -131,7 +131,7 @@ self.port.on('inspect', function(url) {
 		if(hzTarget.href) { hzImg.src = hzTarget.href }
 //		console.log("img.src: "+hzImg.curUrl+" - curimg: "+hzCurUrl);
 	} else {
-		self.port.emit('load', 'about:blank');
+		self.port.emit('load', false, 'about:blank');
 	}
 });
 
@@ -163,7 +163,6 @@ if(document.URL != 'about:blank') {
 			var els = document.getElementsByTagName('meta');
 				for(var i=0, l=els.length; i < l; i++) {
 				if(els[i].getAttribute('property') == "og:image") {
-					hzImg.curUrl = true;
 					hzImg.src = els[i].getAttribute('content');
 				}
 			}
