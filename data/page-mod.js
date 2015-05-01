@@ -7,6 +7,7 @@ for (var i=0, l=hzLinks.length; i < l; i++) {
 window.addEventListener('focus', hzResize, false);
 window.addEventListener('load', hzResize, false);
 window.addEventListener('resize', hzResize, false);
+window.addEventListener('scroll', function(e){ hzMouseOff(null) }, false);
 window.addEventListener('wheel', hzWheel, false);
 
 var hzCurUrl, hzCurWait, hzOnAlbum = false;
@@ -42,8 +43,6 @@ function hzWheel(e) {
 		e.preventDefault();
 		e.stopPropagation();
 		return false;
-	} else {
-		hzMouseOff(null);
 	}
 }
 
