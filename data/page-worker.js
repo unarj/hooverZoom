@@ -66,67 +66,71 @@ self.port.on('inspect', function(url) {
 	if(url) {
 		hzTarget.href = url;
 		var p = hzTarget.hostname.split('.').reverse();
-		switch(p[1]) {
-			case "deviantart":
-				self.port.emit('load', url, hzTarget.href);
-				hzTarget.href = null;
-				break;
-// need to use Flickr's API, trying to load the page fails (js errors, guessing intentional)... and Yahoo wants a valid phone number to sign up for an account...  fuck that, bitches
-			case "flickr":
-				self.port.emit('load', url, hzTarget.href);
-				hzTarget.href = null;
-				break;
-			case "gfycat":
-				self.port.emit('load', url, hzTarget.protocol+"//gfycat.com/"+hzTarget.pathname.split('.')[0]);
-				hzTarget.href = null;
-				break;
-			case "imgflip":
-				p = hzTarget.pathname.split('/');
-				if(p.length > 2) {
-					hzTarget.href = hzTarget.protocol+"//i.imgflip.com/"+p[2].split('#')[0]+".jpg";
-				}
-				break;
-			case "imgur":
-				var alb = "";
-				hzTarget.href = hzTarget.href.split('?')[0].split('#')[0].split(',')[0];
-				p = hzTarget.pathname.split('/');
-				switch(p[1]) {
-					case "a":
-						alb = "https://api.imgur.com/3/album/"+p[2];
-					case "gallery":
-						alb = alb || "https://api.imgur.com/3/gallery/"+p[2];
-						hzCurWait = $.ajax({
-							url: alb, type: 'GET', datatype: 'json',
-							success: hzLoadAlbum,
-							beforeSend: function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') }
-						});
-						hzTarget.href = null;
-						break;
-					default:
-						if(hzTarget.pathname.split('.').length == 1) { hzTarget.href += ".jpg" }
-						switch(hzTarget.pathname.split('.').reverse()[0]) {
-							case "gif":
-								self.port.emit('load', url, hzTarget.href+"v");
-								hzTarget.href = null;
-								break;
-							case "gifv":
-								self.port.emit('load', url, hzTarget.href);
-								hzTarget.href = null;
-								break;
-							default:
-								hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
-						}
-//						console.log(hzTarget.href);
-				}
-				break;
-			case "instagram":
-				self.port.emit('load', url, hzTarget.href);
-				hzTarget.href = null;
-				break;
-			case "livememe":
-				p = hzTarget.pathname.split('.');
-				if(p.length == 1) { hzTarget.href = hzTarget.protocol+"//i.lvme.me"+p.pop()+".jpg" }
-				break;
+// loading an image URL is handled different than others...
+		if((/\.(bmp|gif|jpg|jpeg|tiff|png)$/i).test(hzTarget.pathname)) {
+			switch(p[1]) {
+				case "imgur":
+					switch(hzTarget.pathname.split('.').reverse()[0]) {
+						case "gif":
+							self.port.emit('load', url, hzTarget.href+"v");
+							hzTarget.href = null;
+							break;
+					}
+			}
+		} else {
+			switch(p[1]) {
+				case "deviantart":
+					self.port.emit('load', url, hzTarget.href);
+					hzTarget.href = null;
+					break;
+				case "gfycat":
+					self.port.emit('load', url, hzTarget.protocol+"//gfycat.com/"+hzTarget.pathname.split('.')[0]);
+					hzTarget.href = null;
+					break;
+				case "imgflip":
+					p = hzTarget.pathname.split('/');
+					if(p.length > 2) {
+						hzTarget.href = hzTarget.protocol+"//i.imgflip.com/"+p[2].split('#')[0]+".jpg";
+					}
+					break;
+				case "imgur":
+					var alb = "";
+					hzTarget.href = hzTarget.href.split('?')[0].split('#')[0].split(',')[0];
+					p = hzTarget.pathname.split('/');
+					switch(p[1]) {
+						case "a":
+							alb = "https://api.imgur.com/3/album/"+p[2];
+						case "gallery":
+							alb = alb || "https://api.imgur.com/3/gallery/"+p[2];
+							hzCurWait = $.ajax({
+								url: alb, type: 'GET', datatype: 'json',
+								success: hzLoadAlbum,
+								beforeSend: function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') }
+							});
+							hzTarget.href = null;
+							break;
+						default:
+							if(hzTarget.pathname.split('.').length == 1) { hzTarget.href += ".jpg" }
+							switch(hzTarget.pathname.split('.').reverse()[0]) {
+								case "gifv":
+									self.port.emit('load', url, hzTarget.href);
+									hzTarget.href = null;
+									break;
+								default:
+									hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
+							}
+	//						console.log(hzTarget.href);
+					}
+					break;
+				case "instagram":
+					self.port.emit('load', url, hzTarget.href);
+					hzTarget.href = null;
+					break;
+				case "livememe":
+					p = hzTarget.pathname.split('.');
+					if(p.length == 1) { hzTarget.href = hzTarget.protocol+"//i.lvme.me"+p.pop()+".jpg" }
+					break;
+			}
 		}
 		if(hzTarget.href) { hzImg.src = hzTarget.href }
 //		console.log("img.src: "+hzImg.curUrl+" - curimg: "+hzCurUrl);
