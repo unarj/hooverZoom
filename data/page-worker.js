@@ -70,6 +70,7 @@ self.port.on('inspect', function(url) {
 		if((/\.(bmp|gif|jpg|jpeg|tiff|png)$/i).test(hzTarget.pathname)) {
 			switch(p[1]) {
 				case "imgur":
+					hzTarget.href = hzTarget.href.split('?')[0].split('#')[0].split(',')[0];
 					switch(hzTarget.pathname.split('.').reverse()[0]) {
 						case "gif":
 							self.port.emit('load', url, hzTarget.href+"v");
@@ -119,7 +120,6 @@ self.port.on('inspect', function(url) {
 								default:
 									hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
 							}
-	//						console.log(hzTarget.href);
 					}
 					break;
 				case "instagram":
