@@ -130,6 +130,10 @@ self.port.on('inspect', function(url) {
 					p = hzTarget.pathname.split('.');
 					if(p.length == 1) { hzTarget.href = hzTarget.protocol+"//i.lvme.me"+p.pop()+".jpg" }
 					break;
+				case "lunarbaboon":
+					self.port.emit('load', url, hzTarget.href);
+					hzTarget.href = null;
+					break;
 			}
 		}
 		if(hzTarget.href) { hzImg.src = hzTarget.href }
