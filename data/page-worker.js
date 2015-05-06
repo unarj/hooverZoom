@@ -8,7 +8,7 @@ hzImg.onload = function() {
 	var i = self.options.delay - (new Date().getTime() - hzMark);
 	if(i <= 0) {
 		var txt = "";
-		if(hzImgs.length > 0) {
+		if(hzImgs.length > 1) {
 			txt += " "+(hzImgNum+1)+"/"+hzImgs.length;
 			self.port.emit('album', true);
 		}
@@ -32,7 +32,7 @@ function hzLoadAlbum(d) {
 	} else if(d['data']['id']) {
 		hzImg.src = hzCurImg = hzTarget.protocol+"//i.imgur.com/"+d['data']['id']+".jpg";
 	}
-	if(hzImgs.length > 0) {	hzImg.src = hzImgs[hzImgNum] }
+	if(hzImgs.length > 0) { hzImg.src = hzImgs[hzImgNum] }
 }
 
 function hzLoadVideo() {
