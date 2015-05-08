@@ -1,0 +1,10 @@
+#hzDiv { cursor:none; display:none; position:absolute; pointer-events:none; }
+#hzImg { left:50%; position:fixed; top:50%; }
+#hzImgTxt { color:#FFFF99; font:bold 1em small sans-serif; position:fixed; bottom:50%; right:50%;
+			text-shadow: 0.05em 0.05em 0.05em #000000,  0.05em -0.05em 0.05em #000000,
+						-0.05em 0.05em 0.05em #000000, -0.05em -0.05em 0.05em #000000,
+						 0.10em 0.10em 0.10em #000000,  0.10em -0.10em 0.10em #000000,
+						-0.10em 0.10em 0.10em #000000, -0.10em -0.10em 0.10em #000000,
+						 0.20em 0.20em 0.20em #000000,  0.20em -0.20em 0.20em #000000,
+						-0.20em 0.20em 0.20em #000000, -0.20em -0.20em 0.20em #000000; }
+#hzVideo { autoplay; loop; }
