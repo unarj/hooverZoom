@@ -1,10 +1,11 @@
-#hzDiv { cursor:none; display:none; position:absolute; pointer-events:none; }
-#hzImg { left:50%; position:fixed; top:50%; }
-#hzImgTxt { color:#FFFF99; font:bold 1em small sans-serif; position:fixed; bottom:50%; right:50%;
+#hzDiv { cursor:none; display:none; position:fixed; pointer-events:none; top:50%; left:50%;
+			background-color:#000000; border:solid 1px #333333; z-index:100; }
+#hzDiv div { color:#FFFF99; font:bold 1em sans-serif; bottom:6px; right:8px; position:absolute; z-index:102;
 			text-shadow: 0.05em 0.05em 0.05em #000000,  0.05em -0.05em 0.05em #000000,
 						-0.05em 0.05em 0.05em #000000, -0.05em -0.05em 0.05em #000000,
 						 0.10em 0.10em 0.10em #000000,  0.10em -0.10em 0.10em #000000,
 						-0.10em 0.10em 0.10em #000000, -0.10em -0.10em 0.10em #000000,
 						 0.20em 0.20em 0.20em #000000,  0.20em -0.20em 0.20em #000000,
 						-0.20em 0.20em 0.20em #000000, -0.20em -0.20em 0.20em #000000; }
-#hzVideo { autoplay; loop; }
+#hzDiv img { width:100%; height:100%; z-index:101; }
+#hzDiv video { width:100%; height:100%; z-index:101; }

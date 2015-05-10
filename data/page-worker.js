@@ -1,21 +1,21 @@
-var hzImgs = [];
-var hzVideo = false;
+var imgs = [];
+vid = {};
 var els = document.getElementsByTagName('meta');
 for(var i=0, l=els.length; i < l; i++) {
 	switch(els[i].getAttribute('property')) {
 		case 'og:image':
-			hzImgs.push(els[i].getAttribute('content'));
+			imgs.push(els[i].getAttribute('content'));
 			break;
 		case 'og:video':
-			if(els[i].getAttribute('content').split('.').pop() == "mp4") { hzVideo.src = els[i].getAttribute('content') }
+			if(els[i].getAttribute('content').split('.').pop() == "mp4") { vid.src = els[i].getAttribute('content') }
 			break;
 		case 'og:video:width':
-			hzVideo.width = els[i].getAttribute('content');
+			vid.width = els[i].getAttribute('content');
 			break;
 		case 'og:video:height':
-			hzVideo.height = els[i].getAttribute('content');
+			vid.height = els[i].getAttribute('content');
 			break;					
 	}
 }
-if(hzVideo) { console.log("loading video: "+hzVideo); self.port.emit('video', document.URL, hzVideo) }
-else if(hzImgs.length > 0) { console.log("loading image: "+hzImgs); self.port.emit('image', document.URL, hzImgs) }
+if(vid.src) { self.port.emit('video', self.options.url, vid) }
+else if(imgs.length > 0) { self.port.emit('image', self.options.url, imgs) }
