@@ -140,6 +140,10 @@ var hzTarget = document.createElement('a');
 var hzCurUrl, hzMark;
 function hzMouseOn(e) {
 	clearTimeout(hzWait);
+	self.port.emit('load', '', 'about:blank');
+	hzCurUrl = '';
+	hzDiv.hide();
+	hzAlbumImgs = [];
 	if(e) {
 		hzMark = new Date().getTime();
 		hzCurUrl = e.target.toString();
@@ -148,13 +152,13 @@ function hzMouseOn(e) {
 		switch(p[1]) {
 			case 'deviantart':
 				self.port.emit('load', hzCurUrl, hzTarget.href);
-				break;
+				return;
 			case 'flickr':
 				self.port.emit('load', hzCurUrl, hzTarget.href);
-				break;
+				return;
 			case 'gfycat':
 				self.port.emit('load', hzCurUrl, hzTarget.protocol+"//gfycat.com/"+hzTarget.pathname.split('.')[0]);
-				break;
+				return;
 			case 'imgflip':
 				p = hzTarget.pathname.split('/');
 				if(p.length > 2) { hzTarget.href = hzTarget.protocol+"//i.imgflip.com/"+p[2].split('#')[0]+".jpg" }
@@ -169,7 +173,7 @@ function hzMouseOn(e) {
 					case 'gallery':
 						alb = alb || "https://api.imgur.com/3/gallery/"+p[2];
 						hzCurWait = $.ajax({ url:alb, type:'GET', datatype:'json', success:hzLoadAlbum, beforeSend:function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') } });
-						break;
+						return;
 					default:
 						if(hzTarget.pathname.split('.').length == 1) { hzTarget.href += ".jpg" }
 						switch(hzTarget.pathname.split('.').reverse()[0]) {
@@ -177,7 +181,7 @@ function hzMouseOn(e) {
 								hzTarget.href += "v";
 							case 'gifv':
 								self.port.emit('load', hzCurUrl, hzTarget.href);
-								break;
+								return;
 							default:
 								hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
 						}
@@ -185,24 +189,19 @@ function hzMouseOn(e) {
 				break;
 			case 'instagram':
 				self.port.emit('load', hzCurUrl, hzTarget.href);
-				break;
+				return;
 			case 'livememe':
 				p = hzTarget.pathname.split('.');
 				if(p.length == 1) { hzTarget.href = hzTarget.protocol+"//i.lvme.me"+p.pop()+".jpg" }
 				break;
 			case 'makeameme':
 				self.port.emit('load', hzCurUrl, hzTarget.href);
-				break;
+				return;
 		}
-		if(hzTarget.href) { hzLoadImg(hzCurUrl, hzTarget.href) }
+		hzLoadImg(hzCurUrl, hzTarget.href);
 	}
 }
-function hzMouseOff(e) {
-	hzCurUrl = '';
-	hzDiv.hide();
-	hzAlbumImgs = [];
-	self.port.emit('load', '', 'about:blank');
-}
+function hzMouseOff(e) { hzMouseOn(null) }
 
 self.port.on('image', function(url, imgs){
 	hzAlbumImgs = imgs;
