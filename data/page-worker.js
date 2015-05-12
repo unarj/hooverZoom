@@ -17,5 +17,5 @@ for(var i=0, l=els.length; i < l; i++) {
 			break;					
 	}
 }
-if(vid.src) { self.port.emit('video', self.options.url, vid) }
-else if(imgs.length > 0) { self.port.emit('image', self.options.url, imgs) }
+if(vid.src) { self.port.emit('video', vid) }
+else if(imgs.length > 0) { self.port.emit('image', imgs) }

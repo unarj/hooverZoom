@@ -1,5 +1,5 @@
 #hzDiv { cursor:none; display:none; position:fixed; pointer-events:none; top:50%; left:50%;
-	box-shadow:0.5em 0.5em 0.3em #000000; background-color:#000000; border:solid 1px #333333;
+	box-shadow:0.2em 0.2em 0.6em #000000; background-color:#333333; border:solid 1px #333333;
 	opacity:0.99; z-index:2147483647; }
 #hzDiv div { color:#FFFF99; font:bold 1em sans-serif; bottom:6px; right:8px; position:absolute;
 	text-shadow:0.05em 0.05em 0.05em #000000,  0.05em -0.05em 0.05em #000000,
