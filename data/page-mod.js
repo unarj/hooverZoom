@@ -194,6 +194,9 @@ function hzMouseOn(e) {
 				p = hzTarget.pathname.split('.');
 				if(p.length == 1) { hzTarget.href = hzTarget.protocol+"//i.lvme.me"+p.pop()+".jpg" }
 				break;
+			case 'lunarbaboon':
+				self.port.emit('load', hzCurUrl, hzTarget.href);
+				return;
 			case 'makeameme':
 				self.port.emit('load', hzCurUrl, hzTarget.href);
 				return;
