@@ -6,7 +6,7 @@ for (var i=0, l=hzLinks.length; i < l; i++) {
 
 var hzDiv = document.createElement('div');
 hzDiv.id = "hzDiv"
-hzDiv.setSize = function(width, height) {
+hzDiv.resize = function(width, height) {
 	var x = width;
 	var y = height;
 	var maxX = document.documentElement.clientWidth * window.devicePixelRatio * (self.options.maxSize / 100);
@@ -39,6 +39,7 @@ hzDiv.show = function(el) {
 			break;
 	}
 	hzText.set();
+	window.addEventListener('blur', hzMouseOff, false);
 	window.addEventListener('scroll', hzMouseOff, false);
 	window.addEventListener('wheel', hzWheel, false);
 	hzDiv.style.display = 'inline';
@@ -46,6 +47,7 @@ hzDiv.show = function(el) {
 }
 hzDiv.hide = function() {
 	hzDiv.style.display = 'none';
+	window.removeEventListener('blur', hzMouseOff, false);
 	window.removeEventListener('scroll', hzMouseOff, false);
 	window.removeEventListener('wheel', hzWheel, false);
 }
@@ -59,7 +61,7 @@ hzImg.show = function(url, src) {
 			hzWait = setTimeout( function(){ hzImg.show(url, src) }, i);
 		} else {
 			this.src = src;
-			hzDiv.setSize(this.naturalWidth, this.naturalHeight);
+			hzDiv.resize(this.naturalWidth, this.naturalHeight);
 			hzDiv.show('image');
 		}
 	}
@@ -85,7 +87,7 @@ hzVideo.show = function(url, vid) {
 			hzWait = setTimeout( function(){ hzVideo.show(url, vid) }, i);
 		} else {
 			this.src = vid.src;
-			hzDiv.setSize(vid.width*1.6, vid.height*1.6);
+			hzDiv.resize(vid.width*1.6, vid.height*1.6);
 			hzDiv.show('video');
 		}
 	}
@@ -165,7 +167,6 @@ function hzMouseOn(e) {
 				break;
 			case 'imgur':
 				var alb = "";
-				hzTarget.pathname = hzTarget.pathname.split('?')[0].split('#')[0].split(',')[0];
 				p = hzTarget.pathname.split('/');
 				switch(p[1]) {
 					case 'a':
@@ -174,17 +175,18 @@ function hzMouseOn(e) {
 						alb = alb || "https://api.imgur.com/3/gallery/"+p[2];
 						hzCurWait = $.ajax({ url:alb, type:'GET', datatype:'json', success:hzLoadAlbum, beforeSend:function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') } });
 						return;
+				}
+				hzTarget.href = hzTarget.href.split('?')[0].split('#')[0].split(',')[0];
+				if(hzTarget.pathname.split('.').length == 1) { hzTarget.href += ".jpg" }
+				switch(hzTarget.pathname.split('.').reverse()[0]) {
+					case 'gif':
+						hzTarget.href += "v";
+					case 'gifv':
+						self.port.emit('load', hzCurUrl, hzTarget.href);
+						return;
 					default:
-						if(hzTarget.pathname.split('.').length == 1) { hzTarget.href += ".jpg" }
-						switch(hzTarget.pathname.split('.').reverse()[0]) {
-							case 'gif':
-								hzTarget.href += "v";
-							case 'gifv':
-								self.port.emit('load', hzCurUrl, hzTarget.href);
-								return;
-							default:
-								hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
-						}
+						hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
+				
 				}
 				break;
 			case 'instagram':
