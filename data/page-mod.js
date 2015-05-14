@@ -102,32 +102,12 @@ hzVideo.loop = true;
 hzVideo.muted = true;
 hzDiv.appendChild(hzVideo);
 
-var hzWait;
 function hzLoadImg(url, src) {
 	var img = new Image();
 	img.onload = function() { hzImg.show(url, src) }
 	img.src = src;
 }
 
-var hzAlbumImgs = [];
-var hzAlbumImgIndex;
-function hzLoadAlbum(d) {
-	var delay = 0;
-	if(d['data']['images']) {
-		$.each(d['data']['images'], function(i,v){
-			var h = hzTarget.protocol+"//i.imgur.com/"+v['id']+".jpg";
-			setTimeout( function(){ new Image().src = h }, delay);
-			delay += 500;
-			hzAlbumImgs.push(h);
-		});
-	} else if(d['data']['id']) {
-		hzAlbumImgs.push(hzTarget.protocol+"//i.imgur.com/"+d['data']['id']+".jpg");
-	}
-	if(hzAlbumImgs) {
-		hzLoadImg(hzCurUrl, hzAlbumImgs[0]);
-		hzAlbumImgIndex = 0;
-	}
-}
 function hzWheel(e) {
 	if(hzAlbumImgs.length > 1) {
 		e.preventDefault();
@@ -144,9 +124,9 @@ function hzWheel(e) {
 }
 
 var hzTarget = document.createElement('a');
-var hzCurUrl, hzMark;
+var hzAlbumImgs, hzAlbumImgIndex, hzCurUrl, hzMark, hzWait;
 function hzMouseOn(e) {
-	clearTimeout(hzWait);
+	if(hzWait.abort) { hzWait.abort() } else { clearTimeout(hzWait) }
 	hzDiv.hide();
 	hzCurUrl = '';
 	hzAlbumImgs = [];
@@ -177,7 +157,23 @@ function hzMouseOn(e) {
 						alb = "https://api.imgur.com/3/album/"+p[2];
 					case 'gallery':
 						alb = alb || "https://api.imgur.com/3/gallery/"+p[2];
-						hzCurWait = $.ajax({ url:alb, type:'GET', datatype:'json', success:hzLoadAlbum, beforeSend:function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') } });
+						hzWait = $.ajax({ url:alb, type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') }, success:function(d) {
+							var delay = 0;
+							if(d['data']['images']) {
+								$.each(d['data']['images'], function(i,v){
+									var h = hzTarget.protocol+"//i.imgur.com/"+v['id']+".jpg";
+									setTimeout( function(){ new Image().src = h }, delay);
+									delay += 500;
+									hzAlbumImgs.push(h);
+								});
+							} else if(d['data']['id']) {
+								hzAlbumImgs.push(hzTarget.protocol+"//i.imgur.com/"+d['data']['id']+".jpg");
+							}
+							if(hzAlbumImgs) {
+								hzLoadImg(hzCurUrl, hzAlbumImgs[0]);
+								hzAlbumImgIndex = 0;
+							}
+						});
 						return;
 				}
 				hzTarget.href = hzTarget.href.split('?')[0].split('#')[0].split(',')[0];
