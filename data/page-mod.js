@@ -42,14 +42,19 @@ hzDiv.show = function(el) {
 	window.addEventListener('blur', hzMouseOff, false);
 	window.addEventListener('scroll', hzMouseOff, false);
 	window.addEventListener('wheel', hzWheel, false);
-	hzDiv.style.display = 'inline';
 	self.port.emit('visit', hzCurUrl);
+	this.style.display = 'inline';
+	this.isShowing = true;
 }
 hzDiv.hide = function() {
-	hzDiv.style.display = 'none';
-	window.removeEventListener('blur', hzMouseOff, false);
-	window.removeEventListener('scroll', hzMouseOff, false);
-	window.removeEventListener('wheel', hzWheel, false);
+	if(this.isShowing) {
+		self.port.emit('load', '', 'about:blank');
+		hzDiv.style.display = 'none';
+		window.removeEventListener('blur', hzMouseOff, false);
+		window.removeEventListener('scroll', hzMouseOff, false);
+		window.removeEventListener('wheel', hzWheel, false);
+		this.isShowing = false;
+	}
 }
 document.body.appendChild(hzDiv);
 
@@ -142,9 +147,8 @@ var hzTarget = document.createElement('a');
 var hzCurUrl, hzMark;
 function hzMouseOn(e) {
 	clearTimeout(hzWait);
-	self.port.emit('load', '', 'about:blank');
-	hzCurUrl = '';
 	hzDiv.hide();
+	hzCurUrl = '';
 	hzAlbumImgs = [];
 	if(e) {
 		hzMark = new Date().getTime();
