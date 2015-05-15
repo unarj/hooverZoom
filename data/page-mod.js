@@ -141,6 +141,9 @@ function hzMouseOn(e) {
 			case 'deviantart':
 				self.port.emit('load', hzCurUrl, hzTarget.href);
 				return;
+			case 'explosm':
+				self.port.emit('load', hzCurUrl, hzTarget.href);
+				return;
 			case 'flickr':
 				self.port.emit('load', hzCurUrl, hzTarget.href);
 				return;
