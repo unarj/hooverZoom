@@ -136,80 +136,83 @@ function hzMouseOn(e) {
 		hzMark = new Date().getTime();
 		hzCurUrl = e.target.toString();
 		hzTarget.href = hzCurUrl;
-		var p = hzTarget.hostname.split('.').reverse();
-		switch(p[1]) {
-			case 'deviantart':
-				self.port.emit('load', hzCurUrl, hzTarget.href);
-				return;
-			case 'explosm':
-				self.port.emit('load', hzCurUrl, hzTarget.href);
-				return;
-			case 'flickr':
-				self.port.emit('load', hzCurUrl, hzTarget.href);
-				return;
-			case 'gfycat':
-				self.port.emit('load', hzCurUrl, hzTarget.protocol+"//gfycat.com/"+hzTarget.pathname.split('.')[0]);
-				return;
-			case 'imgflip':
-				p = hzTarget.pathname.split('/');
-				if(p.length > 2) { hzTarget.href = hzTarget.protocol+"//i.imgflip.com/"+p[2].split('#')[0]+".jpg" }
-				break;
-			case 'imgur':
-				var alb = "";
-				p = hzTarget.pathname.split('/');
-				switch(p[1]) {
-					case 'a':
-						alb = "https://api.imgur.com/3/album/"+p[2];
-					case 'gallery':
-						alb = alb || "https://api.imgur.com/3/gallery/"+p[2];
-						hzWait = $.ajax({ url:alb, type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') },
-							success:function(d) {
-								var delay = 0;
-								if(d['data']['images']) {
-									$.each(d['data']['images'], function(i,v){
-										var h = hzTarget.protocol+"//i.imgur.com/"+v['id']+".jpg";
-										setTimeout( function(){ new Image().src = h }, delay);
-										delay += 500;
-										hzAlbumImgs.push(h);
-									});
-								} else if(d['data']['id']) {
-									hzAlbumImgs.push(hzTarget.protocol+"//i.imgur.com/"+d['data']['id']+".jpg");
+		if(['bmp', 'jpeg', 'jpg', 'png'].indexOf(hzTarget.pathname.split('.').reverse()[0]) > -1) { hzImg.load(hzCurUrl, hzTarget.href) }
+		else {
+			var p = hzTarget.hostname.split('.').reverse();
+			switch(p[1]) {
+				case 'deviantart':
+					self.port.emit('load', hzCurUrl, hzTarget.href);
+					return;
+				case 'explosm':
+					self.port.emit('load', hzCurUrl, hzTarget.href);
+					return;
+				case 'flickr':
+					self.port.emit('load', hzCurUrl, hzTarget.href);
+					return;
+				case 'gfycat':
+					self.port.emit('load', hzCurUrl, hzTarget.protocol+"//gfycat.com/"+hzTarget.pathname.split('.')[0]);
+					return;
+				case 'imgflip':
+					p = hzTarget.pathname.split('/');
+					if(p.length > 2) { hzTarget.href = hzTarget.protocol+"//i.imgflip.com/"+p[2].split('#')[0]+".jpg" }
+					break;
+				case 'imgur':
+					var alb = "";
+					p = hzTarget.pathname.split('/');
+					switch(p[1]) {
+						case 'a':
+							alb = "https://api.imgur.com/3/album/"+p[2];
+						case 'gallery':
+							alb = alb || "https://api.imgur.com/3/gallery/"+p[2];
+							hzWait = $.ajax({ url:alb, type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') },
+								success:function(d) {
+									var delay = 0;
+									if(d['data']['images']) {
+										$.each(d['data']['images'], function(i,v){
+											var h = hzTarget.protocol+"//i.imgur.com/"+v['id']+".jpg";
+											setTimeout( function(){ new Image().src = h }, delay);
+											delay += 500;
+											hzAlbumImgs.push(h);
+										});
+									} else if(d['data']['id']) {
+										hzAlbumImgs.push(hzTarget.protocol+"//i.imgur.com/"+d['data']['id']+".jpg");
+									}
+									if(hzAlbumImgs.length > 0) {
+										hzImg.load(hzCurUrl, hzAlbumImgs[0]);
+										hzAlbumImgIndex = 0;
+									}
 								}
-								if(hzAlbumImgs.length > 0) {
-									hzImg.load(hzCurUrl, hzAlbumImgs[0]);
-									hzAlbumImgIndex = 0;
-								}
-							}
-						});
-						return;
-				}
-				hzTarget.href = hzTarget.href.split('?')[0].split('#')[0].split(',')[0];
-				if(hzTarget.pathname.split('.').length == 1) { hzTarget.href += ".jpg" }
-				switch(hzTarget.pathname.split('.').reverse()[0]) {
-					case 'gif':
-						hzTarget.href += "v";
-					case 'gifv':
-						self.port.emit('load', hzCurUrl, hzTarget.href);
-						return;
-					default:
-						hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
-				}
-				break;
-			case 'instagram':
-				self.port.emit('load', hzCurUrl, hzTarget.href);
-				return;
-			case 'livememe':
-				p = hzTarget.pathname.split('.');
-				if(p.length == 1) { hzTarget.href = hzTarget.protocol+"//i.lvme.me"+p.pop()+".jpg" }
-				break;
-			case 'makeameme':
-				self.port.emit('load', hzCurUrl, hzTarget.href);
-				return;
-			case 'twitter':
-				self.port.emit('load', hzCurUrl, hzTarget.href);
-				return;
+							});
+							return;
+					}
+					hzTarget.href = hzTarget.href.split('?')[0].split('#')[0].split(',')[0];
+					if(hzTarget.pathname.split('.').length == 1) { hzTarget.href += ".jpg" }
+					switch(hzTarget.pathname.split('.').reverse()[0]) {
+						case 'gif':
+							hzTarget.href += "v";
+						case 'gifv':
+							self.port.emit('load', hzCurUrl, hzTarget.href);
+							return;
+						default:
+							hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
+					}
+					break;
+				case 'instagram':
+					self.port.emit('load', hzCurUrl, hzTarget.href);
+					return;
+				case 'livememe':
+					p = hzTarget.pathname.split('.');
+					if(p.length == 1) { hzTarget.href = hzTarget.protocol+"//i.lvme.me"+p.pop()+".jpg" }
+					break;
+				case 'makeameme':
+					self.port.emit('load', hzCurUrl, hzTarget.href);
+					return;
+				case 'twitter':
+					self.port.emit('load', hzCurUrl, hzTarget.href);
+					return;
+			}
+			hzImg.load(hzCurUrl, hzTarget.href);
 		}
-		hzImg.load(hzCurUrl, hzTarget.href);
 	}
 }
 function hzMouseOff(e) { hzMouseOn(null) }
