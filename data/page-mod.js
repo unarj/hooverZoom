@@ -31,31 +31,27 @@ hzDiv.show = function(el) {
 	switch(el) {
 		case 'image':
 			hzVideo.style.display = 'none';
-			hzImg.style.display = 'inline';
+			hzImg.style.display = 'block';
 			break;
 		case 'video':
 			hzImg.style.display = 'none';
-			hzVideo.style.display = 'inline';
+			hzVideo.style.display = 'block';
 			break;
 		default:
 			return;
 	}
-	this.style.display = 'inline';
+	this.style.display = 'block';
 	hzText.set();
 	window.addEventListener('blur', hzMouseOff, false);
 	window.addEventListener('scroll', hzMouseOff, false);
 	window.addEventListener('wheel', hzWheel, false);
 	self.port.emit('visit', hzCurUrl);
-	this.isShowing = true;
 }
 hzDiv.hide = function() {
-	if(this.isShowing) {
-		window.removeEventListener('blur', hzMouseOff, false);
-		window.removeEventListener('scroll', hzMouseOff, false);
-		window.removeEventListener('wheel', hzWheel, false);
-		hzDiv.style.display = 'none';
-		this.isShowing = false;
-	}
+	window.removeEventListener('blur', hzMouseOff, false);
+	window.removeEventListener('scroll', hzMouseOff, false);
+	window.removeEventListener('wheel', hzWheel, false);
+	hzDiv.style.display = 'none';
 }
 document.body.appendChild(hzDiv);
 
@@ -66,7 +62,6 @@ hzImg.load = function(url, src) {
 	i.src = src;
 }
 hzImg.show = function(url, src) {
-	this.src = '';
 	if(url == hzCurUrl) {
 		var i = self.options.delay - (new Date().getTime() - hzMark);
 		if(i > 0) {
@@ -98,7 +93,6 @@ hzVideo.load = function(url, src) {
 	v.src = src;
 }
 hzVideo.show = function(url, vid) {
-	this.src = '';
 	if(url == hzCurUrl) {
 		var i = self.options.delay - (new Date().getTime() - hzMark);
 		if(i > 0) {
@@ -134,7 +128,7 @@ var hzTarget = document.createElement('a');
 var hzAlbumImgs, hzAlbumImgIndex, hzCurUrl, hzMark, hzWait;
 function hzMouseOn(e) {
 	self.port.emit('load', '', 'about:blank');
-	if(hzWait) { if(hzWait.abort) { hzWait.abort() } else { clearTimeout(hzWait) }}
+	if(hzWait) { if(hzWait.abort) { hzWait.abort() } else { clearTimeout(hzWait) } }
 	hzDiv.hide();
 	hzCurUrl = '';
 	hzAlbumImgs = [];
@@ -178,7 +172,7 @@ function hzMouseOn(e) {
 								} else if(d['data']['id']) {
 									hzAlbumImgs.push(hzTarget.protocol+"//i.imgur.com/"+d['data']['id']+".jpg");
 								}
-								if(hzAlbumImgs) {
+								if(hzAlbumImgs.length > 0) {
 									hzImg.load(hzCurUrl, hzAlbumImgs[0]);
 									hzAlbumImgIndex = 0;
 								}
@@ -195,7 +189,7 @@ function hzMouseOn(e) {
 						self.port.emit('load', hzCurUrl, hzTarget.href);
 						return;
 					default:
-						hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();				
+						hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
 				}
 				break;
 			case 'instagram':
