@@ -67,9 +67,9 @@ hzImg.show = function(url, src) {
 		if(i > 0) {
 			hzWait = setTimeout( function(){ hzImg.show(url, src) }, i);
 		} else {
-			hzDiv.resize(this.naturalWidth, this.naturalHeight);
 			hzDiv.show('image');
 			this.src = src;
+			hzDiv.resize(this.naturalWidth, this.naturalHeight);
 		}
 	}
 }
@@ -93,13 +93,13 @@ hzVideo.show = function(url, vid) {
 		if(i > 0) {
 			hzWait = setTimeout( function(){ hzVideo.show(url, vid) }, i);
 		} else {
-			hzDiv.resize(vid.width*1.6, vid.height*1.6);
 			hzDiv.show('video');
 			this.src = vid.src;
+			hzDiv.resize(vid.width*1.6, vid.height*1.6);
 		}
 	}
 }
-hzVideo.autoplay = true;
+hzVideo.addEventListener('canplay', function(e){ this.play() }, false);
 hzVideo.loop = true;
 hzVideo.muted = true;
 hzDiv.appendChild(hzVideo);
@@ -128,7 +128,9 @@ function hzWheel(e) {
 var hzTarget = document.createElement('a');
 var hzAlbumImgs, hzAlbumImgIndex, hzCurUrl, hzMark, hzWait;
 function hzMouseOn(e) {
-	if(hzWait.abort) { hzWait.abort() } else { clearTimeout(hzWait) }
+	if(hzWait) {
+		if(hzWait.abort) { hzWait.abort() } else { clearTimeout(hzWait) }
+	}
 	hzDiv.hide();
 	hzCurUrl = '';
 	hzAlbumImgs = [];
@@ -159,21 +161,23 @@ function hzMouseOn(e) {
 						alb = "https://api.imgur.com/3/album/"+p[2];
 					case 'gallery':
 						alb = alb || "https://api.imgur.com/3/gallery/"+p[2];
-						hzWait = $.ajax({ url:alb, type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') }, success:function(d) {
-							var delay = 0;
-							if(d['data']['images']) {
-								$.each(d['data']['images'], function(i,v){
-									var h = hzTarget.protocol+"//i.imgur.com/"+v['id']+".jpg";
-									setTimeout( function(){ new Image().src = h }, delay);
-									delay += 500;
-									hzAlbumImgs.push(h);
-								});
-							} else if(d['data']['id']) {
-								hzAlbumImgs.push(hzTarget.protocol+"//i.imgur.com/"+d['data']['id']+".jpg");
-							}
-							if(hzAlbumImgs) {
-								hzLoadImg(hzCurUrl, hzAlbumImgs[0]);
-								hzAlbumImgIndex = 0;
+						hzWait = $.ajax({ url:alb, type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') },
+							success:function(d) {
+								var delay = 0;
+								if(d['data']['images']) {
+									$.each(d['data']['images'], function(i,v){
+										var h = hzTarget.protocol+"//i.imgur.com/"+v['id']+".jpg";
+										setTimeout( function(){ new Image().src = h }, delay);
+										delay += 500;
+										hzAlbumImgs.push(h);
+									});
+								} else if(d['data']['id']) {
+									hzAlbumImgs.push(hzTarget.protocol+"//i.imgur.com/"+d['data']['id']+".jpg");
+								}
+								if(hzAlbumImgs) {
+									hzLoadImg(hzCurUrl, hzAlbumImgs[0]);
+									hzAlbumImgIndex = 0;
+								}
 							}
 						});
 						return;
