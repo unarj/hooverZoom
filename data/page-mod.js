@@ -50,7 +50,6 @@ hzDiv.show = function(el) {
 }
 hzDiv.hide = function() {
 	if(this.isShowing) {
-		self.port.emit('load', '', 'about:blank');
 		window.removeEventListener('blur', hzMouseOff, false);
 		window.removeEventListener('scroll', hzMouseOff, false);
 		window.removeEventListener('wheel', hzWheel, false);
@@ -61,7 +60,13 @@ hzDiv.hide = function() {
 document.body.appendChild(hzDiv);
 
 var hzImg = document.createElement('img');
+hzImg.load = function(url, src) {
+	var i = document.createElement('img');
+	i.onload = function(){ hzImg.show(url, src) }
+	i.src = src;
+}
 hzImg.show = function(url, src) {
+	this.src = '';
 	if(url == hzCurUrl) {
 		var i = self.options.delay - (new Date().getTime() - hzMark);
 		if(i > 0) {
@@ -77,7 +82,7 @@ hzDiv.appendChild(hzImg);
 
 var hzText = document.createElement('div');
 hzText.set = function() {
-	while(this.firstChild) { this.removeChild(this.firstChild) }
+	while(this.firstChild){ this.removeChild(this.firstChild) }
 	if(hzAlbumImgs.length > 1) {
 		this.appendChild(document.createTextNode((hzAlbumImgIndex+1)+"/"+hzAlbumImgs.length));
 	} else {
@@ -87,7 +92,13 @@ hzText.set = function() {
 hzDiv.appendChild(hzText);
 
 var hzVideo = document.createElement('video');
+hzVideo.load = function(url, src) {
+	var v = document.createElement('video');
+	v.oncanplay = function(){ hzVideo.show(url, src) }
+	v.src = src;
+}
 hzVideo.show = function(url, vid) {
+	this.src = '';
 	if(url == hzCurUrl) {
 		var i = self.options.delay - (new Date().getTime() - hzMark);
 		if(i > 0) {
@@ -95,20 +106,14 @@ hzVideo.show = function(url, vid) {
 		} else {
 			hzDiv.show('video');
 			this.src = vid.src;
-			hzDiv.resize(vid.width*1.6, vid.height*1.6);
+			hzDiv.resize(vid.width, vid.height);
 		}
 	}
 }
-hzVideo.addEventListener('canplay', function(e){ this.play() }, false);
+hzVideo.oncanplay = function(e){ this.play() }
 hzVideo.loop = true;
 hzVideo.muted = true;
 hzDiv.appendChild(hzVideo);
-
-function hzLoadImg(url, src) {
-	var img = new Image();
-	img.onload = function() { hzImg.show(url, src) }
-	img.src = src;
-}
 
 function hzWheel(e) {
 	if(hzAlbumImgs.length > 1) {
@@ -128,9 +133,8 @@ function hzWheel(e) {
 var hzTarget = document.createElement('a');
 var hzAlbumImgs, hzAlbumImgIndex, hzCurUrl, hzMark, hzWait;
 function hzMouseOn(e) {
-	if(hzWait) {
-		if(hzWait.abort) { hzWait.abort() } else { clearTimeout(hzWait) }
-	}
+	self.port.emit('load', '', 'about:blank');
+	if(hzWait) { if(hzWait.abort) { hzWait.abort() } else { clearTimeout(hzWait) }}
 	hzDiv.hide();
 	hzCurUrl = '';
 	hzAlbumImgs = [];
@@ -175,7 +179,7 @@ function hzMouseOn(e) {
 									hzAlbumImgs.push(hzTarget.protocol+"//i.imgur.com/"+d['data']['id']+".jpg");
 								}
 								if(hzAlbumImgs) {
-									hzLoadImg(hzCurUrl, hzAlbumImgs[0]);
+									hzImg.load(hzCurUrl, hzAlbumImgs[0]);
 									hzAlbumImgIndex = 0;
 								}
 							}
@@ -191,8 +195,7 @@ function hzMouseOn(e) {
 						self.port.emit('load', hzCurUrl, hzTarget.href);
 						return;
 					default:
-						hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
-				
+						hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();				
 				}
 				break;
 			case 'instagram':
@@ -209,7 +212,7 @@ function hzMouseOn(e) {
 				self.port.emit('load', hzCurUrl, hzTarget.href);
 				return;
 		}
-		hzLoadImg(hzCurUrl, hzTarget.href);
+		hzImg.load(hzCurUrl, hzTarget.href);
 	}
 }
 function hzMouseOff(e) { hzMouseOn(null) }
@@ -217,7 +220,7 @@ function hzMouseOff(e) { hzMouseOn(null) }
 self.port.on('image', function(url, imgs){
 	hzAlbumImgs = imgs;
 	hzAlbumImgIndex = 0;
-	hzLoadImg(url, hzAlbumImgs[0]);
+	hzImg.load(url, hzAlbumImgs[0]);
 });
 
 self.port.on('video', hzVideo.show);
