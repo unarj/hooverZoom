@@ -5,7 +5,7 @@ for (var i=0, l=hzLinks.length; i < l; i++) {
 }
 
 var hzDiv = document.createElement('div');
-hzDiv.id = "hzDiv"
+hzDiv.id = 'hzDiv';
 hzDiv.resize = function(width, height) {
 	var x = width;
 	var y = height;
@@ -58,8 +58,9 @@ document.body.appendChild(hzDiv);
 var hzImg = document.createElement('img');
 hzImg.load = function(url, src) {
 	var i = document.createElement('img');
-	i.onload = function(){ hzImg.show(url, src) }
+	i.url = url;
 	i.src = src;
+	i.addEventListener('load', function(){ hzImg.show(this.url, this.src) });
 }
 hzImg.show = function(url, src) {
 	if(url == hzCurUrl) {
@@ -89,8 +90,9 @@ hzDiv.appendChild(hzText);
 var hzVideo = document.createElement('video');
 hzVideo.load = function(url, src) {
 	var v = document.createElement('video');
-	v.oncanplay = function(){ hzVideo.show(url, src) }
+	v.url = url;
 	v.src = src;
+	v.addEventListener('canplay', function(e){ hzVideo.show(this.url, this.src) });
 }
 hzVideo.show = function(url, vid) {
 	if(url == hzCurUrl) {
@@ -98,13 +100,13 @@ hzVideo.show = function(url, vid) {
 		if(i > 0) {
 			hzWait = setTimeout( function(){ hzVideo.show(url, vid) }, i);
 		} else {
-			hzDiv.show('video');
-			this.src = vid.src;
-			hzDiv.resize(vid.width, vid.height);
+			this.src = vid;
+//			hzDiv.resize(vid.width, vid.height);
 		}
 	}
 }
-hzVideo.oncanplay = function(e){ this.play() }
+hzVideo.addEventListener('canplay', function(e){ hzVideo.play() });
+hzVideo.addEventListener('loadedmetadata', function(e){ hzDiv.show('video'); hzDiv.resize(this.videoWidth, this.videoHeight) });
 hzVideo.loop = true;
 hzVideo.muted = true;
 hzDiv.appendChild(hzVideo);
@@ -137,6 +139,7 @@ function hzMouseOn(e) {
 		hzCurUrl = e.target.toString();
 		hzTarget.href = hzCurUrl;
 		if(['bmp', 'jpeg', 'jpg', 'png'].indexOf(hzTarget.pathname.split('.').reverse()[0]) > -1) { hzImg.load(hzCurUrl, hzTarget.href) }
+		else if(['mp4', 'webm'].indexOf(hzTarget.pathname.split('.').reverse()[0]) > -1) { hzVideo.load(hzCurUrl, hzTarget.href) }
 		else {
 			var p = hzTarget.hostname.split('.').reverse();
 			switch(p[1]) {
@@ -223,4 +226,4 @@ self.port.on('image', function(url, imgs){
 	hzImg.load(url, hzAlbumImgs[0]);
 });
 
-self.port.on('video', hzVideo.show);
+self.port.on('video', hzVideo.load);
