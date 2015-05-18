@@ -115,6 +115,10 @@ hzVideo.loop = true;
 hzVideo.muted = true;
 hzDiv.appendChild(hzVideo);
 
+function hzLoadUrl(d) {
+	// stuff
+}
+
 function hzWheel(e) {
 	if(hzAlbumImgs.length > 1) {
 		e.preventDefault();
@@ -142,28 +146,30 @@ function hzMouseOn(e) {
 		hzMark = new Date().getTime();
 		hzCurUrl = e.target.toString();
 		hzTarget.href = hzCurUrl;
-		if(['bmp', 'jpeg', 'jpg', 'png'].indexOf(hzTarget.pathname.split('.').reverse()[0]) > -1) { hzImg.load(hzCurUrl, hzTarget.href) }
-		else if(['mp4', 'webm'].indexOf(hzTarget.pathname.split('.').reverse()[0]) > -1) { hzVideo.load(hzCurUrl, hzTarget.href) }
+		var p = hzTarget.pathname.split('.').reverse();
+		if(['bmp', 'jpeg', 'jpg', 'png'].indexOf(p[0]) > -1){ hzImg.load(hzCurUrl, hzTarget.href) }
+		else if(['mp4', 'webm'].indexOf(p[0]) > -1){ hzVideo.load(hzCurUrl, hzTarget.href) }
 		else {
-			var p = hzTarget.hostname.split('.').reverse();
-			switch(p[1]) {
-				case 'deviantart':
+			p = hzTarget.hostname.split('.').reverse();
+			switch(p[1]+"."+p[0)] {
+				case 'deviantart.com':
+//					hzWait = $.ajax({ url:hzTarget.href, type:'GET', success:hzLoadUrl });
 					self.port.emit('load', hzCurUrl, hzTarget.href);
 					return;
-				case 'explosm':
+				case 'explosm.net':
 					self.port.emit('load', hzCurUrl, hzTarget.href);
 					return;
-				case 'flickr':
+				case 'flickr.com':
 					self.port.emit('load', hzCurUrl, hzTarget.href);
 					return;
-				case 'gfycat':
+				case 'gfycat.com':
 					self.port.emit('load', hzCurUrl, hzTarget.protocol+"//gfycat.com/"+hzTarget.pathname.split('.')[0]);
 					return;
-				case 'imgflip':
+				case 'imgflip.com':
 					p = hzTarget.pathname.split('/');
 					if(p.length > 2) { hzTarget.href = hzTarget.protocol+"//i.imgflip.com/"+p[2].split('#')[0]+".jpg" }
 					break;
-				case 'imgur':
+				case 'imgur.com':
 					var alb = "";
 					p = hzTarget.pathname.split('/');
 					switch(p[1]) {
@@ -204,17 +210,17 @@ function hzMouseOn(e) {
 							hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
 					}
 					break;
-				case 'instagram':
+				case 'instagram.com':
 					self.port.emit('load', hzCurUrl, hzTarget.href);
 					return;
-				case 'livememe':
+				case 'livememe.com':
 					p = hzTarget.pathname.split('.');
 					if(p.length == 1) { hzTarget.href = hzTarget.protocol+"//i.lvme.me"+p.pop()+".jpg" }
 					break;
-				case 'makeameme':
+				case 'makeameme.org':
 					self.port.emit('load', hzCurUrl, hzTarget.href);
 					return;
-				case 'twitter':
+				case 'twitter.com':
 					self.port.emit('load', hzCurUrl, hzTarget.href);
 					return;
 			}
