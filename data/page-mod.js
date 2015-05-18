@@ -199,7 +199,7 @@ function hzMouseOn(e) {
 							});
 							return;
 					}
-					hzTarget.href = hzTarget.href.split('?')[0].split('#')[0].split(',')[0];
+					hzTarget.href = hzTarget.href.split('?')[0].split(',')[0].split('#')[0];
 					if(hzTarget.pathname.split('.').length == 1) { hzTarget.href += ".jpg" }
 					switch(hzTarget.pathname.split('.').reverse()[0]) {
 						case 'gif':
