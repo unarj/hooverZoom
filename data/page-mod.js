@@ -159,6 +159,7 @@ function hzMouseOn(e) {
 				case 'explosm.net':
 					self.port.emit('load', hzCurUrl, hzTarget.href);
 					return;
+				case 'flic.kr':
 				case 'flickr.com':
 					self.port.emit('load', hzCurUrl, hzTarget.href);
 					return;
