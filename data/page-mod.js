@@ -224,6 +224,9 @@ function hzMouseOn(e) {
 				case 'twitter.com':
 					self.port.emit('load', hzCurUrl, hzTarget.href);
 					return;
+				case 'vine.co':
+					self.port.emit('load', hzCurUrl, hzTarget.href);
+					return;
 			}
 			hzImg.load(hzCurUrl, hzTarget.href);
 		}
