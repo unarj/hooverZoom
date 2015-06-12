@@ -9,9 +9,9 @@ find:for(var i=0, l=els.length; i < l; i++) {
 			break;
 		case 'og:video':
 			vid = els[i].getAttribute('content');
-			if(vidTypes.indexOf(vid.split('.').reverse()[0]) < 0) { vid = '' }
-			else { break find }
-			break;
+//			if(vidTypes.indexOf(vid.split('.').reverse()[0]) < 0) { vid = '' }
+//			else { break find }
+			break find;
 	}
 }
 if(vid != '') { self.port.emit('video', vid) }

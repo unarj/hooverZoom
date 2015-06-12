@@ -151,7 +151,7 @@ function hzMouseOn(e) {
 		else if(['mp4', 'webm'].indexOf(p[0]) > -1){ hzVideo.load(hzCurUrl, hzTarget.href) }
 		else {
 			p = hzTarget.hostname.split('.').reverse();
-			switch(p[1]+"."+p[0)] {
+			switch(p[1]+"."+p[0]) {
 				case 'deviantart.com':
 //					hzWait = $.ajax({ url:hzTarget.href, type:'GET', success:hzLoadUrl });
 					self.port.emit('load', hzCurUrl, hzTarget.href);
@@ -224,6 +224,9 @@ function hzMouseOn(e) {
 				case 'twitter.com':
 					self.port.emit('load', hzCurUrl, hzTarget.href);
 					return;
+				case 'vid.me':
+					self.port.emit('load', hzCurUrl, hzTarget.href);
+					return;				
 				case 'vine.co':
 					self.port.emit('load', hzCurUrl, hzTarget.href);
 					return;
