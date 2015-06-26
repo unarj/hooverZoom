@@ -147,11 +147,14 @@ function hzMouseOn(e) {
 		hzCurUrl = e.target.toString();
 		hzTarget.href = hzCurUrl;
 		var p = hzTarget.pathname.split('.').reverse();
-		if(['bmp', 'jpeg', 'jpg', 'png'].indexOf(p[0]) > -1){ hzImg.load(hzCurUrl, hzTarget.href) }
-		else if(['mp4', 'webm'].indexOf(p[0]) > -1){ hzVideo.load(hzCurUrl, hzTarget.href) }
+		if(['bmp','jpeg','jpg','png'].indexOf(p[0].toLowerCase()) > -1){ hzImg.load(hzCurUrl, hzTarget.href) }
+		else if(['mp4','webm'].indexOf(p[0].toLowerCase()) > -1){ hzVideo.load(hzCurUrl, hzTarget.href) }
 		else {
 			p = hzTarget.hostname.split('.').reverse();
 			switch(p[1]+"."+p[0]) {
+				case 'craigslist.org':
+					self.port.emit('load', hzCurUrl, hzTarget.href);
+					return;
 				case 'deviantart.com':
 //					hzWait = $.ajax({ url:hzTarget.href, type:'GET', success:hzLoadUrl });
 					self.port.emit('load', hzCurUrl, hzTarget.href);
