@@ -147,8 +147,8 @@ function hzMouseOn(e) {
 		hzCurUrl = e.target.toString();
 		hzTarget.href = hzCurUrl;
 		var p = hzTarget.pathname.split('.').reverse();
-		if(['bmp','jpeg','jpg','png'].indexOf(p[0].toLowerCase()) > -1){ hzImg.load(hzCurUrl, hzTarget.href) }
-		else if(['mp4','webm'].indexOf(p[0].toLowerCase()) > -1){ hzVideo.load(hzCurUrl, hzTarget.href) }
+		if(/bmp|jpeg|jpg|png/i.test(p[0])){ hzImg.load(hzCurUrl, hzTarget.href) }
+		else if(/mp4|webm/i.test(p[0])){ hzVideo.load(hzCurUrl, hzTarget.href) }
 		else {
 			p = hzTarget.hostname.split('.').reverse();
 			switch(p[1]+"."+p[0]) {
@@ -172,7 +172,8 @@ function hzMouseOn(e) {
 				case 'imgflip.com':
 					p = hzTarget.pathname.split('/');
 					if(p.length > 2) { hzTarget.href = hzTarget.protocol+"//i.imgflip.com/"+p[2].split('#')[0]+".jpg" }
-					break;
+					hzImg.load(hzCurUrl, hzTarget.href);
+					return;
 				case 'imgur.com':
 					var alb = "";
 					p = hzTarget.pathname.split('/');
@@ -209,9 +210,11 @@ function hzMouseOn(e) {
 							hzTarget.href += "v";
 						case 'gifv':
 							self.port.emit('load', hzCurUrl, hzTarget.href);
+//							console.log("imgur: " + hzTarget.href);
 							return;
 						default:
-							hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
+							hzImg.load(hzCurUrl, hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop());
+							return;
 					}
 					break;
 				case 'instagram.com':
@@ -220,7 +223,8 @@ function hzMouseOn(e) {
 				case 'livememe.com':
 					p = hzTarget.pathname.split('.');
 					if(p.length == 1) { hzTarget.href = hzTarget.protocol+"//i.lvme.me"+p.pop()+".jpg" }
-					break;
+					hzImg.load(hzCurUrl, hzTarget.href);
+					return;
 				case 'makeameme.org':
 					self.port.emit('load', hzCurUrl, hzTarget.href);
 					return;
@@ -234,7 +238,7 @@ function hzMouseOn(e) {
 					self.port.emit('load', hzCurUrl, hzTarget.href);
 					return;
 			}
-			hzImg.load(hzCurUrl, hzTarget.href);
+			if(/gif/i.test(hzTarget.pathname.split('.').reverse()[0])){ hzImg.load(hzCurUrl, hzTarget.href) }
 		}
 	}
 }

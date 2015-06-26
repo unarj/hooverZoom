@@ -1,6 +1,6 @@
-const vidTypes = [ 'mp4', 'webm' ];
 var imgs = [];
 var vid = '';
+
 var els = document.getElementsByTagName('meta');
 find:for(var i=0, l=els.length; i < l; i++) {
 	switch(els[i].getAttribute('property')) {
@@ -9,10 +9,12 @@ find:for(var i=0, l=els.length; i < l; i++) {
 			break;
 		case 'og:video':
 			vid = els[i].getAttribute('content');
-//			if(vidTypes.indexOf(vid.split('.').reverse()[0]) < 0) { vid = '' }
-//			else { break find }
-			break find;
+			break;
+		case 'og:video:type':
+			if(/mp4|webm/i.test(els[i].getAttribute('content'))) { break find } else { vid = '' }
+			break;
 	}
 }
+
 if(vid != '') { self.port.emit('video', vid) }
 else if(imgs.length > 0) { self.port.emit('image', imgs) }
