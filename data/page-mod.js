@@ -58,9 +58,9 @@ document.body.appendChild(hzDiv);
 var hzImg = document.createElement('img');
 hzImg.load = function(url, src) {
 	var i = document.createElement('img');
+	i.addEventListener('load', function(){ hzImg.show(this.url, this.src) });
 	i.url = url;
 	i.src = src;
-	i.addEventListener('load', function(){ hzImg.show(this.url, this.src) });
 }
 hzImg.show = function(url, src) {
 	if(url == hzCurUrl) {
@@ -92,9 +92,9 @@ hzDiv.appendChild(hzText);
 var hzVideo = document.createElement('video');
 hzVideo.load = function(url, src) {
 	var v = document.createElement('video');
+	v.addEventListener('canplay', function(e){ hzVideo.show(this.url, this.src) });
 	v.url = url;
 	v.src = src;
-	v.addEventListener('canplay', function(e){ hzVideo.show(this.url, this.src) });
 }
 hzVideo.show = function(url, vid) {
 	if(url == hzCurUrl) {
@@ -152,20 +152,6 @@ function hzMouseOn(e) {
 		else {
 			p = hzTarget.hostname.split('.').reverse();
 			switch(p[1]+"."+p[0]) {
-				case 'craigslist.org':
-					self.port.emit('load', hzCurUrl, hzTarget.href);
-					return;
-				case 'deviantart.com':
-//					hzWait = $.ajax({ url:hzTarget.href, type:'GET', success:hzLoadUrl });
-					self.port.emit('load', hzCurUrl, hzTarget.href);
-					return;
-				case 'explosm.net':
-					self.port.emit('load', hzCurUrl, hzTarget.href);
-					return;
-				case 'flic.kr':
-				case 'flickr.com':
-					self.port.emit('load', hzCurUrl, hzTarget.href);
-					return;
 				case 'gfycat.com':
 					self.port.emit('load', hzCurUrl, hzTarget.protocol+"//gfycat.com/"+hzTarget.pathname.split('.')[0]);
 					return;
@@ -182,7 +168,7 @@ function hzMouseOn(e) {
 							alb = "https://api.imgur.com/3/album/"+p[2];
 						case 'gallery':
 							alb = alb || "https://api.imgur.com/3/gallery/"+p[2];
-							hzWait = $.ajax({ url:alb, type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') },
+							hzWait = $.ajax({ src:hzCurUrl, url:alb, type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') },
 								success:function(d) {
 									var delay = 0;
 									if(d['data']['images']) {
@@ -196,7 +182,7 @@ function hzMouseOn(e) {
 										hzAlbumImgs.push(hzTarget.protocol+"//i.imgur.com/"+d['data']['id']+".jpg");
 									}
 									if(hzAlbumImgs.length > 0) {
-										hzImg.load(hzCurUrl, hzAlbumImgs[0]);
+										hzImg.load(this.src, hzAlbumImgs[0]);
 										hzAlbumImgIndex = 0;
 									}
 								}
@@ -210,30 +196,27 @@ function hzMouseOn(e) {
 							hzTarget.href += "v";
 						case 'gifv':
 							self.port.emit('load', hzCurUrl, hzTarget.href);
-//							console.log("imgur: " + hzTarget.href);
 							return;
 						default:
 							hzImg.load(hzCurUrl, hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop());
 							return;
 					}
 					break;
-				case 'instagram.com':
-					self.port.emit('load', hzCurUrl, hzTarget.href);
-					return;
 				case 'livememe.com':
 					p = hzTarget.pathname.split('.');
 					if(p.length == 1) { hzTarget.href = hzTarget.protocol+"//i.lvme.me"+p.pop()+".jpg" }
-					hzImg.load(hzCurUrl, hzTarget.href);
+					self.port.emit('load', hzCurUrl, hzTarget.href);
 					return;
+				case 'craigslist.org':
+				case 'deviantart.com':
+				case 'explosm.net':
+				case 'flic.kr':
+				case 'flickr.com':
+				case 'instagram.com':
 				case 'makeameme.org':
-					self.port.emit('load', hzCurUrl, hzTarget.href);
-					return;
+				case 'mypixa.com':
 				case 'twitter.com':
-					self.port.emit('load', hzCurUrl, hzTarget.href);
-					return;
 				case 'vid.me':
-					self.port.emit('load', hzCurUrl, hzTarget.href);
-					return;				
 				case 'vine.co':
 					self.port.emit('load', hzCurUrl, hzTarget.href);
 					return;
