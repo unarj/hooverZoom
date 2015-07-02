@@ -106,10 +106,14 @@ hzVideo.show = function(url, vid) {
 		}
 	}
 }
-hzVideo.addEventListener('loadedmetadata', function(e){
+hzVideo.addEventListener('canplay', function(e){
 	hzDiv.show('video');
 	hzDiv.resize(this.videoWidth, this.videoHeight);
 });
+//hzVideo.addEventListener('loadedmetadata', function(e){
+//	hzDiv.show('video');
+//	hzDiv.resize(this.videoWidth, this.videoHeight);
+//});
 hzVideo.autoplay = true;
 hzVideo.loop = true;
 hzVideo.muted = true;
