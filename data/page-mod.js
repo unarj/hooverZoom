@@ -38,6 +38,7 @@ hzDiv.show = function(el) {
 			hzVideo.style.display = 'block';
 			break;
 		default:
+			console.log('panel "show" called with no valid options, oops!');
 			return;
 	}
 	this.style.display = 'block';
