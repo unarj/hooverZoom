@@ -53,14 +53,15 @@ hzDiv.hide = function() {
 	hzDiv.style.display = 'none';
 	hzImg.src = null;
 	hzVideo.src = null;
+	console.log("hiding");
 }
 document.body.appendChild(hzDiv);
 
 var hzImg = document.createElement('img');
 hzImg.load = function(url, src) {
 	var i = document.createElement('img');
-	i.addEventListener('load', function(){ hzImg.show(this.url, this.src) });
 	i.url = url;
+	i.addEventListener('load', function(){ hzImg.show(this.url, this.src) });
 	i.src = src;
 }
 hzImg.show = function(url, src) {
@@ -76,6 +77,7 @@ hzImg.show = function(url, src) {
 hzImg.addEventListener('load', function(){
 	hzDiv.show('image');
 	hzDiv.resize(this.naturalWidth, this.naturalHeight);
+	console.log("showing img: "+this.src);
 });
 hzDiv.appendChild(hzImg);
 
@@ -93,8 +95,8 @@ hzDiv.appendChild(hzText);
 var hzVideo = document.createElement('video');
 hzVideo.load = function(url, src) {
 	var v = document.createElement('video');
-	v.addEventListener('canplay', function(e){ hzVideo.show(this.url, this.src) });
 	v.url = url;
+	v.addEventListener('canplay', function(e){ hzVideo.show(this.url, this.src) });
 	v.src = src;
 }
 hzVideo.show = function(url, vid) {
@@ -110,6 +112,7 @@ hzVideo.show = function(url, vid) {
 hzVideo.addEventListener('canplay', function(e){
 	hzDiv.show('video');
 	hzDiv.resize(this.videoWidth, this.videoHeight);
+	console.log("showing vid: "+this.src);
 });
 hzVideo.autoplay = true;
 hzVideo.loop = true;
@@ -188,7 +191,7 @@ function hzMouseOn(e) {
 									}
 								}
 							});
-							break;
+							return;
 					}
 					hzTarget.href = hzTarget.href.split('?')[0].split(',')[0].split('#')[0];
 					if(hzTarget.pathname.split('.').length == 1) { hzTarget.href += ".jpg" }

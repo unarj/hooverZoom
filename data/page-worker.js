@@ -14,6 +14,14 @@ find:for(var i=0, l=els.length; i < l; i++) {
 			if(/mp4|webm/i.test(els[i].getAttribute('content'))) { break find } else { vid = '' }
 			break;
 	}
+	switch(els[i].getAttribute('name')) {
+		case 'twitter:player:stream':
+			vid = els[i].getAttribute('content');
+			break;
+		case 'twitter:player:stream:content_type':
+			if(/mp4|webm/i.test(els[i].getAttribute('content'))) { break find } else { vid = '' }
+			break;
+	}
 }
 
 if(vid != '') { self.port.emit('video', vid) }
