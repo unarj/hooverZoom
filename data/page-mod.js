@@ -3,6 +3,8 @@ for (var i=0, l=hzLinks.length; i < l; i++) {
 	hzLinks[i].addEventListener('mouseenter', hzMouseOn, false);
 	hzLinks[i].addEventListener('mouseleave', hzMouseOff, false);
 }
+window.addEventListener('blur', hzMouseOff, false);
+
 
 var hzDiv = document.createElement('div');
 hzDiv.id = 'hzDiv';
