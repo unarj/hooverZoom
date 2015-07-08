@@ -24,5 +24,12 @@ find:for(var i=0, l=els.length; i < l; i++) {
 	}
 }
 
-if(vid != '') { self.port.emit('video', vid) }
-else if(imgs.length > 0) { self.port.emit('image', imgs) }
+if(vid != '') {
+	self.port.emit('video', vid);
+//	console.log("vid found: " + vid);
+}
+else if(imgs.length > 0) {
+	self.port.emit('image', imgs);
+//	console.log("img found: " + img);
+}
+self.port.emit('done');
