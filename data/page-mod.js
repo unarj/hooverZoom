@@ -45,7 +45,7 @@ hzDiv.show = function(el) {
 	hzText.set();
 	window.addEventListener('scroll', hzMouseOff, false);
 	window.addEventListener('wheel', hzWheel, false);
-	self.port.emit('visit', hzCurUrl);
+	hzWait = setTimeout( function(){ self.port.emit('visit', hzCurUrl) }, self.options.delay);
 }
 hzDiv.hide = function() {
 	window.removeEventListener('scroll', hzMouseOff, false);
