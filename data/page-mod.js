@@ -3,8 +3,9 @@ for (var i=0, l=hzLinks.length; i < l; i++) {
 	hzLinks[i].addEventListener('mouseenter', hzMouseOn, false);
 	hzLinks[i].addEventListener('mouseleave', hzMouseOff, false);
 }
-window.addEventListener('blur', hzMouseOff, false);
-
+hzFocus = true;
+window.addEventListener('blur', function(e){ hzFocus = false; hzMouseOff(null) }, false);
+window.addEventListener('focus', function(e){ hzFocus = true }, false);
 
 var hzDiv = document.createElement('div');
 hzDiv.id = 'hzDiv';
@@ -142,7 +143,7 @@ function hzMouseOn(e) {
 	hzDiv.hide();
 	hzCurUrl = '';
 	hzAlbumImgs = [];
-	if(e) {
+	if(hzFocus && e) {
 		hzMark = new Date().getTime();
 		hzCurUrl = e.target.toString();
 		hzTarget.href = hzCurUrl;
