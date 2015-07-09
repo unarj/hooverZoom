@@ -5,7 +5,7 @@
 	"description": "Display a linked image in a fullsize overlay on mouse hover.  Albums will show the current and total number of images in the bottom right corner, navigate them using the mouse wheel.",
 	"author": "arjuna@on-rope.net",
 	"license": "MPL 2.0",
-	"version": "0.39",
+	"version": "0.40",
 	"preferences": [
 		{
 			"name"			: "addHist",
