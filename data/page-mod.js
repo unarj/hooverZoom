@@ -154,12 +154,11 @@ function hzMouseOn(e) {
 			p = hzTarget.hostname.split('.').reverse();
 			switch(p[1]+"."+p[0]) {
 				case 'gfycat.com':
-//					self.port.emit('load', hzCurUrl, hzTarget.protocol+"//gfycat.com/"+hzTarget.pathname.split('.')[0]);
-					hzTarget.href = hzTarget.protocol+"//gfycat.com/"+hzTarget.pathname.split('.')[0];
-					break;
+					self.port.emit('load', hzCurUrl, hzTarget.protocol+"//gfycat.com/"+hzTarget.pathname.split('.')[0]);
+					return;
 				case 'imgflip.com':
 					p = hzTarget.pathname.split('/');
-					if(p.length > 2) { hzTarget.href = hzTarget.protocol+"//i.imgflip.com/"+p[2].split('#')[0]+".jpg" }
+					if(p.length > 2){ hzTarget.href = hzTarget.protocol+"//i.imgflip.com/"+p[2].split('#')[0]+".jpg" }
 					break;
 				case 'imgur.com':
 					var alb = "";
@@ -192,19 +191,15 @@ function hzMouseOn(e) {
 					}
 					hzTarget.href = hzTarget.href.split('?')[0].split(',')[0].split('#')[0];
 					if(hzTarget.pathname.split('.').length == 1){ hzTarget.href += ".jpg" }
-					if(hzTarget.pathname.split('.').reverse()[0] == 'gif'){ hzTarget.href += "v" }
-					hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
-//					switch(hzTarget.pathname.split('.').reverse()[0]) {
-//						case 'gif':
-//							hzTarget.href += "v";
-//						case 'gifv':
-//							self.port.emit('load', hzCurUrl, hzTarget.href);
-//							break;
-//						default:
-//							hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
-//							break;
+					switch(hzTarget.pathname.split('.').reverse()[0]) {
+						case 'gif':
+							hzTarget.href += "v";
+						case 'gifv':
+							self.port.emit('load', hzCurUrl, hzTarget.href);
+							return;
 //					}
 					break;
+					hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
 				case 'livememe.com':
 					hzTarget.href = hzTarget.protocol+"//i.lvme.me"+hzTarget.pathname+".jpg";
 					break;
