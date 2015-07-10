@@ -222,10 +222,9 @@ function hzMouseOn(e) {
 				case 'twitter.com':
 				case 'vid.me':
 				case 'vine.co':
-//					self.port.emit('load', hzCurUrl, hzTarget.href);
+					self.port.emit('load', hzCurUrl, hzTarget.href);
 					break;
 			}
-			self.port.emit('load', hzCurUrl, hzTarget.href);
 			hzImg.load(hzCurUrl, hzTarget.href);
 		}
 	}
