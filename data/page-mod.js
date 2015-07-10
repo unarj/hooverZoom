@@ -154,7 +154,8 @@ function hzMouseOn(e) {
 			p = hzTarget.hostname.split('.').reverse();
 			switch(p[1]+"."+p[0]) {
 				case 'gfycat.com':
-					self.port.emit('load', hzCurUrl, hzTarget.protocol+"//gfycat.com/"+hzTarget.pathname.split('.')[0]);
+//					self.port.emit('load', hzCurUrl, hzTarget.protocol+"//gfycat.com/"+hzTarget.pathname.split('.')[0]);
+					hzTarget.href = hzTarget.protocol+"//gfycat.com/"+hzTarget.pathname.split('.')[0];
 					break;
 				case 'imgflip.com':
 					p = hzTarget.pathname.split('/');
@@ -190,23 +191,26 @@ function hzMouseOn(e) {
 							return;
 					}
 					hzTarget.href = hzTarget.href.split('?')[0].split(',')[0].split('#')[0];
-					if(hzTarget.pathname.split('.').length == 1) { hzTarget.href += ".jpg" }
-					switch(hzTarget.pathname.split('.').reverse()[0]) {
-						case 'gif':
-							hzTarget.href += "v";
-						case 'gifv':
-							self.port.emit('load', hzCurUrl, hzTarget.href);
-							break;
-						default:
-							hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
-							break;
-					}
+					if(hzTarget.pathname.split('.').length == 1){ hzTarget.href += ".jpg" }
+					if(hzTarget.pathname.split('.').reverse()[0] == 'gif'){ hzTarget.href += "v" }
+					hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
+//					switch(hzTarget.pathname.split('.').reverse()[0]) {
+//						case 'gif':
+//							hzTarget.href += "v";
+//						case 'gifv':
+//							self.port.emit('load', hzCurUrl, hzTarget.href);
+//							break;
+//						default:
+//							hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
+//							break;
+//					}
 					break;
 				case 'livememe.com':
 					hzTarget.href = hzTarget.protocol+"//i.lvme.me"+hzTarget.pathname+".jpg";
 					break;
 				case 'craigslist.org':
 				case 'deviantart.com':
+				case 'gyazo.com';
 				case 'explosm.net':
 				case 'flic.kr':
 				case 'flickr.com':
@@ -218,9 +222,10 @@ function hzMouseOn(e) {
 				case 'twitter.com':
 				case 'vid.me':
 				case 'vine.co':
-					self.port.emit('load', hzCurUrl, hzTarget.href);
+//					self.port.emit('load', hzCurUrl, hzTarget.href);
 					break;
 			}
+			self.port.emit('load', hzCurUrl, hzTarget.href);
 			hzImg.load(hzCurUrl, hzTarget.href);
 		}
 	}
