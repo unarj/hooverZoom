@@ -31,7 +31,7 @@ hzDiv.resize = function(width, height) {
 	this.style.marginTop = Math.floor(y / -2)+"px";
 }
 hzDiv.show = function(el) {
-	switch(el) {
+	switch(el.toLowerCase()) {
 		case 'image':
 			hzVideo.style.display = 'none';
 			hzImg.style.display = 'block';
@@ -152,10 +152,10 @@ function hzMouseOn(e) {
 		else if(/mp4|webm/i.test(p[0])){ hzVideo.load(hzCurUrl, hzTarget.href) }
 		else {
 			p = hzTarget.hostname.split('.').reverse();
-			switch(p[1]+"."+p[0]) {
+			switch((p[1]+"."+p[0]).toLowerCase()) {
 				case 'gfycat.com':
 					self.port.emit('load', hzCurUrl, hzTarget.protocol+"//gfycat.com/"+hzTarget.pathname.split('.')[0]);
-					return;
+					break;
 				case 'imgflip.com':
 					p = hzTarget.pathname.split('/');
 					if(p.length > 2){ hzTarget.href = hzTarget.protocol+"//i.imgflip.com/"+p[2].split('#')[0]+".jpg" }
@@ -163,7 +163,7 @@ function hzMouseOn(e) {
 				case 'imgur.com':
 					var alb = "";
 					p = hzTarget.pathname.split('/');
-					switch(p[1]) {
+					switch(p[1].toLowerCase()) {
 						case 'a':
 							alb = "https://api.imgur.com/3/album/"+p[2];
 						case 'gallery':
@@ -191,12 +191,12 @@ function hzMouseOn(e) {
 					}
 					hzTarget.href = hzTarget.href.split('?')[0].split(',')[0].split('#')[0];
 					if(hzTarget.pathname.split('.').length == 1){ hzTarget.href += ".jpg" }
-					switch(hzTarget.pathname.split('.').reverse()[0]) {
+					switch(hzTarget.pathname.split('.').reverse()[0].toLowerCase()) {
 						case 'gif':
 							hzTarget.href += "v";
 						case 'gifv':
 							self.port.emit('load', hzCurUrl, hzTarget.href);
-							return;
+							break;
 //					}
 					break;
 					hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
