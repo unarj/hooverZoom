@@ -46,11 +46,13 @@ hzDiv.show = function(el) {
 	}
 	this.style.display = 'block';
 	hzText.set();
+	window.addEventListener('keypress', hzKey, false);
 	window.addEventListener('scroll', hzMouseOff, false);
 	window.addEventListener('wheel', hzWheel, false);
 	hzWait = setTimeout( function(){ self.port.emit('visit', hzCurUrl) }, self.options.delay);
 }
 hzDiv.hide = function() {
+	window.removeEventListener('keypress', hzKey, false);
 	window.removeEventListener('scroll', hzMouseOff, false);
 	window.removeEventListener('wheel', hzWheel, false);
 	hzDiv.style.display = 'none';
@@ -121,7 +123,18 @@ hzVideo.loop = true;
 hzVideo.muted = true;
 hzDiv.appendChild(hzVideo);
 
-function hzWheel(e) {
+function hzKey(e){
+	switch(e.keyCode){
+		case 37:
+			e.deltaY = -1; //left
+			break;
+		case 39:
+			e.deltaY = 1; //right
+			break;
+	}
+	if(e.deltaY) { hzWheel(e) }
+}
+function hzWheel(e){
 	if(hzAlbumImgs.length > 1) {
 		e.preventDefault();
 		e.stopPropagation();
