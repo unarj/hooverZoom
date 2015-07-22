@@ -46,13 +46,13 @@ hzDiv.show = function(el) {
 	}
 	this.style.display = 'block';
 	hzText.set();
-	window.addEventListener('keypress', hzKey, false);
+	if(self.options.keys) { window.addEventListener('keydown', hzKey, false) }
 	window.addEventListener('scroll', hzMouseOff, false);
 	window.addEventListener('wheel', hzWheel, false);
 	hzWait = setTimeout( function(){ self.port.emit('visit', hzCurUrl) }, self.options.delay);
 }
 hzDiv.hide = function() {
-	window.removeEventListener('keypress', hzKey, false);
+	window.removeEventListener('keydown', hzKey, false);
 	window.removeEventListener('scroll', hzMouseOff, false);
 	window.removeEventListener('wheel', hzWheel, false);
 	hzDiv.style.display = 'none';
@@ -210,7 +210,7 @@ function hzMouseOn(e) {
 						case 'gifv':
 							self.port.emit('load', hzCurUrl, hzTarget.href);
 							break;
-//					}
+					}
 					break;
 					hzTarget.href = hzTarget.protocol+"//i.imgur.com/"+hzTarget.pathname.split('/').pop();
 				case 'livememe.com':
@@ -218,7 +218,7 @@ function hzMouseOn(e) {
 					break;
 				case 'craigslist.org':
 				case 'deviantart.com':
-				case 'gyazo.com';
+				case 'gyazo.com':
 				case 'explosm.net':
 				case 'flic.kr':
 				case 'flickr.com':

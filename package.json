@@ -26,7 +26,7 @@
 			"title"			: "Domain List",
 			"description"	: "List of domains for black/white list seperated by commas.",
 			"type"			: "string",
-			"value"			: "*.craigslist.org,*.imgur.com"
+			"value"			: "*.craigslist.org,*.flickr.com,*.imgur.com"
 		},
 		{
 			"name"			: "maxSize",
@@ -41,6 +41,13 @@
 			"description"	: "Expressed in milliseconds.",
 			"type"			: "integer",
 			"value"			: 500
+		},
+		{
+			"name"			: "keys",
+			"title"			: "Keys",
+			"description"	: "Enable keyboard control; left and right move through albums.",
+			"type"			: "bool",
+			"value"			: true
 		}
 	]
 }
