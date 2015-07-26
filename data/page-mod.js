@@ -75,14 +75,16 @@ hzImg.show = function(url, src) {
 			hzWait = setTimeout( function(){ hzImg.show(url, src) }, i);
 		} else {
 			this.src = src;
+			hzDiv.show('image');
+			hzDiv.resize(this.naturalWidth, this.naturalHeight);
 		}
 	}
 }
-hzImg.addEventListener('load', function(){
-	hzDiv.show('image');
-	hzDiv.resize(this.naturalWidth, this.naturalHeight);
+//hzImg.addEventListener('load', function(){
+//	hzDiv.show('image');
+//	hzDiv.resize(this.naturalWidth, this.naturalHeight);
 //	console.log("showing img: "+this.src);
-});
+//});
 hzDiv.appendChild(hzImg);
 
 var hzText = document.createElement('div');
@@ -110,11 +112,12 @@ hzVideo.show = function(url, vid) {
 			hzWait = setTimeout( function(){ hzVideo.show(url, vid) }, i);
 		} else {
 			this.src = vid;
+			hzDiv.show('video');
 		}
 	}
 }
 hzVideo.addEventListener('canplay', function(e){
-	hzDiv.show('video');
+//	hzDiv.show('video');
 	hzDiv.resize(this.videoWidth, this.videoHeight);
 //	console.log("showing vid: "+this.src);
 });
@@ -229,6 +232,7 @@ function hzMouseOn(e) {
 				case 'tumblr.com':
 				case 'twitter.com':
 				case 'vid.me':
+				case 'vidble.com':
 				case 'vine.co':
 					self.port.emit('load', hzCurUrl, hzTarget.href);
 					break;
