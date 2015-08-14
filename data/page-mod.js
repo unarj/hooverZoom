@@ -3,9 +3,6 @@ for (var i=0, l=hzLinks.length; i < l; i++) {
 	hzLinks[i].addEventListener('mouseenter', hzMouseOn, false);
 	hzLinks[i].addEventListener('mouseleave', hzMouseOff, false);
 }
-hzFocus = true;
-window.addEventListener('blur', function(e){ hzFocus = false; hzMouseOff(null) }, false);
-window.addEventListener('focus', function(e){ hzFocus = true }, false);
 
 var hzDiv = document.createElement('div');
 hzDiv.id = 'hzDiv';
@@ -80,11 +77,6 @@ hzImg.show = function(url, src) {
 		}
 	}
 }
-//hzImg.addEventListener('load', function(){
-//	hzDiv.show('image');
-//	hzDiv.resize(this.naturalWidth, this.naturalHeight);
-//	console.log("showing img: "+this.src);
-//});
 hzDiv.appendChild(hzImg);
 
 var hzText = document.createElement('div');
@@ -117,9 +109,7 @@ hzVideo.show = function(url, vid) {
 	}
 }
 hzVideo.addEventListener('canplay', function(e){
-//	hzDiv.show('video');
 	hzDiv.resize(this.videoWidth, this.videoHeight);
-//	console.log("showing vid: "+this.src);
 });
 hzVideo.autoplay = true;
 hzVideo.loop = true;
@@ -159,7 +149,7 @@ function hzMouseOn(e) {
 	hzDiv.hide();
 	hzCurUrl = '';
 	hzAlbumImgs = [];
-	if(hzFocus && e) {
+	if(e) {
 		hzMark = new Date().getTime();
 		hzCurUrl = e.target.toString();
 		hzTarget.href = hzCurUrl;
