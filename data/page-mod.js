@@ -46,7 +46,7 @@ hzDiv.show = function(el){
 	if(self.options.keys){ window.addEventListener('keydown', hzKey, false) }
 	window.addEventListener('scroll', hzMouseOff, false);
 	window.addEventListener('wheel', hzWheel, false);
-	hzWait = setTimeout( function(){ self.port.emit('visit', hzCurUrl) }, self.options.delay);
+	hzWait = setTimeout( function(){ self.port.emit('visit', hzCurUrl) }, 500);
 }
 hzDiv.hide = function(){
 	window.removeEventListener('keydown', hzKey, false);
