@@ -228,6 +228,7 @@ function hzMouseOn(e){
 				case 'craigslist.org':
 				case 'deviantart.com':
 				case 'explosm.net':
+				case 'facebook.com':
 				case 'flic.kr':
 				case 'flickr.com':
 				case 'gifyoutube.com':
