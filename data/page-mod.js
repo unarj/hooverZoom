@@ -172,8 +172,10 @@ function hzMouseOn(e){
 	 				p = hzTarget.pathname.split('/');
 					switch(p[1].toLowerCase()){
 						case 'a':
+							alb = "https://api.imgur.com/3/album/"+p[2]
 						case 'gallery':
-							hzWait = $.ajax({ src:hzCurUrl, url:"https://api.imgur.com/3/album/"+p[2], type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') },
+							alb = alb || "https://api.imgur.com/3/gallery/"+p[2]
+							hzWait = $.ajax({ src:hzCurUrl, url:alb, type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') },
 								success:function(d){
 									var delay = 0;
 									if(d['data']['images']){
