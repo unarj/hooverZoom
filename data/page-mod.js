@@ -181,7 +181,7 @@ function hzMouseOn(e){
 									if(d['data']['images']){
 										$.each(d['data']['images'], function(i,v){
 											setTimeout( function(){ new Image().src = v['link'] }, delay);
-											delay += 500;
+											delay += 1000;
 											hzAlbumImgs.push(v['link']);
 										});
 									} else if(d['data']['link']){
@@ -215,7 +215,7 @@ function hzMouseOn(e){
 							var delay = 0;
 							$.each(d['pics'], function(i,v){
 								setTimeout( function(){ new Image().src = v }, delay);
-								delay += 500;
+								delay += 1000;
 								hzAlbumImgs.push(v);
 							});
 							if(hzAlbumImgs.length > 0) {
