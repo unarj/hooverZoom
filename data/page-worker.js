@@ -9,7 +9,6 @@ find:for(var i=0, l=els.length; i < l; i++) {
 			break;
 		case 'og:video':
 			vid = els[i].getAttribute('content');
-			console.log("found vid: " + vid);
 			break;
 		case 'og:video:type':
 			if(/mp4|webm/i.test(els[i].getAttribute('content'))) { break find } else { vid = '' }
@@ -18,7 +17,6 @@ find:for(var i=0, l=els.length; i < l; i++) {
 	switch(els[i].getAttribute('name')) {
 		case 'twitter:player:stream':
 			vid = els[i].getAttribute('content');
-			console.log("found vid: " + vid);
 			break;
 		case 'twitter:player:stream:content_type':
 			if(/mp4|webm/i.test(els[i].getAttribute('content'))) { break find } else { vid = '' }
@@ -28,10 +26,10 @@ find:for(var i=0, l=els.length; i < l; i++) {
 
 if(vid != '') {
 	self.port.emit('video', vid);
-//	console.log("vid found: " + vid);
+//console.log("vid found: " + vid);
 }
 else if(imgs.length > 0) {
 	self.port.emit('image', imgs);
-//	console.log("img found: " + img);
+//console.log("img found: " + img);
 }
 self.port.emit('done');
