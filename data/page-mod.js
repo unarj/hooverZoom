@@ -73,10 +73,12 @@ hzImg.show = function(url, src){
 		} else {
 			this.src = src;
 			hzDiv.show('image');
-			hzDiv.resize(this.naturalWidth, this.naturalHeight);
 		}
 	}
 }
+hzImg.addEventListener('load', function(e){
+	hzDiv.resize(this.naturalWidth, this.naturalHeight);
+});
 hzDiv.appendChild(hzImg);
 
 var hzText = document.createElement('div');
