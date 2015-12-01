@@ -238,6 +238,7 @@ function hzMouseOn(e){
 				case 'instagram.com':
 				case 'makeameme.org':
 				case 'mypixa.com':
+				case 'pintrest.com':
 				case 'swirl.xyz':
 				case 'tumblr.com':
 				case 'twitter.com':
