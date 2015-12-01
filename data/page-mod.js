@@ -227,6 +227,7 @@ function hzMouseOn(e){
 						}
 					});
 					return;
+				case 'artstation.com':
 				case 'craigslist.org':
 				case 'deviantart.com':
 				case 'explosm.net':
