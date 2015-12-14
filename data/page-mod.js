@@ -9,8 +9,9 @@ hzDiv.id = 'hzDiv';
 hzDiv.resize = function(width, height){
 	var x = width;
 	var y = height;
-	var maxX = document.documentElement.clientWidth * window.devicePixelRatio * (self.options.maxSize / 100);
-	var maxY = document.documentElement.clientHeight * window.devicePixelRatio * (self.options.maxSize / 100);
+	var r = window.devicePixelRatio * (self.options.maxSize / 100);
+	var maxX = document.documentElement.clientWidth * r;
+	var maxY = document.documentElement.clientHeight * r;
 	if((x > maxX) || (y > maxY)){
 		var rX = maxX / x;
 		var rY = maxY / y;
@@ -56,7 +57,10 @@ hzDiv.hide = function(){
 	hzImg.src = null;
 	hzVideo.src = null;
 }
+hzDiv.style.width = "100px";
+hzDiv.style.height = "100px";
 document.body.appendChild(hzDiv);
+hzDiv.hide();
 
 var hzImg = document.createElement('img');
 hzImg.load = function(url, src) {
