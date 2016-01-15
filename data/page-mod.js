@@ -231,6 +231,7 @@ function hzMouseOn(e){
 						}
 					});
 					return;
+				case '500px.com':
 				case 'artstation.com':
 				case 'craigslist.org':
 				case 'deviantart.com':
