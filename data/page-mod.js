@@ -60,7 +60,7 @@ hzDiv.hide = function(){
 hzDiv.style.width = "100px";
 hzDiv.style.height = "100px";
 document.body.appendChild(hzDiv);
-hzDiv.hide();
+//hzDiv.hide();
 
 var hzImg = document.createElement('img');
 hzImg.load = function(url, src) {
@@ -99,10 +99,11 @@ hzDiv.appendChild(hzText);
 var hzVideo = document.createElement('video');
 hzVideo.load = function(url, src){
 	var v = document.createElement('video');
+	v.autoplay = true;
+	v.muted = true;
 	v.url = url;
 	v.addEventListener('canplay', function(){ hzVideo.show(this.url, this.src) });
 	v.src = src;
-	v.play();
 }
 hzVideo.show = function(url, src){
 	if(url == hzCurUrl) {
