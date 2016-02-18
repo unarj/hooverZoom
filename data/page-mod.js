@@ -76,12 +76,12 @@ hzImg.show = function(url, src){
 			hzWait = setTimeout( function(){ hzImg.show(url, src) }, i);
 		} else {
 			this.src = src;
-			hzDiv.show('image');
 		}
 	}
 }
 hzImg.addEventListener('load', function(e){
 	hzDiv.resize(this.naturalWidth, this.naturalHeight);
+	hzDiv.show('image');
 });
 hzDiv.appendChild(hzImg);
 
@@ -112,12 +112,12 @@ hzVideo.show = function(url, src){
 			hzWait = setTimeout( function(){ hzVideo.show(url, src) }, i);
 		} else {
 			this.src = src;
-			hzDiv.show('video');
 		}
 	}
 }
 hzVideo.addEventListener('canplay', function(e){
 	hzDiv.resize(this.videoWidth, this.videoHeight);
+	hzDiv.show('video');
 });
 hzVideo.autoplay = true;
 hzVideo.loop = true;
