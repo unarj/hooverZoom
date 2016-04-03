@@ -3,18 +3,17 @@ const { Cc, Ci } = require('chrome');
 const history = Cc["@mozilla.org/browser/history;1"].getService(Ci.mozIAsyncHistory);
 const uri = Cc["@mozilla.org/docshell/urifixup;1"].createInstance(Ci.nsIURIFixup).createFixupURI;
 
-var curUrl, pageMod, pageWorker;
-var prefs = require('sdk/simple-prefs').prefs;
-function addHist(url) {
-	if(url && prefs.addHist) {	history.updatePlaces({ uri:uri(url, 0), visits:[{transitionType:1, visitDate:Date.now()*1000}] }) }
-}
+var curUrl;
 
-require('sdk/simple-prefs').on('', setPrefs);
-function setPrefs() {
-	if(prefs.blacklist) {
+var prefs = require('sdk/simple-prefs').prefs;
+function addHist(url){
+	if(url && prefs.addHist){	history.updatePlaces({ uri:uri(url, 0), visits:[{transitionType:1, visitDate:Date.now()*1000}] }) }
+}
+function setPrefs(){
+	if(prefs.blacklist){
 		var inc = ['*'];
 		var exc = prefs.domainlist.split(',');
-	} else {
+	}else{
 		var inc = prefs.domainlist.split(',');
 		var exc = [];
 	}
@@ -25,14 +24,19 @@ function setPrefs() {
 		contentScriptWhen:'ready',
 		contentStyleFile:"./page-mod.css",
 		attachTo:['existing', 'top'],
-		onAttach:function(w) {
+		onAttach:function(w){
 			w.port.on('load', function(url, src){ curUrl = url; pageWorker.contentURL = src }),
 			w.port.on('visit', addHist);
-		},
+		}
 	});
-	pageWorker = require('sdk/page-worker').Page({ contentScriptFile:"./page-worker.js", contentScriptWhen:'ready' });
-	pageWorker.port.on('done', function(){ pageWorker.contentURL = 'about:blank' });
+	pageWorker = require('sdk/page-worker').Page({
+		contentScriptFile:"./page-worker.js",
+		contentScriptWhen:'ready'
+	});
+	pageWorker.port.on('done', function(){ if(pageWorker.contentURL != 'about:blank'){ pageWorker.contentURL = 'about:blank' } });
 	pageWorker.port.on('image', function(imgs){ pageMod.port.emit('image', curUrl, imgs) });
 	pageWorker.port.on('video', function(vid){ pageMod.port.emit('video', curUrl, vid) });
 }
+
+require('sdk/simple-prefs').on('', setPrefs);
 setPrefs();

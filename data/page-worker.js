@@ -1,4 +1,4 @@
-//console.log("checking : " + document.URL);
+console.log("checking : " + document.URL);
 var imgs = [];
 var vid = '';
 
@@ -27,10 +27,10 @@ find:for(var i=0, l=els.length; i < l; i++) {
 
 if(vid != '') {
 	self.port.emit('video', vid);
-//console.log("vid found: " + vid);
+console.log("vid found: " + vid);
 }
 else if(imgs.length > 0) {
 	self.port.emit('image', imgs);
-//console.log("img found: " + img);
+console.log("img found: " + img);
 }
 self.port.emit('done');

@@ -99,11 +99,12 @@ hzDiv.appendChild(hzText);
 var hzVideo = document.createElement('video');
 hzVideo.load = function(url, src){
 	var v = document.createElement('video');
-	v.autoplay = true;
-	v.muted = true;
 	v.url = url;
 	v.addEventListener('canplay', function(){ hzVideo.show(this.url, this.src) });
 	v.src = src;
+	v.autoplay = true;
+	v.muted = true;
+	v.load();
 }
 hzVideo.show = function(url, src){
 	if(url == hzCurUrl) {
@@ -265,6 +266,10 @@ self.port.on('image', function(url, imgs){
 	hzAlbumImgs = imgs;
 	hzAlbumImgIndex = 0;
 	hzImg.load(url, hzAlbumImgs[0]);
+console.log("loading : " + url);
 });
 
-self.port.on('video', hzVideo.load);
+self.port.on('video', function(url, vid){
+	hzVideo.load(url, vid);
+console.log("loading : " + url);
+});
