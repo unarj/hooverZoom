@@ -154,7 +154,10 @@ function hzWheel(e){
 var hzTarget = document.createElement('a');
 var hzAlbumImgs, hzAlbumImgIndex, hzCurUrl, hzMark, hzWait;
 function hzMouseOn(e){
-	if(hzWait){ if(hzWait.abort){ hzWait.abort() }else{ clearTimeout(hzWait) } }
+	if(hzWait){
+		if(hzWait.abort){ hzWait.abort() }else{ clearTimeout(hzWait) }
+		hzWait = null
+	}
 	hzDiv.hide();
 	hzCurUrl = '';
 	hzAlbumImgs = [];
@@ -258,6 +261,8 @@ function hzMouseOn(e){
 			hzImg.load(hzCurUrl, hzTarget.href);
 //console.log(hzTarget.href);
 		}
+	}else{
+		hzImg.load(hzCurUrl, 'about:blank');
 	}
 }
 function hzMouseOff(e){ hzMouseOn(null) }
