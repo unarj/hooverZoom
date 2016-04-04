@@ -4,8 +4,8 @@ const history = Cc["@mozilla.org/browser/history;1"].getService(Ci.mozIAsyncHist
 const uri = Cc["@mozilla.org/docshell/urifixup;1"].createInstance(Ci.nsIURIFixup).createFixupURI;
 
 var curUrl;
-
 var prefs = require('sdk/simple-prefs').prefs;
+
 function addHist(url){
 	if(url){ history.updatePlaces({ uri:uri(url, 0), visits:[{transitionType:1, visitDate:Date.now()*1000}] }) }
 }
