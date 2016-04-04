@@ -58,6 +58,7 @@ hzDiv.hide = function(){
 }
 hzDiv.visit = function(e){
 	if(self.options.addHist > 0){
+		console.log("adding to history : "+url)
 		url = hzCurUrl;
 		hzWait = setTimeout(function(){ self.port.emit('visit', url) }, self.options.addHist)
 	}
@@ -79,6 +80,7 @@ hzImg.show = function(url, src){
 	if(url == hzCurUrl){
 		var i = self.options.delay - (new Date().getTime() - hzMark);
 		if(i > 0) {
+			console.log("delaying popup : "+i);
 			hzWait = setTimeout( function(){ hzImg.show(url, src) }, i);
 		} else {
 			this.src = src;
@@ -110,12 +112,13 @@ hzVideo.load = function(url, src){
 	v.src = src;
 	v.autoplay = true;
 	v.muted = true;
-	v.load();
+//	v.load();
 }
 hzVideo.show = function(url, src){
 	if(url == hzCurUrl) {
 		var i = self.options.delay - (new Date().getTime() - hzMark);
 		if(i > 0) {
+			console.log("delaying popup : "+i);
 			hzWait = setTimeout( function(){ hzVideo.show(url, src) }, i);
 		} else {
 			this.src = src;
