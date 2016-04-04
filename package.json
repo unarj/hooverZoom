@@ -10,9 +10,9 @@
 		{
 			"name"			: "addHist",
 			"title"			: "Add to History",
-			"description"	: "Do you want to mark popups as having been viewed?",
-			"type"			: "bool",
-			"value"			: true
+			"description"	: "Milisecond delay after popup before adding to history, 0 is disabed.",
+			"type"			: "integer",
+			"value"			: 500
 		},
 		{
 			"name"			: "blacklist",
