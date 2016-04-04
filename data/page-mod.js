@@ -56,11 +56,15 @@ hzDiv.hide = function(){
 	hzImg.src = null;
 	hzVideo.src = null;
 }
+hzDiv.visit = function(e){
+	if(self.options.addHist > 0){
+		url = hzCurUrl;
+		hzWait = setTimeout(function(){ self.port.emit('visit', url) }, self.options.addHist)
+	}
+}
 hzDiv.style.width = "100px";
 hzDiv.style.height = "100px";
-if(self.options.addHist > 0){
-	hzDiv.addEventListener('show', function(e){ hzWait = setTimeout( function(){ self.port.emit('visit', hzCurUrl) }, self.options.addHist)}, false);
-}
+hzDiv.addEventListener('show', hzDiv.visit, false);
 document.body.appendChild(hzDiv);
 //hzDiv.hide();
 
