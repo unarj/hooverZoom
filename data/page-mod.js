@@ -58,7 +58,6 @@ hzDiv.hide = function(){
 }
 hzDiv.visit = function(e){
 	if(self.options.addHist > 0){
-		console.log("adding to history : "+url)
 		url = hzCurUrl;
 		hzWait = setTimeout(function(){ self.port.emit('visit', url) }, self.options.addHist)
 	}
