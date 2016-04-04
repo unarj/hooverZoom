@@ -7,6 +7,7 @@ var curUrl;
 var prefs = require('sdk/simple-prefs').prefs;
 
 function addHist(url){
+	console.log("adding to history : "+url)
 	if(url){ history.updatePlaces({ uri:uri(url, 0), visits:[{transitionType:1, visitDate:Date.now()*1000}] }) }
 }
 function setPrefs(){
