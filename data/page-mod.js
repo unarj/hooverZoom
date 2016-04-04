@@ -47,7 +47,6 @@ hzDiv.show = function(el){
 	if(self.options.keys){ window.addEventListener('keydown', hzKey, false) }
 	window.addEventListener('scroll', hzMouseOff, false);
 	window.addEventListener('wheel', hzWheel, false);
-	hzWait = setTimeout( function(){ self.port.emit('visit', hzCurUrl) }, 500);
 }
 hzDiv.hide = function(){
 	window.removeEventListener('keydown', hzKey, false);
@@ -59,6 +58,9 @@ hzDiv.hide = function(){
 }
 hzDiv.style.width = "100px";
 hzDiv.style.height = "100px";
+if(self.options.addHist > 0){
+	hzDiv.addEventListener('show', function(e){ hzWait = setTimeout( function(){ self.port.emit('visit', hzCurUrl) }, self.options.addHist)}, false);
+}
 document.body.appendChild(hzDiv);
 //hzDiv.hide();
 
