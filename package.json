@@ -12,7 +12,7 @@
 			"title"			: "Add to History",
 			"description"	: "Milisecond delay after popup before adding to history, 0 is disabed.",
 			"type"			: "integer",
-			"value"			: 500
+			"value"			: 1000
 		},
 		{
 			"name"			: "blacklist",
@@ -29,6 +29,13 @@
 			"value"			: "*.craigslist.org,*.flickr.com,*.imgur.com"
 		},
 		{
+			"name"			: "keys",
+			"title"			: "Keys",
+			"description"	: "Enable keyboard control; left and right move through albums.",
+			"type"			: "bool",
+			"value"			: true
+		},
+		{
 			"name"			: "maxSize",
 			"title"			: "Maximum Popup Size",
 			"description"	: "As a percentage of the main window.",
@@ -41,13 +48,6 @@
 			"description"	: "Expressed in milliseconds.",
 			"type"			: "integer",
 			"value"			: 500
-		},
-		{
-			"name"			: "keys",
-			"title"			: "Keys",
-			"description"	: "Enable keyboard control; left and right move through albums.",
-			"type"			: "bool",
-			"value"			: true
 		}
 	]
 }

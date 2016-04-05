@@ -2,6 +2,7 @@ var hzLinks = document.getElementsByTagName('a');
 for (var i=0, l=hzLinks.length; i < l; i++) {
 	hzLinks[i].addEventListener('mouseenter', hzMouseOn, false);
 	hzLinks[i].addEventListener('mouseleave', hzMouseOff, false);
+	//console.log('hook added: '+hzLinks[i]);
 }
 
 var hzDiv = document.createElement('div');
@@ -9,7 +10,7 @@ hzDiv.id = 'hzDiv';
 hzDiv.resize = function(width, height){
 	var x = width;
 	var y = height;
-	var r = window.devicePixelRatio * (self.options.maxSize / 100);
+	var r = window.devicePixelRatio * (self.options.prefs.maxSize / 100);
 	var maxX = document.documentElement.clientWidth * r;
 	var maxY = document.documentElement.clientHeight * r;
 	if((x > maxX) || (y > maxY)){
@@ -29,7 +30,7 @@ hzDiv.resize = function(width, height){
 	this.style.marginTop = Math.floor(y / -2)+"px";
 }
 hzDiv.show = function(el){
-	switch(el.toLowerCase()){
+	switch(el){
 		case 'image':
 			hzVideo.style.display = 'none';
 			hzImg.style.display = 'block';
@@ -44,32 +45,26 @@ hzDiv.show = function(el){
 	}
 	this.style.display = 'block';
 	hzText.set();
-	if(self.options.keys){ window.addEventListener('keydown', hzKey, false) }
+	if(self.options.prefs.keys){ window.addEventListener('keydown', hzKey, false) }
 	window.addEventListener('scroll', hzMouseOff, false);
 	window.addEventListener('wheel', hzWheel, false);
+	if(self.options.prefs.addHist > 0){
+		var url = hzCurUrl;
+		hzWait = window.setTimeout(function(){ self.port.emit('visit', url) }, self.options.prefs.addHist);
+	}
 }
 hzDiv.hide = function(){
 	window.removeEventListener('keydown', hzKey, false);
 	window.removeEventListener('scroll', hzMouseOff, false);
 	window.removeEventListener('wheel', hzWheel, false);
 	hzDiv.style.display = 'none';
-	hzImg.src = null;
-	hzVideo.src = null;
-}
-hzDiv.visit = function(e){
-	if(self.options.addHist > 0){
-		url = hzCurUrl;
-		hzWait = setTimeout(function(){ self.port.emit('visit', url) }, self.options.addHist)
-	}
 }
 hzDiv.style.width = "100px";
 hzDiv.style.height = "100px";
-hzDiv.addEventListener('show', hzDiv.visit, false);
 document.body.appendChild(hzDiv);
-//hzDiv.hide();
 
 var hzImg = document.createElement('img');
-hzImg.load = function(url, src) {
+hzImg.load = function(url, src){
 	var i = document.createElement('img');
 	i.url = url;
 	i.addEventListener('load', function(){ hzImg.show(this.url, this.src) });
@@ -77,10 +72,10 @@ hzImg.load = function(url, src) {
 }
 hzImg.show = function(url, src){
 	if(url == hzCurUrl){
-		var i = self.options.delay - (new Date().getTime() - hzMark);
+		var i = self.options.prefs.delay - (new Date().getTime() - hzMark);
 		if(i > 0) {
-			console.log("delaying popup : "+i);
-			hzWait = setTimeout( function(){ hzImg.show(url, src) }, i);
+			hzWait = window.setTimeout( function(){ hzImg.show(url, src) }, i);
+//			console.log("delaying popup: "+i);
 		} else {
 			this.src = src;
 		}
@@ -111,14 +106,13 @@ hzVideo.load = function(url, src){
 	v.src = src;
 	v.autoplay = true;
 	v.muted = true;
-//	v.load();
 }
 hzVideo.show = function(url, src){
 	if(url == hzCurUrl) {
-		var i = self.options.delay - (new Date().getTime() - hzMark);
+		var i = self.options.prefs.delay - (new Date().getTime() - hzMark);
 		if(i > 0) {
-			console.log("delaying popup : "+i);
-			hzWait = setTimeout( function(){ hzVideo.show(url, src) }, i);
+			hzWait = window.setTimeout( function(){ hzVideo.show(url, src) }, i);
+//			console.log("delaying popup: "+i);
 		} else {
 			this.src = src;
 		}
@@ -159,19 +153,18 @@ function hzWheel(e){
 	}
 }
 
-var hzTarget = document.createElement('a');
-var hzAlbumImgs, hzAlbumImgIndex, hzCurUrl, hzMark, hzWait;
+var hzAlbumImgs = [];
+var hzAlbumImgIndex = 0;
+var hzCurUrl = '';
+var hzLoad = $.ajax();
+var hzMark, hzWait;
 function hzMouseOn(e){
-	if(hzWait){
-		if(hzWait.abort){ hzWait.abort() }else{ clearTimeout(hzWait) }
-		hzWait = null
-	}
-	hzDiv.hide();
-	hzCurUrl = '';
-	hzAlbumImgs = [];
+	hzLoad.abort();
+	clearTimeout(hzWait);
 	if(e){
 		hzMark = new Date().getTime();
 		hzCurUrl = e.target.toString();
+		var hzTarget = document.createElement('a');
 		hzTarget.href = hzCurUrl;
 		var p = hzTarget.pathname.split('.').reverse();
 		if(/bmp|jpeg|jpg|png/i.test(p[0])){ hzImg.load(hzCurUrl, hzTarget.href) }
@@ -194,12 +187,12 @@ function hzMouseOn(e){
 							alb = "https://api.imgur.com/3/album/"+p[2]
 						case 'gallery':
 							alb = alb || "https://api.imgur.com/3/gallery/"+p[2]
-							hzWait = $.ajax({ src:hzCurUrl, url:alb, type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') },
+							hzLoad = $.ajax({ src:hzCurUrl, url:alb, type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') },
 								success:function(d){
 									var delay = 0;
 									if(d['data']['images']){
 										$.each(d['data']['images'], function(i,v){
-											setTimeout( function(){ new Image().src = v['link'] }, delay);
+											window.setTimeout( function(){ new Image().src = v['link'] }, delay);
 											delay += 1000;
 											hzAlbumImgs.push(v['link']);
 										});
@@ -229,11 +222,11 @@ function hzMouseOn(e){
 					hzTarget.href = hzTarget.protocol+"//i.lvme.me"+hzTarget.pathname+".jpg";
 					break;
 				case 'vidble.com':
-					hzWait = $.ajax({ src:hzCurUrl, url:hzTarget.href+'?json=1', type:'GET', datatype:'json',
+					hzLoad = $.ajax({ src:hzCurUrl, url:hzTarget.href+'?json=1', type:'GET', datatype:'json',
 						success:function(d){
 							var delay = 0;
 							$.each(d['pics'], function(i,v){
-								setTimeout( function(){ new Image().src = v }, delay);
+								window.setTimeout( function(){ new Image().src = v }, delay);
 								delay += 1000;
 								hzAlbumImgs.push(v);
 							});
@@ -267,10 +260,14 @@ function hzMouseOn(e){
 					break;
 			}
 			hzImg.load(hzCurUrl, hzTarget.href);
-//console.log(hzTarget.href);
+//			console.log(hzTarget.href);
 		}
 	}else{
+		hzDiv.hide();
+		hzAlbumImgs = [];
 		hzImg.load(hzCurUrl, 'about:blank');
+		hzImg.src = null;
+		hzVideo.src = null;
 	}
 }
 function hzMouseOff(e){ hzMouseOn(null) }
@@ -279,10 +276,10 @@ self.port.on('image', function(url, imgs){
 	hzAlbumImgs = imgs;
 	hzAlbumImgIndex = 0;
 	hzImg.load(url, hzAlbumImgs[0]);
-console.log("loading : " + url);
+//	console.log("loading: " + url);
 });
 
 self.port.on('video', function(url, vid){
 	hzVideo.load(url, vid);
-console.log("loading : " + url);
+//	console.log("loading: " + url);
 });

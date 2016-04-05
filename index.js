@@ -4,11 +4,13 @@ const history = Cc["@mozilla.org/browser/history;1"].getService(Ci.mozIAsyncHist
 const uri = Cc["@mozilla.org/docshell/urifixup;1"].createInstance(Ci.nsIURIFixup).createFixupURI;
 
 var curUrl;
+var pageMod = require('sdk/page-mod').PageMod;
+var pageWorker = require('sdk/page-worker').Page;
 var prefs = require('sdk/simple-prefs').prefs;
 
 function addHist(url){
-	console.log("adding to history : "+url)
 	if(url){ history.updatePlaces({ uri:uri(url, 0), visits:[{transitionType:1, visitDate:Date.now()*1000}] }) }
+//	console.log("add to history : "+url)
 }
 function setPrefs(){
 	if(prefs.blacklist){
@@ -18,23 +20,33 @@ function setPrefs(){
 		var inc = prefs.domainlist.split(',');
 		var exc = [];
 	}
+	if(pageMod.destroy){
+		pageMod.destroy();
+//		console.log('old pageMod purged');
+	}
 	pageMod = require('sdk/page-mod').PageMod({
 		include:inc, exclude:exc,
 		contentScriptFile:["./jquery-2.1.3.min.js", "./page-mod.js"],
-		contentScriptOptions:{ 'delay':prefs.delay, 'keys':prefs.keys, 'maxSize':prefs.maxSize },
+		contentScriptOptions:{ 'prefs':prefs },
 		contentScriptWhen:'ready',
 		contentStyleFile:"./page-mod.css",
 		attachTo:['existing', 'top'],
 		onAttach:function(w){
 			w.port.on('load', function(url, src){ curUrl = url; pageWorker.contentURL = src }),
 			w.port.on('visit', addHist);
+//			console.log('attached: '+w.tab.url)
 		}
 	});
+	if(pageWorker.destroy){
+		pageWorker.destroy();
+//		console.log('old pageWorker purged');
+	}
 	pageWorker = require('sdk/page-worker').Page({
 		contentScriptFile:"./page-worker.js",
-		contentScriptWhen:'ready'
+		contentScriptWhen:'ready',
+		content:'about:blank'
 	});
-	pageWorker.port.on('done', function(){ if(pageWorker.contentURL != 'about:blank'){ pageWorker.contentURL = 'about:blank' } });
+	pageWorker.port.on('done', function(){ pageWorker.contentURL = 'about:blank' });
 	pageWorker.port.on('image', function(imgs){ pageMod.port.emit('image', curUrl, imgs) });
 	pageWorker.port.on('video', function(vid){ pageMod.port.emit('video', curUrl, vid) });
 }
