@@ -51,6 +51,7 @@ hzDiv.show = function(el){
 	if(self.options.prefs.addHist > 0){
 		var url = hzCurUrl;
 		hzWait = window.setTimeout(function(){ self.port.emit('visit', url) }, self.options.prefs.addHist);
+//		console.log('add to history: '+url);
 	}
 }
 hzDiv.hide = function(){
@@ -93,16 +94,17 @@ hzText.set = function(){
 	if(hzAlbumImgs.length > 1){
 		this.appendChild(document.createTextNode((hzAlbumImgIndex+1)+"/"+hzAlbumImgs.length));
 	}else{
-		this.appendChild(document.createTextNode(""));
+		this.appendChild(document.createTextNode(''));
 	}
 }
+hzText.setAttribute('style', self.options.prefs.textLoc);
 hzDiv.appendChild(hzText);
 
 var hzVideo = document.createElement('video');
 hzVideo.load = function(url, src){
 	var v = document.createElement('video');
 	v.url = url;
-	v.addEventListener('canplay', function(){ hzVideo.show(this.url, this.src) });
+	v.addEventListener('canplaythrough', function(){ hzVideo.show(this.url, this.src) });
 	v.src = src;
 	v.autoplay = true;
 	v.muted = true;
@@ -118,9 +120,17 @@ hzVideo.show = function(url, src){
 		}
 	}
 }
-hzVideo.addEventListener('canplay', function(e){
+hzVideo.addEventListener('canplaythrough', function(e){
 	hzDiv.resize(this.videoWidth, this.videoHeight);
 	hzDiv.show('video');
+});
+hzVideo.addEventListener('stalled', function(e){
+	hzDiv.play();
+	console.log('video stalled');
+});
+hzVideo.addEventListener('waiting', function(e){
+	hzDiv.play();
+	console.log('video waiting');
 });
 hzVideo.autoplay = true;
 hzVideo.loop = true;

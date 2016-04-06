@@ -5,12 +5,41 @@
 	"description": "Display a linked image in a fullsize overlay on mouse hover.  Albums will show the current and total number of images in the bottom right corner, navigate them using the mouse wheel or left / right arrows.",
 	"author": "arjuna@on-rope.net",
 	"license": "MPL 2.0",
-	"version": "0.45.2",
+	"version": "0.45.3",
 	"preferences": [
+		{
+			"name"			: "delay",
+			"title"			: "Popup Delay",
+			"description"	: "Expressed in milliseconds.",
+			"type"			: "integer",
+			"value"			: 500
+		},
+		{
+			"name"			: "maxSize",
+			"title"			: "Maximum Popup Size",
+			"description"	: "As a percentage of the main window.",
+			"type"			: "integer",
+			"value"			: 95
+		},
+		{
+			"name"			: "textLoc",
+			"title"			: "Text Location",
+			"description"	: "Placement of the album text (num/of).",
+			"type"			: "menulist",
+			"value"			: "bottom:6px; right:8px;",
+			"options"		: [
+								{ "label": "bottom center", "value": "bottom:6px; left:50%;" },
+								{ "label": "bottom left", "value": "bottom:6px; left:8px;" },
+								{ "label": "bottom right", "value": "bottom:6px; right:8px;" },
+								{ "label": "top center", "value": "top:6px; left:50%;" },
+								{ "label": "top left", "value": "top:6px; left:8px;" },
+								{ "label": "top right", "value": "top:6px; right:8px;" }
+							]
+		},
 		{
 			"name"			: "addHist",
 			"title"			: "Add to History",
-			"description"	: "Milisecond delay after popup before adding to history, 0 is disabed.",
+			"description"	: "Milisecond delay after popup before adding to history, 0 is disabed. Note that direct URLs will be added to history by Firefox immediately regardless of this setting.",
 			"type"			: "integer",
 			"value"			: 1000
 		},
@@ -34,20 +63,6 @@
 			"description"	: "Enable keyboard control; left and right move through albums.",
 			"type"			: "bool",
 			"value"			: true
-		},
-		{
-			"name"			: "maxSize",
-			"title"			: "Maximum Popup Size",
-			"description"	: "As a percentage of the main window.",
-			"type"			: "integer",
-			"value"			: 95
-		},
-		{
-			"name"			: "delay",
-			"title"			: "Popup Delay",
-			"description"	: "Expressed in milliseconds.",
-			"type"			: "integer",
-			"value"			: 500
 		}
 	]
 }

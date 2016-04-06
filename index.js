@@ -3,9 +3,12 @@ const { Cc, Ci } = require('chrome');
 const history = Cc["@mozilla.org/browser/history;1"].getService(Ci.mozIAsyncHistory);
 const uri = Cc["@mozilla.org/docshell/urifixup;1"].createInstance(Ci.nsIURIFixup).createFixupURI;
 
-var curUrl;
+var curUrl = '';
 var pageMod = require('sdk/page-mod').PageMod;
-var pageWorker = require('sdk/page-worker').Page;
+var pageWorker = require('sdk/page-worker').Page({ contentScriptFile:"./page-worker.js", contentScriptWhen:'ready' });
+pageWorker.port.on('done', function(){ this.contentURL = 'about:blank' });
+pageWorker.port.on('image', function(imgs){ pageMod.port.emit('image', curUrl, imgs) });
+pageWorker.port.on('video', function(vid){ pageMod.port.emit('video', curUrl, vid) });
 var prefs = require('sdk/simple-prefs').prefs;
 
 function addHist(url){
@@ -20,10 +23,7 @@ function setPrefs(){
 		var inc = prefs.domainlist.split(',');
 		var exc = [];
 	}
-	if(pageMod.destroy){
-		pageMod.destroy();
-//		console.log('old pageMod purged');
-	}
+	if(pageMod.destroy){ pageMod.destroy() }
 	pageMod = require('sdk/page-mod').PageMod({
 		include:inc, exclude:exc,
 		contentScriptFile:["./jquery-2.1.3.min.js", "./page-mod.js"],
@@ -37,18 +37,6 @@ function setPrefs(){
 //			console.log('attached: '+w.tab.url)
 		}
 	});
-	if(pageWorker.destroy){
-		pageWorker.destroy();
-//		console.log('old pageWorker purged');
-	}
-	pageWorker = require('sdk/page-worker').Page({
-		contentScriptFile:"./page-worker.js",
-		contentScriptWhen:'ready',
-		content:'about:blank'
-	});
-	pageWorker.port.on('done', function(){ pageWorker.contentURL = 'about:blank' });
-	pageWorker.port.on('image', function(imgs){ pageMod.port.emit('image', curUrl, imgs) });
-	pageWorker.port.on('video', function(vid){ pageMod.port.emit('video', curUrl, vid) });
 }
 
 require('sdk/simple-prefs').on('', setPrefs);
