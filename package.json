@@ -5,7 +5,7 @@
 	"description": "Display a linked image in a fullsize overlay on mouse hover.  Albums will show the current and total number of images in the bottom right corner, navigate them using the mouse wheel or left / right arrows.",
 	"author": "arjuna@on-rope.net",
 	"license": "MPL 2.0",
-	"version": "0.45.3",
+	"version": "0.45.4",
 	"preferences": [
 		{
 			"name"			: "delay",
@@ -26,22 +26,22 @@
 			"title"			: "Text Location",
 			"description"	: "Placement of the album text (num/of).",
 			"type"			: "menulist",
-			"value"			: "bottom:6px; right:8px;",
+			"value"			: "bottom:6px; right:6px;",
 			"options"		: [
-								{ "label": "bottom center", "value": "bottom:6px; left:50%;" },
-								{ "label": "bottom left", "value": "bottom:6px; left:8px;" },
-								{ "label": "bottom right", "value": "bottom:6px; right:8px;" },
+								{ "label": "top left", "value": "top:6px; left:6px;" },
 								{ "label": "top center", "value": "top:6px; left:50%;" },
-								{ "label": "top left", "value": "top:6px; left:8px;" },
-								{ "label": "top right", "value": "top:6px; right:8px;" }
+								{ "label": "top right", "value": "top:6px; right:6px;" },
+								{ "label": "bottom left", "value": "bottom:6px; left:6px;" },
+								{ "label": "bottom center", "value": "bottom:6px; left:50%;" },
+								{ "label": "bottom right", "value": "bottom:6px; right:6px;" }
 							]
 		},
 		{
 			"name"			: "addHist",
 			"title"			: "Add to History",
-			"description"	: "Milisecond delay after popup before adding to history, 0 is disabed. Note that direct URLs will be added to history by Firefox immediately regardless of this setting.",
+			"description"	: "Milisecond delay after popup before adding to history, 0 is disabed.",
 			"type"			: "integer",
-			"value"			: 1000
+			"value"			: 500
 		},
 		{
 			"name"			: "blacklist",

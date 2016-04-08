@@ -6,7 +6,6 @@ for (var i=0, l=hzLinks.length; i < l; i++) {
 }
 
 var hzDiv = document.createElement('div');
-hzDiv.id = 'hzDiv';
 hzDiv.resize = function(width, height){
 	var x = width;
 	var y = height;
@@ -43,11 +42,13 @@ hzDiv.show = function(el){
 			console.log('panel "show" called with no valid options, oops!');
 			return;
 	}
+	if(this.style.display != 'block'){
+		if(self.options.prefs.keys){ window.addEventListener('keydown', hzKey, false) }
+		window.addEventListener('scroll', hzMouseOff, false);
+		window.addEventListener('wheel', hzWheel, false);
+	}
 	this.style.display = 'block';
 	hzText.set();
-	if(self.options.prefs.keys){ window.addEventListener('keydown', hzKey, false) }
-	window.addEventListener('scroll', hzMouseOff, false);
-	window.addEventListener('wheel', hzWheel, false);
 	if(self.options.prefs.addHist > 0){
 		var url = hzCurUrl;
 		hzWait = window.setTimeout(function(){ self.port.emit('visit', url) }, self.options.prefs.addHist);
@@ -55,11 +56,15 @@ hzDiv.show = function(el){
 	}
 }
 hzDiv.hide = function(){
+	hzDiv.style.display = 'none';
 	window.removeEventListener('keydown', hzKey, false);
 	window.removeEventListener('scroll', hzMouseOff, false);
 	window.removeEventListener('wheel', hzWheel, false);
-	hzDiv.style.display = 'none';
+	hzImg.src = null;
+	hzVideo.src = null;
+	hzAlbumImgs = [];
 }
+hzDiv.id = 'hzDiv';
 hzDiv.style.width = "100px";
 hzDiv.style.height = "100px";
 document.body.appendChild(hzDiv);
@@ -67,8 +72,8 @@ document.body.appendChild(hzDiv);
 var hzImg = document.createElement('img');
 hzImg.load = function(url, src){
 	var i = document.createElement('img');
-	i.url = url;
 	i.addEventListener('load', function(){ hzImg.show(this.url, this.src) });
+	i.url = url;
 	i.src = src;
 }
 hzImg.show = function(url, src){
@@ -77,7 +82,7 @@ hzImg.show = function(url, src){
 		if(i > 0) {
 			hzWait = window.setTimeout( function(){ hzImg.show(url, src) }, i);
 //			console.log("delaying popup: "+i);
-		} else {
+		} else if(this.src != src){
 			this.src = src;
 		}
 	}
@@ -103,11 +108,12 @@ hzDiv.appendChild(hzText);
 var hzVideo = document.createElement('video');
 hzVideo.load = function(url, src){
 	var v = document.createElement('video');
-	v.url = url;
 	v.addEventListener('canplaythrough', function(){ hzVideo.show(this.url, this.src) });
-	v.src = src;
 	v.autoplay = true;
 	v.muted = true;
+	v.url = url;
+	v.src = src;
+//	console.log("hzVideo.load: "+src);
 }
 hzVideo.show = function(url, src){
 	if(url == hzCurUrl) {
@@ -115,21 +121,23 @@ hzVideo.show = function(url, src){
 		if(i > 0) {
 			hzWait = window.setTimeout( function(){ hzVideo.show(url, src) }, i);
 //			console.log("delaying popup: "+i);
-		} else {
-			this.src = src;
+		} else if(this.src != src){
+			this.src = src
+//			console.log("hzVideo.show: "+src);
 		}
 	}
 }
 hzVideo.addEventListener('canplaythrough', function(e){
 	hzDiv.resize(this.videoWidth, this.videoHeight);
 	hzDiv.show('video');
+//	console.log("hzVideo.canplaythrough");
 });
 hzVideo.addEventListener('stalled', function(e){
-	hzDiv.play();
+	this.src = this.src;
 	console.log('video stalled');
 });
 hzVideo.addEventListener('waiting', function(e){
-	hzDiv.play();
+	this.src = this.src;
 	console.log('video waiting');
 });
 hzVideo.autoplay = true;
@@ -139,11 +147,11 @@ hzDiv.appendChild(hzVideo);
 
 function hzKey(e){
 	switch(e.keyCode){
-		case 37:
-			e.deltaY = -1; //left
+		case 37: //left
+			e.deltaY = -1;
 			break;
-		case 39:
-			e.deltaY = 1; //right
+		case 39: //right
+			e.deltaY = 1;
 			break;
 	}
 	if(e.deltaY){ hzWheel(e) }
@@ -169,8 +177,10 @@ var hzCurUrl = '';
 var hzLoad = $.ajax();
 var hzMark, hzWait;
 function hzMouseOn(e){
-	hzLoad.abort();
 	clearTimeout(hzWait);
+	hzLoad.abort();
+	hzCurUrl = null;
+	hzDiv.hide();
 	if(e){
 		hzMark = new Date().getTime();
 		hzCurUrl = e.target.toString();
@@ -199,11 +209,11 @@ function hzMouseOn(e){
 							alb = alb || "https://api.imgur.com/3/gallery/"+p[2]
 							hzLoad = $.ajax({ src:hzCurUrl, url:alb, type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') },
 								success:function(d){
-									var delay = 0;
+									var i = 0;
 									if(d['data']['images']){
 										$.each(d['data']['images'], function(i,v){
-											window.setTimeout( function(){ new Image().src = v['link'] }, delay);
-											delay += 1000;
+											window.setTimeout( function(){ new Image().src = v['link'] }, i);
+											i += 1000;
 											hzAlbumImgs.push(v['link']);
 										});
 									} else if(d['data']['link']){
@@ -234,10 +244,10 @@ function hzMouseOn(e){
 				case 'vidble.com':
 					hzLoad = $.ajax({ src:hzCurUrl, url:hzTarget.href+'?json=1', type:'GET', datatype:'json',
 						success:function(d){
-							var delay = 0;
+							var i = 0;
 							$.each(d['pics'], function(i,v){
-								window.setTimeout( function(){ new Image().src = v }, delay);
-								delay += 1000;
+								window.setTimeout( function(){ new Image().src = v }, i);
+								i += 1000;
 								hzAlbumImgs.push(v);
 							});
 							if(hzAlbumImgs.length > 0) {
@@ -272,12 +282,6 @@ function hzMouseOn(e){
 			hzImg.load(hzCurUrl, hzTarget.href);
 //			console.log(hzTarget.href);
 		}
-	}else{
-		hzDiv.hide();
-		hzAlbumImgs = [];
-		hzImg.load(hzCurUrl, 'about:blank');
-		hzImg.src = null;
-		hzVideo.src = null;
 	}
 }
 function hzMouseOff(e){ hzMouseOn(null) }
@@ -286,10 +290,10 @@ self.port.on('image', function(url, imgs){
 	hzAlbumImgs = imgs;
 	hzAlbumImgIndex = 0;
 	hzImg.load(url, hzAlbumImgs[0]);
-//	console.log("loading: " + url);
+//	console.log("loading image: " + url);
 });
 
 self.port.on('video', function(url, vid){
 	hzVideo.load(url, vid);
-//	console.log("loading: " + url);
+//	console.log("loading video: " + url);
 });
