@@ -265,6 +265,7 @@ function hzMouseOn(e){
 				case 'facebook.com':
 				case 'flic.kr':
 				case 'flickr.com':
+				case 'giphy.com':
 				case 'gifyoutube.com':
 				case 'gyazo.com':
 				case 'instagram.com':
