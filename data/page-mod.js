@@ -241,6 +241,9 @@ function hzMouseOn(e){
 				case 'livememe.com':
 					hzTarget.href = hzTarget.protocol+"//i.lvme.me"+hzTarget.pathname+".jpg";
 					break;
+				case 'sli.mg':
+					hzTarget.href = hzTarget.protocol+"//i.sli.mg"+hzTarget.pathname+".jpg";
+					break;
 				case 'vidble.com':
 					hzLoad = $.ajax({ src:hzCurUrl, url:hzTarget.href+'?json=1', type:'GET', datatype:'json',
 						success:function(d){
