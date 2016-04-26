@@ -266,6 +266,7 @@ function hzMouseOn(e){
 				case 'deviantart.com':
 				case 'explosm.net':
 				case 'facebook.com':
+				case 'fav.me':
 				case 'flic.kr':
 				case 'flickr.com':
 				case 'giphy.com':
