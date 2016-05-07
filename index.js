@@ -19,8 +19,8 @@ function pageWorker(url){
 	}else{
 		var w = require('sdk/page-worker').Page({ contentScriptFile:'./page-worker.js', contentScriptWhen:'ready', contentURL:url });
 		w.port.on('done', function(){ pageWorker('about:blank') });
-		w.port.on('image', function(imgs){ pageMod.port.emit('image', curUrl, imgs); console.log('img: '+curUrl) });
-		w.port.on('video', function(vid){ pageMod.port.emit('video', curUrl, vid); console.log('vid: '+curUrl) });
+		w.port.on('image', function(imgs){ pageMod.port.emit('image', curUrl, imgs) });
+		w.port.on('video', function(vid){ pageMod.port.emit('video', curUrl, vid) });
 		pageWorkers.push(w);
 //		console.log('new pageWorker: '+url);
 	}
