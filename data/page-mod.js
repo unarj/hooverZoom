@@ -47,9 +47,10 @@ hzDiv.hide = function(){
 		window.removeEventListener('wheel', hzWheel, false);
 	}
 	hzDiv.img.src = '';
-//	hzDiv.vid.pause();
+	hzDiv.vid.pause();
 	hzDiv.vid.src = '';
-//	hzDiv.vid.load();
+	hzDiv.vid.load();
+//	console.log(document.getElementsByTagName('video'));
 }
 hzDiv.img = document.createElement('img');
 hzDiv.img.addEventListener('load', function(){ hzDiv.showImg(hzDiv.img.url, hzDiv.img.src) });
@@ -58,8 +59,8 @@ hzDiv.loadImg = function(url, src){
 	hzDiv.img.src = src;
 }
 hzDiv.showImg = function(url, src){
-	if(url == hzCurUrl){
 		var x = self.options.prefs.delay - (new Date().getTime() - hzMark);
+	if(url == hzCurUrl){
 		if(x > 0){
 			hzWait = window.setTimeout( function(){ hzDiv.showImg(url, src) }, x);
 		}else{
