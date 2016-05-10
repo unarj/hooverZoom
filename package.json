@@ -5,7 +5,7 @@
 	"description": "Display a linked image in a fullsize overlay on mouse hover.  Albums will show the current and total number of images in the bottom right corner, navigate them using the mouse wheel or left / right arrows.",
 	"author": "arjuna@on-rope.net",
 	"license": "MPL 2.0",
-	"version": "0.46.1",
+	"version": "0.46.2",
 	"preferences": [
 		{
 			"name"			: "delay",
@@ -26,14 +26,14 @@
 			"title"			: "Text Location",
 			"description"	: "Placement of the album text (num/of).",
 			"type"			: "menulist",
-			"value"			: "bottom:6px; right:6px;",
+			"value"			: "bottom:6px; right:8px;",
 			"options"		: [
-								{ "label": "top left", "value": "top:6px; left:6px;" },
+								{ "label": "top left", "value": "top:6px; left:8px;" },
 								{ "label": "top center", "value": "top:6px; left:50%;" },
-								{ "label": "top right", "value": "top:6px; right:6px;" },
-								{ "label": "bottom left", "value": "bottom:6px; left:6px;" },
+								{ "label": "top right", "value": "top:6px; right:8px;" },
+								{ "label": "bottom left", "value": "bottom:6px; left:8px;" },
 								{ "label": "bottom center", "value": "bottom:6px; left:50%;" },
-								{ "label": "bottom right", "value": "bottom:6px; right:6px;" }
+								{ "label": "bottom right", "value": "bottom:6px; right:8px;" }
 							]
 		},
 		{

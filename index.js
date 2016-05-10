@@ -7,23 +7,12 @@ var prefs = require('sdk/simple-prefs').prefs;
 var curUrl = '';
 var pageMod = require('sdk/page-mod').PageMod;
 
-var pageWorkers = [];
-function pageWorker(url){
-	if(url == 'about:blank'){
-		var i = pageWorkers.length;
-		while(i--){
-			pageWorkers[i].destroy();
-			pageWorkers.splice(i,1);
-//			console.log('destroying pageWorkers.');
-		}
-	}else{
-		var w = require('sdk/page-worker').Page({ contentScriptFile:'./page-worker.js', contentScriptWhen:'ready', contentURL:url });
-		w.port.on('done', function(){ pageWorker('about:blank') });
-		w.port.on('image', function(imgs){ pageMod.port.emit('image', curUrl, imgs) });
-		w.port.on('video', function(vid){ pageMod.port.emit('video', curUrl, vid) });
-		pageWorkers.push(w);
-//		console.log('new pageWorker: '+url);
-	}
+var pageWorker = require('sdk/page-worker').Page();
+function loadPage(url){
+	pageWorker = require('sdk/page-worker').Page({ contentScriptFile:'./page-worker.js', contentScriptWhen:'ready', contentURL:url });
+	pageWorker.port.on('done', function(){ pageWorker.destroy() });
+	pageWorker.port.on('image', function(imgs){ pageMod.port.emit('image', curUrl, imgs) });
+	pageWorker.port.on('video', function(vid){ pageMod.port.emit('video', curUrl, vid) });
 }
 
 function addHist(url){
@@ -42,13 +31,13 @@ function setPrefs(){
 	if(pageMod.destroy){ pageMod.destroy() }
 	pageMod = require('sdk/page-mod').PageMod({
 		include:inc, exclude:exc,
-		contentScriptFile:["./jquery-2.1.3.min.js", "./page-mod.js"],
+		contentScriptFile:["./jquery-2.2.3.min.js", "./page-mod.js"],
 		contentScriptOptions:{ 'prefs':prefs },
 		contentScriptWhen:'ready',
 		contentStyleFile:"./page-mod.css",
 		attachTo:['existing', 'top'],
 		onAttach:function(w){
-			w.port.on('load', function(url, src){ curUrl = url; pageWorker(src) }),
+			w.port.on('load', function(url, src){ curUrl = url; loadPage(src) }),
 			w.port.on('visit', addHist);
 //			console.log('attached: '+w.tab.url)
 		}
