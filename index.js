@@ -4,16 +4,12 @@ var uri = Cc['@mozilla.org/docshell/urifixup;1'].createInstance(Ci.nsIURIFixup).
 
 var curUrl = '';
 var pageMod = require('sdk/page-mod').PageMod;
-var pageWorker = require('sdk/page-worker').Page;
+var pageWorker = require('sdk/page-worker').Page({ contentScriptFile:'./page-worker.js', contentScriptWhen:'ready' });
 var prefs = require('sdk/simple-prefs').prefs;
 
-function loadPage(url){
-	if(pageWorker.destroy){ pageWorker.destroy() }
-	pageWorker = require('sdk/page-worker').Page({ contentScriptFile:'./page-worker.js', contentScriptWhen:'ready', contentURL:url });
-	pageWorker.port.on('done', function(){ pageWorker.destroy() });
-	pageWorker.port.on('image', function(imgs){ pageMod.port.emit('image', curUrl, imgs) });
-	pageWorker.port.on('video', function(vid){ pageMod.port.emit('video', curUrl, vid) });
-}
+pageWorker.port.on('done', function(){ pageWorker.contentURL = 'about:blank' });
+pageWorker.port.on('image', function(imgs){ pageMod.port.emit('image', curUrl, imgs) });
+pageWorker.port.on('video', function(vid){ pageMod.port.emit('video', curUrl, vid); console.log('relaying found video: '+vid) });
 
 function addHist(url){
 	if(url){ history.updatePlaces({ uri:uri(url, 0), visits:[{transitionType:1, visitDate:Date.now()*1000}] }) }
@@ -37,7 +33,7 @@ function setPrefs(){
 		contentStyleFile:"./page-mod.css",
 		attachTo:['existing', 'top'],
 		onAttach:function(w){
-			w.port.on('load', function(url, src){ curUrl = url; loadPage(src) }),
+			w.port.on('load', function(url, src){ curUrl = url; pageWorker.contentURL = src });
 			w.port.on('visit', addHist);
 		}
 	});
