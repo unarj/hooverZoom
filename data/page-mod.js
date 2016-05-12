@@ -1,19 +1,15 @@
 if(document.body){
+//	function debug(str){ console.log(str) }
+	
 	var hzLinks = document.getElementsByTagName('a');
 	for (var i=0, l=hzLinks.length; i < l; i++) {
 		hzLinks[i].addEventListener('mouseenter', hzMouseOn, false);
 		hzLinks[i].addEventListener('mouseleave', hzMouseOff, false);
-		//console.log('hook added: '+hzLinks[i]);
+		debug('hook added: '+hzLinks[i]);
 	}
 
 	var hzDiv = document.createElement('div');
 	hzDiv.show = function(width, height){
-		if(hzDiv.style.display != 'block'){
-			if(self.options.prefs.keys){ document.addEventListener('keydown', hzKey, false) }
-			document.addEventListener('scroll', hzMouseOff, false);
-			document.addEventListener('wheel', hzWheel, false);
-		}
-		hzDiv.style.display = 'block';
 		var x = width;
 		var y = height;
 		var r = window.devicePixelRatio * (self.options.prefs.maxSize / 100);
@@ -30,7 +26,13 @@ if(document.body){
 				y = Math.floor(y * rY);
 			}
 		}
-		//console.log(x+','+y);
+		if(hzDiv.style.display != 'block'){
+			hzDiv.style.display = 'block';
+			if(self.options.prefs.keys){ document.addEventListener('keydown', hzKey, false) }
+			document.addEventListener('scroll', hzMouseOff, false);
+			document.addEventListener('wheel', hzWheel, false);
+			debug('hzDiv show: '+x+','+y);
+		}
 		hzDiv.style.width = x+"px";
 		hzDiv.style.height = y+"px";
 		hzDiv.style.marginLeft = Math.floor(x / -2)+"px";
@@ -38,11 +40,12 @@ if(document.body){
 		if(self.options.prefs.addHist > 0){ hzWait = setTimeout(function(){ self.port.emit('visit', hzCurUrl) }, self.options.prefs.addHist) }
 	}
 	hzDiv.hide = function(){
-		if(hzDiv.style.display == 'block'){
+		if(hzDiv.style.display != 'none'){
 			hzDiv.style.display = 'none';
 			document.removeEventListener('keydown', hzKey, false);
 			document.removeEventListener('scroll', hzMouseOff, false);
 			document.removeEventListener('wheel', hzWheel, false);
+			debug('hzDiv hide');
 		}
 		hzDiv.loadImg('','about:blank');
 		hzDiv.loadVid('','about:blank');
@@ -85,7 +88,7 @@ if(document.body){
 			hzDiv.vid.url = url;
 			hzDiv.vid.src = src;
 			hzDiv.vid.load();
-			//console.log('vid load: '+src);
+			debug('vid load: '+src);
 		}
 	}
 	hzDiv.showVid = function(url, src){
@@ -98,11 +101,10 @@ if(document.body){
 				hzDiv.appendChild(hzDiv.vid);
 				hzDiv.show(hzDiv.vid.videoWidth, hzDiv.vid.videoHeight);
 				hzDiv.vid.play();
-				//console.log('vid show: '+src);
+				debug('vid show: '+src);
 			}
 		}else{
 			hzDiv.hide();
-			//console.log('vid show aborted.');
 		}
 	}
 	hzDiv.id = 'hzDiv';
@@ -135,14 +137,6 @@ if(document.body){
 			hzDiv.loadImg(hzCurUrl, hzAlbumImgs[hzAlbumImgIndex]);
 		}
 	}
-	
-//	function hzCheckUrl(url){
-//		console.log('checking: '+url);
-//		hzLoad = $.ajax({ url:url,
-//			success:function(d,s){ console.log('found: '+String(d)+'('+s+')') },
-//			error:function(d,s){ console.log('error: '+String(d)+'('+s+')') }
-//		});
-//	}
 
 	var hzAlbumImgs = [];
 	var hzAlbumImgIndex = 0;
@@ -190,7 +184,7 @@ if(document.body){
 												i += 1000;
 												hzAlbumImgs.push(v['link']);
 											});
-										} else if(d['data']['link']){
+										}else if(d['data']['link']){
 											hzAlbumImgs.push(d['data']['link']);
 										}
 										if(hzAlbumImgs.length > 0){
@@ -209,7 +203,6 @@ if(document.body){
 								hzTarget.href += "v";
 							case 'gifv':
 								self.port.emit('load', hzCurUrl, hzTarget.href);
-								//hzCheckUrl(hzTarget.href);
 								break;
 						}
 						break;
@@ -261,20 +254,24 @@ if(document.body){
 						break;
 				}
 				hzDiv.loadImg(hzCurUrl, hzTarget.href);
-				//console.log(hzTarget.href);
+				debug('check target: '+hzTarget.href);
 			}
 		}
 	}
 	function hzMouseOff(e){ hzMouseOn(null) }
 
-	self.port.on('image', function(url, imgs){
-		hzAlbumImgs = imgs;
+	//port functionality seems to stop working randomly, a page refresh will fix it...
+	function hzPortImg(url, img){
+		hzAlbumImgs = img;
 		hzAlbumImgIndex = 0;
 		hzDiv.loadImg(url, hzAlbumImgs[0]);
-	});
+		debug('img port: '+img);
+	}
+	self.port.on('image', hzPortImg);
 
-	self.port.on('video', function(url, vid){
+	function hzPortVid(url, vid){
 		hzDiv.loadVid(url, vid);
-		console.log('vid port: '+vid);
-	});
+		debug('vid port: '+vid);
+	}
+	self.port.on('video', hzPortVid);
 }

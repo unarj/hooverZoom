@@ -28,11 +28,11 @@ if(document.URL != 'about:blank'){
 
 	if(vid != ''){
 		self.port.emit('video', vid);
-		console.log('pageWorker video found: '+vid);
+		//console.log('pageWorker video found: '+vid);
 	}
 	else if(imgs.length > 0){
 		self.port.emit('image', imgs);
-	//console.log("img found: " + img);
+		//console.log("img found: " + img);
 	}
 	self.port.emit('done');
 }

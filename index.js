@@ -9,7 +9,7 @@ var prefs = require('sdk/simple-prefs').prefs;
 
 pageWorker.port.on('done', function(){ pageWorker.contentURL = 'about:blank' });
 pageWorker.port.on('image', function(imgs){ pageMod.port.emit('image', curUrl, imgs) });
-pageWorker.port.on('video', function(vid){ pageMod.port.emit('video', curUrl, vid); console.log('relaying found video: '+vid) });
+pageWorker.port.on('video', function(vid){ pageMod.port.emit('video', curUrl, vid); });
 
 function addHist(url){
 	if(url){ history.updatePlaces({ uri:uri(url, 0), visits:[{transitionType:1, visitDate:Date.now()*1000}] }) }
