@@ -1,11 +1,13 @@
 if(document.body){
-	function debug(str){ console.log(str) }
+//	function debug(str){ console.log(str) }
 	
 	var hzLinks = document.getElementsByTagName('a');
 	for (var i=0, l=hzLinks.length; i < l; i++) {
-		hzLinks[i].addEventListener('mouseenter', hzMouseOn, false);
-		hzLinks[i].addEventListener('mouseleave', hzMouseOff, false);
-		debug('hook added: '+hzLinks[i]);
+		if(!/^javascript:/.test(hzLinks[i].href)){
+			hzLinks[i].addEventListener('mouseenter', hzMouseOn, false);
+			hzLinks[i].addEventListener('mouseleave', hzMouseOff, false);
+			debug('hook added: '+hzLinks[i]);
+		}
 	}
 
 	var hzDiv = document.createElement('div');
@@ -37,6 +39,12 @@ if(document.body){
 		hzDiv.style.height = y+"px";
 		hzDiv.style.marginLeft = Math.floor(x / -2)+"px";
 		hzDiv.style.marginTop = Math.floor(y / -2)+"px";
+		if(hzAlbumImgs.length > 1){
+			var d = document.createElement('div');
+			d.appendChild(document.createTextNode((hzAlbumImgIndex+1)+'/'+hzAlbumImgs.length));
+			d.setAttribute('style', self.options.prefs.textLoc);
+			hzDiv.appendChild(d);
+		}
 		if(self.options.prefs.addHist > 0){ hzWait = setTimeout(function(){ self.port.emit('visit', hzCurUrl) }, self.options.prefs.addHist) }
 	}
 	hzDiv.hide = function(){
@@ -52,10 +60,9 @@ if(document.body){
 	}
 	hzDiv.img = document.createElement('img');
 	hzDiv.img.addEventListener('load', function(){ hzDiv.showImg(hzDiv.img.url, hzDiv.img.src) });
-	//hzDiv.img.addEventListener('progress', function(){ debug('img progress') });
-	//hzDiv.img.addEventListener('loadstart', function(){ debug('img loadstart') });
 	hzDiv.loadImg = function(url, src){
-		if(hzDiv.img.src != src){
+		if(/mp4|webm/i.test(src.split('.').pop())){ hzDiv.loadVid(url, src) }
+		else if(hzDiv.img.src != src){
 			hzDiv.img.url = url;
 			hzDiv.img.src = src;
 			debug('img load: '+src);
@@ -68,12 +75,6 @@ if(document.body){
 				hzWait = setTimeout( function(){ hzDiv.showImg(url, src) }, x);
 			}else{
 				while(hzDiv.lastChild){ hzDiv.removeChild(hzDiv.lastChild) }
-				if(hzAlbumImgs.length > 1){
-					var d = document.createElement('div');
-					d.appendChild(document.createTextNode((hzAlbumImgIndex+1)+'/'+hzAlbumImgs.length));
-					d.setAttribute('style', self.options.prefs.textLoc);
-					hzDiv.appendChild(d);
-				}
 				hzDiv.appendChild(hzDiv.img);
 				hzDiv.show(hzDiv.img.naturalWidth, hzDiv.img.naturalHeight);
 				debug('img show: '+src);
@@ -104,7 +105,7 @@ if(document.body){
 				while(hzDiv.lastChild){ hzDiv.removeChild(hzDiv.lastChild) }
 				hzDiv.appendChild(hzDiv.vid);
 				hzDiv.show(hzDiv.vid.videoWidth, hzDiv.vid.videoHeight);
-				hzDiv.vid.play();
+				//hzDiv.vid.play();
 				debug('vid show: '+src);
 			}
 		}else{
@@ -159,62 +160,58 @@ if(document.body){
 			var hzTarget = document.createElement('a');
 			hzTarget.href = hzCurUrl;
 			var p = hzTarget.pathname.split('.').reverse();
-			if(/bmp|jpeg|jpg|png/i.test(p[0])){ hzDiv.loadImg(hzCurUrl, hzTarget.href) }
-			else if(/mp4|webm/i.test(p[0])){ hzDiv.loadVid(hzCurUrl, hzTarget.href) }
+			if(/bmp|jpeg|jpg|mp4|png|webm/i.test(p[0])){ hzDiv.loadImg(hzCurUrl, hzTarget.href) }
 			else{
 				p = hzTarget.hostname.split('.').reverse();
-				switch((p[1]+"."+p[0]).toLowerCase()){
+				switch((p[1]+'.'+p[0]).toLowerCase()){
 					case 'gfycat.com':
-						self.port.emit('load', hzCurUrl, hzTarget.protocol+"//gfycat.com/"+hzTarget.pathname.split('.')[0]);
+						self.port.emit('load', hzCurUrl, hzTarget.protocol+'//gfycat.com/'+hzTarget.pathname.split('.')[0]);
 						break;
 					case 'imgflip.com':
 						p = hzTarget.pathname.split('/');
-						if(p.length > 2){ hzTarget.href = hzTarget.protocol+"//i.imgflip.com/"+p[2].split('#')[0]+".jpg" }
+						if(p.length > 2){ hzTarget.href = hzTarget.protocol+'//i.imgflip.com/'+p[2].split('#')[0]+'.jpg' }
 						break;
 					case 'imgur.com':
-						var alb = "";
 						p = hzTarget.pathname.split('/');
 						switch(p[1].toLowerCase()){
 							case 'a':
-								alb = "https://api.imgur.com/3/album/"+p[2]
+								hzTarget.href = 'https://api.imgur.com/3/album/'+p[2]+'/images';
+								break;
 							case 'gallery':
-								alb = alb || "https://api.imgur.com/3/gallery/"+p[2]
-								hzLoad = $.ajax({ src:hzCurUrl, url:alb, type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') },
-									success:function(d){
-										var i = 0;
-										if(d['data']['images']){
-											$.each(d['data']['images'], function(i,v){
-												var x = setTimeout( function(){ new Image().src = v['link'] }, i);
-												i += 1000;
-												hzAlbumImgs.push(v['link']);
-											});
-										}else if(d['data']['link']){
-											hzAlbumImgs.push(d['data']['link']);
-										}
-										if(hzAlbumImgs.length > 0){
-											hzDiv.loadImg(this.src, hzAlbumImgs[0]);
-											hzAlbumImgIndex = 0;
-										}
-									}
-								});
-								return;
+								hzTarget.href = 'https://api.imgur.com/3/gallery/'+p[2]+'/images';
+								break;
+							default:
+								hzTarget.href = 'https://api.imgur.com/3/image/'+p.pop().split('.')[0];
 						}
-						hzTarget.pathname = hzTarget.pathname.split('/').pop();
-						hzTarget.href = hzTarget.href.split('?')[0].split(',')[0].split('#')[0];
-						if(hzTarget.pathname.split('.').length == 1){ hzTarget.href += ".jpg" }
-						switch(hzTarget.pathname.split('.').reverse()[0].toLowerCase()) {
-							case 'gif':
-								hzTarget.href += "v";
-							case 'gifv':
-								self.port.emit('load', hzCurUrl, hzTarget.href);
-								return;
-						}
+						hzLoad = $.ajax({ src:hzCurUrl, url:hzTarget.href, type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') },
+							success:function(r){
+								var d = r.data;
+								if(d.length){
+									$.each(d, function(i,v){
+										var x = 0;
+										if(v.animated){ hzAlbumImgs.push(v.mp4) }
+										else if(v.link){
+											setTimeout( function(){ new Image().src = v.link }, x);
+											x += self.options.prefs.delay;
+											hzAlbumImgs.push(v.link);
+										}
+									});
+								}else{
+									if(d.animated){ hzAlbumImgs.push(d.mp4) }
+									else if(d.link){ hzAlbumImgs.push(d.link) }
+								}
+								if(hzAlbumImgs.length > 0){
+									hzDiv.loadImg(this.src, hzAlbumImgs[0]);
+									hzAlbumImgIndex = 0;
+								}
+							}
+						});
 						break;
 					case 'livememe.com':
-						hzTarget.href = hzTarget.protocol+"//i.lvme.me"+hzTarget.pathname+".jpg";
+						hzTarget.href = hzTarget.protocol+'//i.lvme.me'+hzTarget.pathname+'.jpg';
 						break;
 					case 'sli.mg':
-						hzTarget.href = hzTarget.protocol+"//i.sli.mg"+hzTarget.pathname+".jpg";
+						hzTarget.href = hzTarget.protocol+'//i.sli.mg'+hzTarget.pathname+'.jpg';
 						break;
 					case 'vidble.com':
 						hzLoad = $.ajax({ src:hzCurUrl, url:hzTarget.href+'?json=1', type:'GET', datatype:'json',
@@ -222,7 +219,7 @@ if(document.body){
 								var i = 0;
 								$.each(d['pics'], function(i,v){
 									var x = setTimeout( function(){ new Image().src = v }, i);
-									i += 1000;
+									i += self.options.prefs.delay;
 									hzAlbumImgs.push(v);
 								});
 								if(hzAlbumImgs.length > 0) {
@@ -231,7 +228,7 @@ if(document.body){
 								}
 							}
 						});
-						return;
+						break;
 					case '500px.com':
 					case 'artstation.com':
 					case 'citizenop.com':
@@ -260,22 +257,17 @@ if(document.body){
 				}
 				hzDiv.loadImg(hzCurUrl, hzTarget.href);
 			}
+			debug('done checking: '+hzCurUrl);
 		}
 	}
 	function hzMouseOff(e){ hzMouseOn(null) }
 
 	//port functionality seems to stop working randomly, a page refresh will fix it...
-	function hzPortImg(url, img){
-		hzAlbumImgs = img;
+	function hzPort(url, imgs){
+		hzAlbumImgs = imgs;
 		hzAlbumImgIndex = 0;
 		hzDiv.loadImg(url, hzAlbumImgs[0]);
-		debug('img port: '+img);
+		debug('img port: '+imgs[0]);
 	}
-	self.port.on('image', hzPortImg);
-
-	function hzPortVid(url, vid){
-		hzDiv.loadVid(url, vid);
-		debug('vid port: '+vid);
-	}
-	self.port.on('video', hzPortVid);
+	self.port.on('found', hzPort);
 }

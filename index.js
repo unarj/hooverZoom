@@ -1,6 +1,6 @@
-var { Cc, Ci } = require('chrome');
-var history = Cc['@mozilla.org/browser/history;1'].getService(Ci.mozIAsyncHistory);
-var uri = Cc['@mozilla.org/docshell/urifixup;1'].createInstance(Ci.nsIURIFixup).createFixupURI;
+const { Cc, Ci } = require('chrome');
+const history = Cc['@mozilla.org/browser/history;1'].getService(Ci.mozIAsyncHistory);
+const uri = Cc['@mozilla.org/docshell/urifixup;1'].createInstance(Ci.nsIURIFixup).createFixupURI;
 
 var curUrl = '';
 var pageMod = require('sdk/page-mod').PageMod;
@@ -8,8 +8,7 @@ var pageWorker = require('sdk/page-worker').Page({ contentScriptFile:'./page-wor
 var prefs = require('sdk/simple-prefs').prefs;
 
 pageWorker.port.on('done', function(){ pageWorker.contentURL = 'about:blank' });
-pageWorker.port.on('image', function(imgs){ pageMod.port.emit('image', curUrl, imgs) });
-pageWorker.port.on('video', function(vid){ pageMod.port.emit('video', curUrl, vid); });
+pageWorker.port.on('found', function(imgs){ pageMod.port.emit('found', curUrl, imgs); });
 
 function addHist(url){
 	if(url){ history.updatePlaces({ uri:uri(url, 0), visits:[{transitionType:1, visitDate:Date.now()*1000}] }) }
