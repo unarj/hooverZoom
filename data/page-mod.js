@@ -1,5 +1,5 @@
 if(document.body){
-//	function debug(str){ console.log(str) }
+	function debug(str){ console.log(str) }
 	
 	var hzLinks = document.getElementsByTagName('a');
 	for (var i=0, l=hzLinks.length; i < l; i++) {
@@ -52,10 +52,13 @@ if(document.body){
 	}
 	hzDiv.img = document.createElement('img');
 	hzDiv.img.addEventListener('load', function(){ hzDiv.showImg(hzDiv.img.url, hzDiv.img.src) });
+	//hzDiv.img.addEventListener('progress', function(){ debug('img progress') });
+	//hzDiv.img.addEventListener('loadstart', function(){ debug('img loadstart') });
 	hzDiv.loadImg = function(url, src){
 		if(hzDiv.img.src != src){
 			hzDiv.img.url = url;
 			hzDiv.img.src = src;
+			debug('img load: '+src);
 		}
 	}
 	hzDiv.showImg = function(url, src){
@@ -73,6 +76,7 @@ if(document.body){
 				}
 				hzDiv.appendChild(hzDiv.img);
 				hzDiv.show(hzDiv.img.naturalWidth, hzDiv.img.naturalHeight);
+				debug('img show: '+src);
 			}
 		}else{
 			hzDiv.hide();
@@ -203,7 +207,7 @@ if(document.body){
 								hzTarget.href += "v";
 							case 'gifv':
 								self.port.emit('load', hzCurUrl, hzTarget.href);
-								break;
+								return;
 						}
 						break;
 					case 'livememe.com':
@@ -230,6 +234,7 @@ if(document.body){
 						return;
 					case '500px.com':
 					case 'artstation.com':
+					case 'citizenop.com':
 					case 'craigslist.org':
 					case 'deviantart.com':
 					case 'explosm.net':
@@ -254,7 +259,6 @@ if(document.body){
 						break;
 				}
 				hzDiv.loadImg(hzCurUrl, hzTarget.href);
-				debug('check target: '+hzTarget.href);
 			}
 		}
 	}

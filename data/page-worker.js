@@ -1,5 +1,7 @@
 if(document.URL != 'about:blank'){
-	//console.log("checking: " + document.URL);
+	function debug(str){ console.log(str) }
+
+	debug('pageWorker: checking: '+document.URL);
 	var imgs = [];
 	var vid = '';
 
@@ -28,11 +30,11 @@ if(document.URL != 'about:blank'){
 
 	if(vid != ''){
 		self.port.emit('video', vid);
-		//console.log('pageWorker video found: '+vid);
+		debug('pageWorker: video found: '+vid);
 	}
 	else if(imgs.length > 0){
 		self.port.emit('image', imgs);
-		//console.log("img found: " + img);
+		debug("pageWorker: img found: " + imgs);
 	}
 	self.port.emit('done');
 }
