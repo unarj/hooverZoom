@@ -1,5 +1,5 @@
 if(document.body){
-//	function debug(str){ console.log(str) }
+	//function debug(str){ console.log(str) }
 	
 	var hzLinks = document.getElementsByTagName('a');
 	for (var i=0, l=hzLinks.length; i < l; i++) {
@@ -105,7 +105,7 @@ if(document.body){
 				while(hzDiv.lastChild){ hzDiv.removeChild(hzDiv.lastChild) }
 				hzDiv.appendChild(hzDiv.vid);
 				hzDiv.show(hzDiv.vid.videoWidth, hzDiv.vid.videoHeight);
-				//hzDiv.vid.play();
+				hzDiv.vid.play();
 				debug('vid show: '+src);
 			}
 		}else{
@@ -135,9 +135,11 @@ if(document.body){
 			if(e.deltaY > 0){ 
 				++hzAlbumImgIndex;
 				if(hzAlbumImgIndex > hzAlbumImgs.length - 1) { hzAlbumImgIndex = 0 }
+				debug('scroll next: '+(hzAlbumImgIndex+1)+'/'+hzAlbumImgs.length);
 			} else if(e.deltaY < 0){
 				--hzAlbumImgIndex;
 				if(hzAlbumImgIndex < 0){ hzAlbumImgIndex = hzAlbumImgs.length - 1 }
+				debug('scroll prev: '+(hzAlbumImgIndex+1)+'/'+hzAlbumImgs.length);
 			}
 			hzDiv.loadImg(hzCurUrl, hzAlbumImgs[hzAlbumImgIndex]);
 		}
@@ -183,24 +185,34 @@ if(document.body){
 							default:
 								hzTarget.href = 'https://api.imgur.com/3/image/'+p.pop().split('.')[0];
 						}
-						hzLoad = $.ajax({ src:hzCurUrl, url:hzTarget.href, type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization', 'Client-ID f781dcd19302057') },
+						hzLoad = $.ajax({ src:hzCurUrl, url:hzTarget.href, type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization','Client-ID f781dcd19302057') },
 							success:function(r){
 								var d = r.data;
 								if(d.length){
+									var x = 0;
 									$.each(d, function(i,v){
-										var x = 0;
-										if(v.animated){ hzAlbumImgs.push(v.mp4) }
+										if(v.animated){
+											setTimeout( function(){ var e = document.createElement('video'); e.src = v.mp4 }, x);
+											x += self.options.prefs.delay;
+											hzAlbumImgs.push(v.mp4);
+										}
 										else if(v.link){
-											setTimeout( function(){ new Image().src = v.link }, x);
+											setTimeout( function(){ var e = document.createElement('img'); e.src = v.link }, x);
 											x += self.options.prefs.delay;
 											hzAlbumImgs.push(v.link);
 										}
 									});
 								}else{
-									if(d.animated){ hzAlbumImgs.push(d.mp4) }
-									else if(d.link){ hzAlbumImgs.push(d.link) }
+									if(d.animated){
+										var e = document.createElement('video'); e.src = d.mp4;
+										hzAlbumImgs.push(d.mp4);
+									}
+									else if(d.link){
+										var e = document.createElement('img'); e.src = d.link;
+										hzAlbumImgs.push(d.link);
+									}
 								}
-								if(hzAlbumImgs.length > 0){
+								if(hzAlbumImgs.length){
 									hzDiv.loadImg(this.src, hzAlbumImgs[0]);
 									hzAlbumImgIndex = 0;
 								}
@@ -215,14 +227,14 @@ if(document.body){
 						break;
 					case 'vidble.com':
 						hzLoad = $.ajax({ src:hzCurUrl, url:hzTarget.href+'?json=1', type:'GET', datatype:'json',
-							success:function(d){
-								var i = 0;
-								$.each(d['pics'], function(i,v){
-									var x = setTimeout( function(){ new Image().src = v }, i);
-									i += self.options.prefs.delay;
+							success:function(r){
+								var x = 0;
+								$.each(r.pics, function(i,v){
+									setTimeout( function(){ new Image().src = v }, x);
+									x += self.options.prefs.delay;
 									hzAlbumImgs.push(v);
 								});
-								if(hzAlbumImgs.length > 0) {
+								if(hzAlbumImgs.length) {
 									hzDiv.laodImg(this.src, hzAlbumImgs[0]);
 									hzAlbumImgIndex = 0;
 								}
