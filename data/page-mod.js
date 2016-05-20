@@ -1,5 +1,5 @@
 if(document.body){
-	//function debug(str){ console.log(str) }
+	function debug(str){ console.log(str) }
 	
 	var hzLinks = document.getElementsByTagName('a');
 	for (var i=0, l=hzLinks.length; i < l; i++) {
@@ -55,14 +55,15 @@ if(document.body){
 			document.removeEventListener('wheel', hzWheel, false);
 			debug('hzDiv hide');
 		}
-		hzDiv.loadImg('','about:blank');
-		hzDiv.loadVid('','about:blank');
+//		hzDiv.loadImg('','about:blank');
+//		hzDiv.loadVid('','about:blank');
 	}
 	hzDiv.img = document.createElement('img');
 	hzDiv.img.addEventListener('load', function(){ hzDiv.showImg(hzDiv.img.url, hzDiv.img.src) });
 	hzDiv.loadImg = function(url, src){
 		if(/mp4|webm/i.test(src.split('.').pop())){ hzDiv.loadVid(url, src) }
 		else if(hzDiv.img.src != src){
+			hzDiv.vid.src = 'about:blank'
 			hzDiv.img.url = url;
 			hzDiv.img.src = src;
 			debug('img load: '+src);
@@ -90,6 +91,7 @@ if(document.body){
 	hzDiv.vid.muted = true;
 	hzDiv.loadVid = function(url, src){
 		if(hzDiv.vid.src != src){
+			hzDiv.img.src = 'about:blank'
 			hzDiv.vid.url = url;
 			hzDiv.vid.src = src;
 			hzDiv.vid.load();
@@ -192,23 +194,21 @@ if(document.body){
 									var x = 0;
 									$.each(d, function(i,v){
 										if(v.animated){
-											setTimeout( function(){ var e = document.createElement('video'); e.src = v.mp4 }, x);
+											setTimeout(function(){ var e = document.createElement('video'); e.src = v.mp4 }, x);
 											x += self.options.prefs.delay;
 											hzAlbumImgs.push(v.mp4);
 										}
 										else if(v.link){
-											setTimeout( function(){ var e = document.createElement('img'); e.src = v.link }, x);
+											setTimeout(function(){ var e = document.createElement('img'); e.src = v.link }, x);
 											x += self.options.prefs.delay;
 											hzAlbumImgs.push(v.link);
 										}
 									});
 								}else{
 									if(d.animated){
-										var e = document.createElement('video'); e.src = d.mp4;
 										hzAlbumImgs.push(d.mp4);
 									}
 									else if(d.link){
-										var e = document.createElement('img'); e.src = d.link;
 										hzAlbumImgs.push(d.link);
 									}
 								}
