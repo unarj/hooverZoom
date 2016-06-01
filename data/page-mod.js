@@ -1,5 +1,5 @@
 if(document.body){
-	function debug(str){ console.log(str) }
+	//function debug(str){ console.log(str) }
 	
 	var hzLinks = document.getElementsByTagName('a');
 	for (var i=0, l=hzLinks.length; i < l; i++) {
@@ -55,8 +55,8 @@ if(document.body){
 			document.removeEventListener('wheel', hzWheel, false);
 			debug('hzDiv hide');
 		}
-//		hzDiv.loadImg('','about:blank');
-//		hzDiv.loadVid('','about:blank');
+		hzDiv.vid.src = 'about:blank'
+		hzDiv.img.src = 'about:blank'
 	}
 	hzDiv.img = document.createElement('img');
 	hzDiv.img.addEventListener('load', function(){ hzDiv.showImg(hzDiv.img.url, hzDiv.img.src) });
@@ -247,6 +247,7 @@ if(document.body){
 					case 'craigslist.org':
 					case 'deviantart.com':
 					case 'explosm.net':
+					case 'ezphotoshare.com':
 					case 'facebook.com':
 					case 'fav.me':
 					case 'flic.kr':
@@ -259,6 +260,7 @@ if(document.body){
 					case 'makeameme.org':
 					case 'mypixa.com':
 					//case 'pinterest.com':
+					case 'streamable.com':
 					case 'swirl.xyz':
 					case 'tumblr.com':
 					case 'twitter.com':
