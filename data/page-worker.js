@@ -1,5 +1,5 @@
 if(document.URL != 'about:blank'){
-	//function debug(str){ console.log('pageWorker: '+str) }
+	function debug(str){ if(self.options.prefs.debug){ console.log('pageWorker: '+str) } }
 
 	debug('checking: '+document.URL);
 	var imgs = [];

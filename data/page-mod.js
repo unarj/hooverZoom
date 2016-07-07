@@ -1,5 +1,5 @@
 if(document.body){
-	//function debug(str){ console.log(str) }
+	function debug(str){ if(self.options.prefs.debug){ console.log(str) } }
 	
 	var hzLinks = document.getElementsByTagName('a');
 	for (var i=0, l=hzLinks.length; i < l; i++) {
@@ -9,6 +9,8 @@ if(document.body){
 			debug('hook added: '+hzLinks[i]);
 		}
 	}
+	document.addEventListener('keydown', hzKey, false);
+	debug('enabled: '+self.options.prefs.enabled);
 
 	var hzDiv = document.createElement('div');
 	hzDiv.show = function(width, height){
@@ -30,7 +32,6 @@ if(document.body){
 		}
 		if(hzDiv.style.display != 'block'){
 			hzDiv.style.display = 'block';
-			if(self.options.prefs.keys){ document.addEventListener('keydown', hzKey, false) }
 			document.addEventListener('scroll', hzMouseOff, false);
 			document.addEventListener('wheel', hzWheel, false);
 			debug('hzDiv show: '+x+','+y);
@@ -50,20 +51,20 @@ if(document.body){
 	hzDiv.hide = function(){
 		if(hzDiv.style.display != 'none'){
 			hzDiv.style.display = 'none';
-			document.removeEventListener('keydown', hzKey, false);
 			document.removeEventListener('scroll', hzMouseOff, false);
 			document.removeEventListener('wheel', hzWheel, false);
 			debug('hzDiv hide');
 		}
-		hzDiv.vid.src = 'about:blank'
-		hzDiv.img.src = 'about:blank'
+		hzAlbumImgs = [];
+		hzDiv.vid.src = 'about:blank';
+		hzDiv.img.src = 'about:blank';
 	}
 	hzDiv.img = document.createElement('img');
 	hzDiv.img.addEventListener('load', function(){ hzDiv.showImg(hzDiv.img.url, hzDiv.img.src) });
 	hzDiv.loadImg = function(url, src){
 		if(/mp4|webm/i.test(src.split('.').pop())){ hzDiv.loadVid(url, src) }
 		else if(hzDiv.img.src != src){
-			hzDiv.vid.src = 'about:blank'
+			hzDiv.vid.src = 'about:blank';
 			hzDiv.img.url = url;
 			hzDiv.img.src = src;
 			debug('img load: '+src);
@@ -91,7 +92,7 @@ if(document.body){
 	hzDiv.vid.muted = true;
 	hzDiv.loadVid = function(url, src){
 		if(hzDiv.vid.src != src){
-			hzDiv.img.src = 'about:blank'
+			hzDiv.img.src = 'about:blank';
 			hzDiv.vid.url = url;
 			hzDiv.vid.src = src;
 			hzDiv.vid.load();
@@ -120,15 +121,27 @@ if(document.body){
 	document.body.appendChild(hzDiv);
 
 	function hzKey(e){
-		switch(e.keyCode){
-			case 37: //left
-				e.deltaY = -1;
-				break;
-			case 39: //right
-				e.deltaY = 1;
-				break;
+		if(!self.options.prefs.keys){ return }
+		if(e.ctrlKey && e.altKey){
+			switch(e.keyCode){
+				case 90: //z
+					self.port.emit('toggle');
+					debug('enabled toggle');
+					break;
+			}
 		}
-		if(e.deltaY){ hzWheel(e) }
+		if(e.ctrlKey || e.shiftKey || e.altKey || e.metaKey){ return }
+		else{
+			switch(e.keyCode){
+				case 37: //left
+					e.deltaY = -1;
+					break;
+				case 39: //right
+					e.deltaY = 1;
+					break;
+			}
+			if(e.deltaY){ hzWheel(e) }
+		}
 	}
 	function hzWheel(e){
 		if(hzAlbumImgs.length > 1){
@@ -138,7 +151,7 @@ if(document.body){
 				++hzAlbumImgIndex;
 				if(hzAlbumImgIndex > hzAlbumImgs.length - 1) { hzAlbumImgIndex = 0 }
 				debug('scroll next: '+(hzAlbumImgIndex+1)+'/'+hzAlbumImgs.length);
-			} else if(e.deltaY < 0){
+			}else if(e.deltaY < 0){
 				--hzAlbumImgIndex;
 				if(hzAlbumImgIndex < 0){ hzAlbumImgIndex = hzAlbumImgs.length - 1 }
 				debug('scroll prev: '+(hzAlbumImgIndex+1)+'/'+hzAlbumImgs.length);
@@ -157,7 +170,7 @@ if(document.body){
 		hzLoad.abort();
 		hzCurUrl = '';
 		hzDiv.hide();
-		hzAlbumImgs = [];
+		if(!self.options.prefs.enabled){ return }
 		if(e){
 			hzMark = new Date().getTime();
 			hzCurUrl = e.target.toString();
@@ -189,6 +202,8 @@ if(document.body){
 						}
 						hzLoad = $.ajax({ src:hzCurUrl, url:hzTarget.href, type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization','Client-ID f781dcd19302057') },
 							success:function(r){
+								debug('ajax success: '+r.status);
+								hzAlbumImgs = [];
 								var d = r.data;
 								if(d.length){
 									var x = 0;
@@ -205,29 +220,66 @@ if(document.body){
 										}
 									});
 								}else{
-									if(d.animated){
-										hzAlbumImgs.push(d.mp4);
-									}
-									else if(d.link){
-										hzAlbumImgs.push(d.link);
-									}
+									if(d.animated){ hzAlbumImgs.push(d.mp4) }
+									else if(d.link){ hzAlbumImgs.push(d.link) }
 								}
 								if(hzAlbumImgs.length){
 									hzDiv.loadImg(this.src, hzAlbumImgs[0]);
 									hzAlbumImgIndex = 0;
 								}
-							}
+							},
+							error:function(r){ debug('ajax error: '+r.status) }
 						});
-						break;
+						debug('imgur: '+hzTarget.href);
+						return;
 					case 'livememe.com':
 						hzTarget.href = hzTarget.protocol+'//i.lvme.me'+hzTarget.pathname+'.jpg';
 						break;
 					case 'sli.mg':
-						hzTarget.href = hzTarget.protocol+'//i.sli.mg'+hzTarget.pathname+'.jpg';
-						break;
+						p = hzTarget.pathname.split('/');
+						switch(p[1].toLowerCase()){
+							case 'a':
+								hzTarget.href = 'https://api.sli.mg/album/'+p[2]+'/media';
+								break;
+							default:
+								hzTarget.href = 'https://api.sli.mg/media/'+p.pop().split('.')[0];
+						}
+						hzLoad = $.ajax({ src:hzCurUrl, url:hzTarget.href, type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization','Client-ID Q7Wvw23ezLILRB8AMZoXzinLYkLAsFAj') },
+							success:function(r){
+								debug('ajax success: '+r.status);
+								hzAlbumImgs = [];
+								var d = r.data;
+								if(d.length){
+									var x = 0;
+									$.each(d, function(i,v){
+										if(v.animated){
+											setTimeout(function(){ var e = document.createElement('video'); e.src = v.url_mp4 }, x);
+											x += self.options.prefs.delay;
+											hzAlbumImgs.push(v.url_mp4);
+										}
+										else if(v.url_direct){
+											setTimeout(function(){ var e = document.createElement('img'); e.src = v.url_direct }, x);
+											x += self.options.prefs.delay;
+											hzAlbumImgs.push(v.url_direct);
+										}
+									});
+								}else{
+									if(d.animated){ hzAlbumImgs.push(d.url_mp4) }
+									else if(d.link){ hzAlbumImgs.push(d.url_direct) }
+								}
+								if(hzAlbumImgs.length){
+									hzDiv.loadImg(this.src, hzAlbumImgs[0]);
+									hzAlbumImgIndex = 0;
+								}
+							},
+							error:function(r){ debug('ajax error: '+r.status) }
+						});
+						debug('sli.mg: '+hzTarget.href);
+						return;
 					case 'vidble.com':
 						hzLoad = $.ajax({ src:hzCurUrl, url:hzTarget.href+'?json=1', type:'GET', datatype:'json',
 							success:function(r){
+								hzAlbumImgs = [];
 								var x = 0;
 								$.each(r.pics, function(i,v){
 									setTimeout( function(){ new Image().src = v }, x);
@@ -277,11 +329,10 @@ if(document.body){
 	function hzMouseOff(e){ hzMouseOn(null) }
 
 	//port functionality seems to stop working randomly, a page refresh will fix it...
-	function hzPort(url, imgs){
+	self.port.on('found', function(url, imgs){
 		hzAlbumImgs = imgs;
 		hzAlbumImgIndex = 0;
 		hzDiv.loadImg(url, hzAlbumImgs[0]);
 		debug('img port: '+imgs[0]);
-	}
-	self.port.on('found', hzPort);
+	});
 }

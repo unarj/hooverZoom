@@ -2,11 +2,25 @@
 	"name": "hoover-zoom",
 	"title": "hooverZoom",
 	"id": "jid1-ypAaFtWSGV9ANQ@jetpack",
-	"description": "Display a linked image in a fullsize overlay on mouse hover.  Albums will show the current and total number of images in the bottom right corner, navigate them using the mouse wheel or left / right arrows.",
+	"description": "Display a linked image in a fullsize overlay on mouse hover.  Albums show the current and total number of images, navigate them using the mouse wheel or left/right arrows.  Enable/disbale popups with ctrl+alt+z.",
 	"author": "arjuna@on-rope.net",
 	"license": "MPL 2.0",
-	"version": "0.46.9",
+	"version": "0.47.1",
 	"preferences": [
+		{
+			"name"			: "enabled",
+			"title"			: "enabled",
+			"type"			: "bool",
+			"value"			: true,
+			"hidden"		: true
+		},
+		{
+			"name"			: "debug",
+			"title"			: "debug",
+			"type"			: "bool",
+			"value"			: false,
+			"hidden"		: true
+		},
 		{
 			"name"			: "delay",
 			"title"			: "Popup Delay",
@@ -60,7 +74,7 @@
 		{
 			"name"			: "keys",
 			"title"			: "Keys",
-			"description"	: "Enable keyboard control; left and right move through albums.",
+			"description"	: "Enable keyboard control; left and right move through albums, ctrl+alt+z to enable/disable.",
 			"type"			: "bool",
 			"value"			: true
 		}
