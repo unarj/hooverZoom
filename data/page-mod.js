@@ -200,7 +200,7 @@ if(document.body){
 							default:
 								hzTarget.href = 'https://api.imgur.com/3/image/'+p.pop().split('.')[0];
 						}
-						hzLoad = $.ajax({ src:hzCurUrl, url:hzTarget.href, type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization','Client-ID f781dcd19302057') },
+						hzLoad = $.ajax({ src:hzCurUrl, url:hzTarget.href, type:'GET', datatype:'json', beforeSend:function(h){ h.setRequestHeader('Authorization','Client-ID 7353f63c8f28d05') },
 							success:function(r){
 								debug('ajax success: '+r.status);
 								hzAlbumImgs = [];
@@ -239,7 +239,7 @@ if(document.body){
 						p = hzTarget.pathname.split('/');
 						switch(p[1].toLowerCase()){
 							case 'a':
-								hzTarget.href = 'https://api.sli.mg/album/'+p[2]+'/media';
+								hzTarget.href = 'https://api.sli.mg/album/'+p[2];
 								break;
 							default:
 								hzTarget.href = 'https://api.sli.mg/media/'+p.pop().split('.')[0];
@@ -308,6 +308,7 @@ if(document.body){
 					case 'gifyoutube.com':
 					case 'gph.is':
 					case 'gyazo.com':
+					case 'imgcert.com':
 					case 'instagram.com':
 					case 'makeameme.org':
 					case 'mypixa.com':
