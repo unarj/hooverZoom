@@ -6,7 +6,7 @@ const uri = Cc['@mozilla.org/docshell/urifixup;1'].createInstance(Ci.nsIURIFixup
 
 var prefs = require('sdk/simple-prefs').prefs;
 prefs.enabled = true;
-prefs.debug = false;
+//prefs.debug = true;
 
 var curUrl = '';
 var pageMod = require('sdk/page-mod').PageMod;

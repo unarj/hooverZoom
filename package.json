@@ -5,7 +5,7 @@
 	"description": "Display a linked image in a fullsize overlay on mouse hover.  Albums show the current and total number of images, navigate them using the mouse wheel or left/right arrows.  Enable/disbale popups with ctrl+alt+z.",
 	"author": "arjuna@on-rope.net",
 	"license": "MPL 2.0",
-	"version": "0.50.0",
+	"version": "0.51.0",
 	"preferences": [
 		{
 			"name"			: "delay",

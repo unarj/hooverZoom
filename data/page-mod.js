@@ -60,11 +60,12 @@ if(document.body){
 		hzDiv.img.src = 'about:blank';
 	}
 	hzDiv.img = document.createElement('img');
-	hzDiv.img.addEventListener('load', function(){ hzDiv.showImg(hzDiv.img.url, hzDiv.img.src) });
 	hzDiv.loadImg = function(url, src){
 		if(/mp4|webm/i.test(src.split('.').pop())){ hzDiv.loadVid(url, src) }
 		else if(hzDiv.img.src != src){
 			hzDiv.vid.src = 'about:blank';
+			hzDiv.img = document.createElement('img');
+			hzDiv.img.addEventListener('load', function(){ hzDiv.showImg(hzDiv.img.url, hzDiv.img.src) });
 			hzDiv.img.url = url;
 			hzDiv.img.src = src;
 			debug('img load: '+src);
@@ -86,13 +87,14 @@ if(document.body){
 		}
 	}
 	hzDiv.vid = document.createElement('video');
-	hzDiv.vid.addEventListener('canplaythrough', function(){ hzDiv.showVid(hzDiv.vid.url, hzDiv.vid.src) });
-	hzDiv.vid.autoplay = true;
-	hzDiv.vid.loop = true;
-	hzDiv.vid.muted = true;
 	hzDiv.loadVid = function(url, src){
 		if(hzDiv.vid.src != src){
 			hzDiv.img.src = 'about:blank';
+			hzDiv.vid = document.createElement('video');
+			hzDiv.vid.addEventListener('canplaythrough', function(){ hzDiv.showVid(hzDiv.vid.url, hzDiv.vid.src) });
+			hzDiv.vid.autoplay = true;
+			hzDiv.vid.loop = true;
+			hzDiv.vid.muted = true;
 			hzDiv.vid.url = url;
 			hzDiv.vid.src = src;
 			hzDiv.vid.load();
@@ -313,6 +315,7 @@ if(document.body){
 					case 'makeameme.org':
 					case 'mypixa.com':
 					//case 'pinterest.com':
+					case 'sli.mg':					
 					case 'streamable.com':
 					case 'swirl.xyz':
 					case 'tumblr.com':
