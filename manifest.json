@@ -1,0 +1,27 @@
+{
+	"manifest_version": 2,
+	"name": "hooverZoom",
+	"applications": {
+		"gecko": {"id": "jid1-ypAaFtWSGV9ANQ@jetpack"}
+	},
+	"version": "1.56.0",
+	"description": "Display a linked image in a fullsize overlay on mouse hover.",
+	"permissions": [
+		"<all_urls>",
+		"history",
+		"storage"
+	],
+	"background": {
+		"scripts": ["main.js"]
+	},
+	"content_scripts": [{
+		"matches": ["*://*/*"],
+		"run_at": "document_start",
+		"all_frames": false,
+		"js": ["jquery.js", "mod.js"],
+		"css": ["mod.css"]
+	}],
+	"options_ui": {
+		"page": "options.html"
+	}
+}

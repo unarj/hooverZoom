@@ -1,10 +1,9 @@
-if(document.URL != 'about:blank'){
-	function debug(str){ if(self.options.prefs.debug){ console.log('pageWorker: '+str) } }
+function debug(str){ if(prefs.debug){ console.log(str) } }
 
+if(document.URL != 'about:blank'){
 	debug('checking: '+document.URL);
 	var imgs = [];
 	var vids = [];
-
 	var els = document.getElementsByTagName('meta');
 	for(var i=0, l=els.length; i < l; i++){
 		switch(els[i].getAttribute('property')){
@@ -24,7 +23,6 @@ if(document.URL != 'about:blank'){
 				break;
 		}
 	}
-	
 	if(!vids.length){
 		for(var i=0, l=els.length; i < l; i++){
 			switch(els[i].getAttribute('name')){
@@ -41,14 +39,13 @@ if(document.URL != 'about:blank'){
 			}
 		}
 	}
-
 	if(vids.length){
-		self.port.emit('found', vids);
+		browser.runtime.sendMessage({ found: vids });
 		debug('returning video(s)');
 	}
 	else if(imgs.length){
-		self.port.emit('found', imgs);
+		browser.runtime.sendMessage({ found: imgs });
 		debug('returning image(s)');
 	}
-	self.port.emit('done');
+	window.location.href = 'about:blank';
 }
