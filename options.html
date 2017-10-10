@@ -1,0 +1,66 @@
+<html>
+	<head>
+		<meta charset="utf-8"/>
+	<style>
+		body { font:san-serif; }
+		table { border:1px; text-align:center; width:100%; }
+		textarea { height:auto; }
+		.label { text-align:right; }
+		.out { border:0px; width:60px; vertical-align:top; }
+	</style>
+	</head>
+	<body>
+		<form>
+			<table caption="Options">
+				<tr>
+					<td class="label">Popup Delay</td>
+					<td><input id="delay" type="range" min="0" max="2000" step="100" title="Delay, expressed in milliseconds, before the image/video popup shows after mouse hover."/> <input id="delayOut" type="text" class="out"/></td>
+				</tr>
+				<tr>
+					<td class="label">Add to History Delay</td>
+					<td><input id="addHist" type="range" min="0" max="2000" step="100" title="Delay, expressed in milliseconds, before the currently shown popup is added to browser history (0 = disabled)."/> <input id="addHistOut" type="text" class="out"/></td>
+				</tr>
+				<tr>
+					<td class="label">Maximum Popup Size</td>
+					<td><input id="maxSize" type="range" min="50" max="100" step="1" title="Maximum size of the popup window in percentage ratio of the browser window."/> <input id="maxSizeOut" type="text" class="out"/></td>
+				</tr>
+				<tr>
+					<td class="label">Album Text Location</td>
+					<td>
+						<select id="textLoc" title="Location of the text (num/num of) that appears when displaying an album of multiple images / videos."/>
+							<option value="top:6px; left:6px;">top left</option>
+							<option value="top:6px; left:50%;">top center</option>
+							<option value="top:6px; right:8px;">top right</option>
+							<option value="bottom:6px; left:6px;">bottom left</option>
+							<option value="bottom:6px; left:50%;">bottom center</option>
+							<option value="bottom:6px; right:8px;">bottom right</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td class="label">Enable Keyboard Commands</td>
+					<td><input id="keys" type="checkbox" title="Check to enable keyboard commands (ctrl+alt+Z to toggle mod on/off for page, arrow navigation in albums)."/></td>
+				</tr>
+				<tr>
+					<td class="label">Blacklist</td>
+					<td><textarea id="srcBlock" cols="60" rows="2" title="HooverZoom will turn itself off while browsing any of these sites, list in regex form with comma separation."></textarea></td>
+				</tr>
+				<tr>
+					<td class="label">Scrape List</td>
+					<td><textarea id="scrapeList" cols="60" rows="6" title="In addition to special handlers for sites like imgur.com, links that match any of these will be generically scraped for indirect media.  List is regex with comma separation, putting a single period here will scrape _everything_."></textarea></td>
+				</tr>
+				<tr>
+					<td class="label">Debugging</td>
+					<td><input id="debug" type="checkbox" title="Enable/disable debug messages in the console log."/></td>
+				</tr>
+				<tr>
+					<td colspan="99" style="text-align:center">
+						<button type="reset">Reset</button>
+						<button type="submit">Save</button>
+					</td>
+				</tr>
+			</table>
+		</form>
+		<script src="options.js"></script>
+	</body>
+</html>
