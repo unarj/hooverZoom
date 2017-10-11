@@ -1,6 +1,6 @@
 var prefs = {};
 function debug(s){ if(prefs.debug){ console.log('main: '+s) }}
-var sto = browser.storage.local;
+var sto = browser.storage.sync;
 function loadPrefs(){
 	const fetchPrefs = sto.get('prefs');
 	fetchPrefs.then(function(s){
