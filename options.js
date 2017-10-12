@@ -16,7 +16,7 @@ function refresh(){
 	debug('refreshing');
 	addHist.value = prefs.addHist;
 	addHistOut.value = prefs.addHist+'ms';
-	debugPref.value = prefs.debug;
+	debugPref.checked = prefs.debug;
 	delay.value = prefs.delay;
 	delayOut.value = prefs.delay+'ms';
 	keys.checked = prefs.keys;
