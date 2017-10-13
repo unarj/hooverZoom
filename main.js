@@ -5,9 +5,10 @@ const defs = {
 	debug:false,
 	delay:'500',
 	dstBlock:'',
+	hImgur:true,
 	keys:true,
 	maxSize:'95',
-	scrapeList:'500px.com, artstation.com, craigslist.org, deviantart.com, explosm.net, facebook.com, fav.me, flic.kr, flickr.com, gfycat.com, giphy.com, instagram.com, makeameme.org, streamable.com, tumblr.com, twitter.com, vid.me, vine.co',
+	scrapeList:'500px.com, artstation.com, craigslist.org, deviantart.com, explosm.net, imgflip.com, facebook.com, fav.me, flic.kr, flickr.com, gfycat.com, giphy.com, instagram.com, livememe.com, makeameme.org, streamable.com, tumblr.com, twitter.com, vid.me, vidble.com, vine.co',
 	scrapeListBlock:'icon.png',
 	srcBlock:'craigslist.org, flickr.com, imgur.com',
 	textLoc:'bottom:6px; left:50%;'
@@ -17,16 +18,7 @@ var prefs = {}
 function checkPrefs(p){
 	var	op = JSON.stringify(prefs);
 	if(!p){ p = {} }
-	prefs.addHist = (p.addHist == undefined) ? defs.addHist : p.addHist;
-	prefs.debug = (p.debug == undefined) ? defs.debug : p.debug;
-	prefs.delay = (p.delay == undefined) ? defs.delay : p.delay;
-	prefs.dstBlock = (p.dstBlock == undefined) ? defs.dstBlock : p.dstBlock;
-	prefs.keys = (p.keys == undefined) ? defs.keys : p.keys;
-	prefs.maxSize = (p.maxSize == undefined) ? defs.maxSize : p.maxSize;
-	prefs.scrapeList = (p.scrapeList == undefined) ? defs.scrapeList : p.scrapeList;
-	prefs.scrapeListBlock = (p.scrapeListBlock == undefined) ? defs.scrapeListBlock : p.scrapeListBlock;
-	prefs.srcBlock = (p.srcBlock == undefined) ? defs.srcBlock : p.srcBlock;
-	prefs.textLoc = (p.textLoc == undefined) ? defs.textLoc : p.textLoc;
+	for(var k in defs){ prefs[k] = (p[k] == undefined) ? defs[k] : p[k]	}
 	if(JSON.stringify(prefs) != op){
 		debug('prefs have changed');
 		ports.forEach(function(p){ p.postMessage({ 'prefs':prefs }) });
@@ -38,7 +30,7 @@ function checkPrefs(p){
 }
 
 const sto = browser.storage.sync;
-var initPrefs = sto.get('prefs');
+const initPrefs = sto.get('prefs');
 initPrefs.then(function(s){
 	if(s.prefs){ prefs = s.prefs }
 	checkPrefs(s.prefs);

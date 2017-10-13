@@ -43,24 +43,28 @@
 				</tr>
 				<tr>
 					<td class="label">Block List</td>
-					<td><textarea id="srcBlock" cols="60" rows="2" title="HooverZoom will turn itself off while browsing any of these sites, list in regex form with comma separation."></textarea></td>
+					<td><textarea id="srcBlock" cols="60" rows="2" title="HooverZoom will turn itself off while browsing any of these sites, comma separated list will go into a regex test."></textarea></td>
 				</tr>
 				<tr>
 					<td class="label">Scrape List</td>
-					<td><textarea id="scrapeList" cols="60" rows="6" title="In addition to special handlers for sites like imgur.com, links that match any of these will be generically scraped for indirect media.  List is regex with comma separation, putting a single period here will scrape _everything_."></textarea></td>
+					<td><textarea id="scrapeList" cols="60" rows="6" title="In addition to special handlers for sites like imgur.com, link hostnames that match any of these will be generically scraped for indirect media.  List is regex with comma separation, putting a single period here will scrape _everything_, blank will scrape nothing."></textarea></td>
 				</tr>
 				<tr>
 					<td class="label">Scrape List Block</td>
 					<td><textarea id="scrapeListBlock" cols="60" rows="2" title="A comma separated list of items to ignore when scraping; generic logos, etc."></textarea></td>
 				</tr>
 				<tr>
-					<td class="label">Debugging</td>
+					<td class="label">Imgur Handler</td>
+					<td><input id="hImgur" type="checkbox" title="Enable/disable the special imgur.com link handler."/></td>
+				</tr>
+				<tr>
+					<td class="label">Debug</td>
 					<td><input id="debug" type="checkbox" title="Enable/disable debug messages in the console log."/></td>
 				</tr>
 				<tr>
 					<td colspan="99" style="text-align:center">
-						<button type="reset">Reset</button>
-						<button type="submit">Save</button>
+						<button type="reset" title="Reset all setting to default values.">Reset</button>
+						<button type="submit" title="Save any settings changes.">Save</button>
 					</td>
 				</tr>
 			</table>

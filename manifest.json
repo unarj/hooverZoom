@@ -4,7 +4,7 @@
 	"applications": {
 		"gecko": {"id": "jid1-ypAaFtWSGV9ANQ@jetpack"}
 	},
-	"version": "1.56.2",
+	"version": "1.56.3",
 	"description": "Display a linked image in a fullsize popup on mouse hover.",
 	"permissions": [
 		"<all_urls>",

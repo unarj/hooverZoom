@@ -1,6 +1,5 @@
-var prefs = {};
 function debug(s){ if(prefs.debug){ console.log('mod: '+s) }}
-var port = browser.runtime.connect();
+const port = browser.runtime.connect();
 port.onMessage.addListener(function(m){
 	if(m.prefs){ 
 		prefs = m.prefs;
@@ -20,7 +19,7 @@ port.postMessage({ req:'getPrefs' });
 
 $.ajaxSetup({ cache:false, error:function(r){ debug('ajax error: '+r.responseText) }});
 
-var album=[], albumIndex=0, curUrl='', hzPanel, mark, pageLoad=$.ajax(), scrapeList, scrapeListBlock, srcBlock, wait;
+var album=[], albumIndex=0, curUrl='', hzPanel, mark, pageLoad=$.ajax(), prefs = {}, scrapeList, scrapeListBlock, srcBlock, wait;
 
 function albumAddImg(i){
 	setTimeout(function(){
@@ -40,24 +39,26 @@ function albumAddVid(v){
 function keyPress(e){
 	if(prefs.keys){
 		if(e.ctrlKey && e.altKey && e.keyCode == 90){
-			if(prefs.disabled){
-				debug('enabled');
-				prefs.enabled = true;
-			}else{ 
+			if(prefs.enabled){
 				debug('disabled');
 				prefs.enabled = false;
+				hzPanel.hide();
+			}else{ 
+				debug('enabled');
+				prefs.enabled = true;
 			}
-		}
-		if(!(e.ctrlKey || e.shiftKey || e.altKey || e.metaKey)){
-			switch(e.keyCode){
-				case 37: //left
-					e.deltaY = -1;
-					break;
-				case 39: //right
-					e.deltaY = 1;
-					break;
+		}else if(prefs.enabled){
+			if(!(e.ctrlKey || e.shiftKey || e.altKey || e.metaKey)){
+				switch(e.keyCode){
+					case 37: //left
+						e.deltaY = -1;
+						break;
+					case 39: //right
+						e.deltaY = 1;
+						break;
+				}
+				if(e.deltaY){ wheel(e) }
 			}
-			if(e.deltaY){ wheel(e) }
 		}
 	}
 }
@@ -123,92 +124,51 @@ function mouseOn(e){
 		else{
 			p = target.hostname.split('.').reverse();
 			switch((p[1]+'.'+p[0]).toLowerCase()){
-				case 'imgflip.com':
-					p = target.pathname.split('/');
-					if(p.length > 2){ target.href = target.protocol+'//i.imgflip.com/'+p[2].split('#')[0]+'.jpg' }
-					break;
 				case 'imgur.com':
-					p = target.pathname.split('/');
-					switch(p[1].toLowerCase()){
-						case 'a':
-							target.href = 'https://api.imgur.com/3/album/'+p[2]+'/images';
-							break;
-						case 'gallery':
-							target.href = 'https://api.imgur.com/3/gallery/'+p[2]+'/images';
-							break;
-						default:
-							target.href = 'https://api.imgur.com/3/image/'+p.pop().split('.')[0];
-					}
-					debug('imgur ajax: '+target.href);
-					pageLoad = $.ajax({ src:curUrl, url:target.href, beforeSend:function(h){ h.setRequestHeader('Authorization','Client-ID 7353f63c8f28d05') },
-						success:function(r){
-							if(r.data.length){
-								$.each(r.data, function(i,v){
-									if(v.animated){ albumAddVid(v.mp4) }
-									else if(v.link){ albumAddImg(v.link) }
-								});
-							}else{
-								if(r.data.animated){ albumAddVid(r.data.mp4) }
-								else if(r.data.link){ albumAddImg(r.data.link) }
-							}
-							if(album.length){ hzPanel.loadImg(this.src, album[0]) }
+					if(prefs.hImgur){
+						p = target.pathname.split('/');
+						switch(p[1].toLowerCase()){
+							case 'a':
+								target.href = 'https://api.imgur.com/3/album/'+p[2]+'/images';
+								break;
+							case 'gallery':
+								target.href = 'https://api.imgur.com/3/gallery/'+p[2]+'/images';
+								break;
+							default:
+								target.href = 'https://api.imgur.com/3/image/'+p.pop().split('.')[0];
 						}
-					});
-					return;
-				case 'livememe.com':
-					target.href = target.protocol+'//i.lvme.me'+target.pathname+'.jpg';
-					break;
+						debug('imgur ajax: '+target.href);
+						pageLoad = $.ajax({ src:curUrl, url:target.href, beforeSend:function(h){ h.setRequestHeader('Authorization','Client-ID 7353f63c8f28d05') },
+							success:function(r){
+								if(r.data.length){
+									for(var i=0; i<r.data.length; ++i){
+										if(r.data[i].animated){ albumAddVid(r.data[i].mp4) }
+										else if(r.data[i].link){ albumAddImg(r.data[i].link) }
+									}
+								}else{
+									if(r.data.animated){ albumAddVid(r.data.mp4) }
+									else if(r.data.link){ albumAddImg(r.data.link) }
+								}
+								if(album.length){ hzPanel.loadImg(this.src, album[0]) }
+							}
+						});
+						return;
+					}else{ break }
 				case 'redd.it': //doesn't work, reddit API requires Oath2 authorization even for public data.  leaving this stub for future possibilities.
 					debug('reddit ajax: '+target.href+'.json');
 					pageLoad = $.ajax({ src:curUrl, url:target.href+'.json', beforeSend:function(h){ h.setRequestHeader('Authorization','client_id QCe6ZqwvD5XQFQ') },
 						success:function(r){
-							console.log(r);
+//							console.log(r);
 						}
 					});
 					break;
-				case 'sli.mg':
-					p = target.pathname.split('/');
-					switch(p[1].toLowerCase()){
-						case 'a':
-							target.href = 'https://api.sli.mg/album/'+p[2];
-							break;
-						default:
-							target.href = 'https://api.sli.mg/media/'+p.pop().split('.')[0];
-					}
-					debug('sli.mg ajax: '+target.href);
-					pageLoad = $.ajax({ src:curUrl, url:target.href, beforeSend:function(h){ h.setRequestHeader('Authorization','Client-ID Q7Wvw23ezLILRB8AMZoXzinLYkLAsFAj') },
-						success:function(r){
-							debug('ajax success: '+r.status);
-							if(r.data.length){
-								$.each(r.data, function(i,v){
-									if(v.animated){ albumAddVid(v.url_mp4) }
-									else if(v.url_direct){ albumAddImg(v.url_direct) }
-								});
-							}else{
-								if(r.data.animated){ albumAddVid(r.data.url_mp4) }
-								else if(r.data.url_direct){ albumAddImg(r.data.url_direct) }
-							}
-							if(album.length){ hzPanel.loadImg(this.src, album[0]) }
-						}
-					});
-					return;
-				case 'vidble.com':
-					debug('vidble ajax: '+target.href);
-					pageLoad = $.ajax({ src:curUrl, url:target.href+'?json=1',
-						success:function(r){
-							$.each(r.pics, function(i,v){ albumAddImg(v) });
-							if(album.length){ hzPanel.loadImg(this.src, album[0]) }
-						}
-					});
-					return;
-				default:
-					if(scrapeList.test(target.hostname)){ scrape(target.href) }							
 			}
+			if(scrapeList.test(target.hostname)){ scrape(target.href) }							
 			hzPanel.loadImg(curUrl, target.href);
 		}
 	}
 }
-function mouseOff(e){ mouseOn(null) }
+function mouseOff(e){ mouseOn() }
 
 document.addEventListener('DOMContentLoaded', function(){
 	var alinks = document.getElementsByTagName('a');
