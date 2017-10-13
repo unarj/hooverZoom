@@ -42,12 +42,16 @@
 					<td><input id="keys" type="checkbox" title="Check to enable keyboard commands (ctrl+alt+Z to toggle mod on/off for page, arrow navigation in albums)."/></td>
 				</tr>
 				<tr>
-					<td class="label">Blacklist</td>
+					<td class="label">Block List</td>
 					<td><textarea id="srcBlock" cols="60" rows="2" title="HooverZoom will turn itself off while browsing any of these sites, list in regex form with comma separation."></textarea></td>
 				</tr>
 				<tr>
 					<td class="label">Scrape List</td>
 					<td><textarea id="scrapeList" cols="60" rows="6" title="In addition to special handlers for sites like imgur.com, links that match any of these will be generically scraped for indirect media.  List is regex with comma separation, putting a single period here will scrape _everything_."></textarea></td>
+				</tr>
+				<tr>
+					<td class="label">Scrape List Block</td>
+					<td><textarea id="scrapeListBlock" cols="60" rows="2" title="A comma separated list of items to ignore when scraping; generic logos, etc."></textarea></td>
 				</tr>
 				<tr>
 					<td class="label">Debugging</td>

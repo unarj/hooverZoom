@@ -6,6 +6,7 @@ port.onMessage.addListener(function(m){
 		prefs = m.prefs;
 		debug('prefs loaded');
 		if(prefs.scrapeList){ scrapeList = RegExp(prefs.scrapeList.replace(/ /g,'').replace(/,/g,'|')) }
+		if(prefs.scrapeListBlock){ scrapeListBlock = RegExp(prefs.scrapeListBlock.replace(/ /g,'').replace(/,/g,'|')) }
 		prefs.enabled = true;
 		if(prefs.srcBlock){
 			if(RegExp(prefs.srcBlock.replace(/ /g,'').replace(/,/g,'|')).test(document.URL)){
@@ -19,7 +20,7 @@ port.postMessage({ req:'getPrefs' });
 
 $.ajaxSetup({ cache:false, error:function(r){ debug('ajax error: '+r.responseText) }});
 
-var album=[], albumIndex=0, curUrl='', hzPanel, mark, pageLoad=$.ajax(), scrapeList, srcBlock, wait;
+var album=[], albumIndex=0, curUrl='', hzPanel, mark, pageLoad=$.ajax(), scrapeList, scrapeListBlock, srcBlock, wait;
 
 function albumAddImg(i){
 	setTimeout(function(){
@@ -61,26 +62,29 @@ function keyPress(e){
 	}
 }
 
+var parser = new DOMParser();
 function scrape(u){
 	pageLoad = $.ajax({ src:curUrl, url:u,
 		success:function(r){
 			debug('scrape: '+this.url);
-			var og = $(r).filter('meta[property="og:video"]');
-			if(og.length){
-				$.each($(og), function(i,v){ albumAddVid($(v).attr('content')) });
-				debug('scrape videos found: '+album.length);
-			}else{
-				og = $(r).filter('meta[property="og:image"]');
-				if(og.length){
-					$.each($(og), function(i,v){
-						var c = $(v).attr('content');
-						if(!c.search('icon.png')){ albumAddImg(c) }
-					});
-					debug('scrape images found: '+album.length);
+			var m = parser.parseFromString(r,'text/html').getElementsByTagName('meta');
+			for(var i=0; i<m.length; ++i){
+				if(m[i].getAttribute('property') == 'og:video'){
+					var c = m[i].getAttribute('content');
+					if(scrapeListBlock.test(c)){ debug('blocked: '+c) }else{ albumAddVid(c) }
 				}
 			}
+			if(album.length){ debug('scrape videos found: '+album.length) }
+			else{
+				for(var i=0; i<m.length; ++i){
+					if(m[i].getAttribute('property') == 'og:image'){
+						var c = m[i].getAttribute('content');
+						if(scrapeListBlock.test(c)){ debug('blocked: '+c) }else{ albumAddImg(c) }
+					}
+				}
+				if(album.length){ debug('scrape images found: '+album.length) }
+			}
 			if(album.length){ hzPanel.loadImg(this.src, album[0]) }
-			this.url = '';
 		}
 	});
 }
@@ -198,7 +202,7 @@ function mouseOn(e){
 					});
 					return;
 				default:
-					if(scrapeList.test(target.href)){ scrape(target.href) }							
+					if(scrapeList.test(target.hostname)){ scrape(target.href) }							
 			}
 			hzPanel.loadImg(curUrl, target.href);
 		}

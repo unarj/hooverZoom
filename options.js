@@ -23,6 +23,7 @@ function refresh(){
 	maxSize.value = prefs.maxSize;
 	maxSizeOut.value = prefs.maxSize+'%';
 	scrapeList.value = prefs.scrapeList;
+	scrapeListBlock.value = prefs.scrapeListBlock;
 	srcBlock.value = prefs.srcBlock;
 	textLoc.value = prefs.textLoc;
 	debugPref.checked = prefs.debug;
@@ -41,6 +42,7 @@ document.addEventListener('DOMContentLoaded', function(){
 	maxSizeOut = document.getElementById('maxSizeOut');
 	maxSize.oninput = function(){ maxSizeOut.value = maxSize.value+'%' }
 	scrapeList = document.getElementById('scrapeList');
+	scrapeListBlock = document.getElementById('scrapeListBlock');
 	srcBlock = document.getElementById('srcBlock');
 	textLoc = document.getElementById('textLoc');
 	document.querySelector('form').addEventListener('submit', function(e){
@@ -51,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function(){
 		prefs.keys = keys.checked;
 		prefs.maxSize = maxSize.value;
 		prefs.scrapeList = scrapeList.value;
+		prefs.scrapeListBlock = scrapeListBlock.value;
 		prefs.srcBlock = srcBlock.value;
 		prefs.textLoc = textLoc.value;
 		port.postMessage({ req:'savePrefs', 'prefs':prefs })

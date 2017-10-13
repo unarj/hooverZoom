@@ -7,7 +7,8 @@ const defs = {
 	dstBlock:'',
 	keys:true,
 	maxSize:'95',
-	scrapeList:'500px.com, artstation.com, citizenop.com, craigslist.org, deviantart.com, explosm.net, ezphotoshare.com, facebook.com, fav.me, flic.kr, flickr.com, gfycat.com, giphy.com, gifyoutube.com, gph.is, gyazo.com, imgcert.com, instagram.com, makeameme.org, mypixa.com, sli.mg, streamable.com, swirl.xyz, tumblr.com, twitter.com, vid.me, vine.co',
+	scrapeList:'500px.com, artstation.com, craigslist.org, deviantart.com, explosm.net, facebook.com, fav.me, flic.kr, flickr.com, gfycat.com, giphy.com, instagram.com, makeameme.org, streamable.com, tumblr.com, twitter.com, vid.me, vine.co',
+	scrapeListBlock:'icon.png',
 	srcBlock:'craigslist.org, flickr.com, imgur.com',
 	textLoc:'bottom:6px; left:50%;'
 }
@@ -23,6 +24,7 @@ function checkPrefs(p){
 	prefs.keys = (p.keys == undefined) ? defs.keys : p.keys;
 	prefs.maxSize = (p.maxSize == undefined) ? defs.maxSize : p.maxSize;
 	prefs.scrapeList = (p.scrapeList == undefined) ? defs.scrapeList : p.scrapeList;
+	prefs.scrapeListBlock = (p.scrapeListBlock == undefined) ? defs.scrapeListBlock : p.scrapeListBlock;
 	prefs.srcBlock = (p.srcBlock == undefined) ? defs.srcBlock : p.srcBlock;
 	prefs.textLoc = (p.textLoc == undefined) ? defs.textLoc : p.textLoc;
 	if(JSON.stringify(prefs) != op){
