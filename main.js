@@ -13,8 +13,9 @@ const defs = {
 	srcBlock:'craigslist.org, flickr.com, imgur.com',
 	textLoc:'bottom:6px; left:50%;'
 }
-var prefs = {}
 
+var prefs = {}
+const sto = browser.storage.sync;
 function checkPrefs(p){
 	var	op = JSON.stringify(prefs);
 	if(!p){ p = {} }
@@ -28,13 +29,6 @@ function checkPrefs(p){
 		debug('prefs checked, no changes');
 	}
 }
-
-const sto = browser.storage.sync;
-const initPrefs = sto.get('prefs');
-initPrefs.then(function(s){
-	if(s.prefs){ prefs = s.prefs }
-	checkPrefs(s.prefs);
-});
 
 var ports = [];
 var portsNum = 0;
@@ -70,4 +64,9 @@ browser.runtime.onConnect.addListener(function(p){
 	});
 	ports.push(p);
 	++portsNum;
+});
+
+sto.get('prefs').then(function(s){
+	if(s.prefs){ prefs = s.prefs }
+	checkPrefs(s.prefs);
 });
