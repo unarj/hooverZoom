@@ -8,7 +8,7 @@ port.onMessage.addListener(function(m){
 		if(prefs.scrapeListBlock){ scrapeListBlock = RegExp(prefs.scrapeListBlock.replace(/ /g,'').replace(/,/g,'|')) }
 		prefs.enabled = true;
 		if(prefs.srcBlock){
-			if(RegExp(prefs.srcBlock.replace(/ /g,'').replace(/,/g,'|')).test(document.URL)){
+			if(RegExp(prefs.srcBlock.replace(/ /g,'').replace(/,/g,'|')).test(location.hostname)){
 				debug('page URL found in block list');
 				prefs.enabled = false;
 			}
@@ -22,18 +22,26 @@ $.ajaxSetup({ cache:false, error:function(r){ debug('ajax error: '+r.responseTex
 var album=[], albumIndex=0, curUrl='', hzPanel, mark, pageLoad=$.ajax(), prefs = {}, scrapeList, scrapeListBlock, srcBlock, wait;
 
 function albumAddImg(i){
-	setTimeout(function(){
-		var e = document.createElement('img');
-		e.src = i;
-	}, album.length * 500);
-	album.push(i);
+	if(scrapeListBlock.test(i)){ 
+		debug('blocked: '+i);
+	}else{
+		setTimeout(function(){
+			var e = document.createElement('img');
+			e.src = i;
+		}, album.length * 500);
+		album.push(i);
+	}
 }
 function albumAddVid(v){
-	setTimeout(function(){
-		var e = document.createElement('video');
-		e.src = v;
-	}, album.length * 500);
-	album.push(v);
+	if(scrapeListBlock.test(v)){ 
+		debug('blocked: '+v);
+	}else{
+		setTimeout(function(){
+			var e = document.createElement('video');
+			e.src = v;
+		}, album.length * 500);
+		album.push(v);
+	}
 }
 
 function keyPress(e){
@@ -69,19 +77,14 @@ function scrape(u){
 		success:function(r){
 			debug('scrape: '+this.url);
 			var m = parser.parseFromString(r,'text/html').getElementsByTagName('meta');
-			for(var i=0; i<m.length; ++i){
-				if(m[i].getAttribute('property') == 'og:video'){
-					var c = m[i].getAttribute('content');
-					if(scrapeListBlock.test(c)){ debug('blocked: '+c) }else{ albumAddVid(c) }
-				}
+			var j = m.length;
+			for(var i=0; i<j; ++i){
+				if(m[i].getAttribute('property') == 'og:video'){ albumAddVid(m[i].getAttribute('content')) }
 			}
 			if(album.length){ debug('scrape videos found: '+album.length) }
 			else{
-				for(var i=0; i<m.length; ++i){
-					if(m[i].getAttribute('property') == 'og:image'){
-						var c = m[i].getAttribute('content');
-						if(scrapeListBlock.test(c)){ debug('blocked: '+c) }else{ albumAddImg(c) }
-					}
+				for(var i=0; i<j; ++i){
+					if(m[i].getAttribute('property') == 'og:image'){ albumAddImg(m[i].getAttribute('content')) }
 				}
 				if(album.length){ debug('scrape images found: '+album.length) }
 			}
@@ -95,18 +98,19 @@ function wheel(e){
 		e.preventDefault();
 		e.stopPropagation();
 		if(e.deltaY > 0){ 
+			debug('scroll next: '+(albumIndex+1)+'/'+album.length);
 			++albumIndex;
 			if(albumIndex > album.length - 1){ albumIndex = 0 }
-			debug('scroll next: '+(albumIndex+1)+'/'+album.length);
 		}else if(e.deltaY < 0){
+			debug('scroll prev: '+(albumIndex+1)+'/'+album.length);
 			--albumIndex;
 			if(albumIndex < 0){ albumIndex = album.length - 1 }
-			debug('scroll prev: '+(albumIndex+1)+'/'+album.length);
 		}
 		hzPanel.loadImg(curUrl, album[albumIndex]);
 	}
 }
 
+var target = document.createElement('a');
 function mouseOn(e){
 	clearTimeout(wait);
 	pageLoad.abort();
@@ -117,55 +121,51 @@ function mouseOn(e){
 	if(e && prefs.enabled){
 		mark = new Date().getTime();
 		curUrl = e.target.toString();
-		var target = document.createElement('a');
 		target.href = curUrl;
-		var p = target.pathname.split('.').reverse();
-		if(/bmp|jpeg|jpg|mp4|png|webm/i.test(p[0])){ hzPanel.loadImg(curUrl, target.href) }
-		else{
-			p = target.hostname.split('.').reverse();
-			switch((p[1]+'.'+p[0]).toLowerCase()){
-				case 'imgur.com':
-					if(prefs.hImgur){
-						p = target.pathname.split('/');
-						switch(p[1].toLowerCase()){
-							case 'a':
-								target.href = 'https://api.imgur.com/3/album/'+p[2]+'/images';
-								break;
-							case 'gallery':
-								target.href = 'https://api.imgur.com/3/gallery/'+p[2]+'/images';
-								break;
-							default:
-								target.href = 'https://api.imgur.com/3/image/'+p.pop().split('.')[0];
-						}
-						debug('imgur ajax: '+target.href);
-						pageLoad = $.ajax({ src:curUrl, url:target.href, beforeSend:function(h){ h.setRequestHeader('Authorization','Client-ID 7353f63c8f28d05') },
-							success:function(r){
-								if(r.data.length){
-									for(var i=0; i<r.data.length; ++i){
-										if(r.data[i].animated){ albumAddVid(r.data[i].mp4) }
-										else if(r.data[i].link){ albumAddImg(r.data[i].link) }
-									}
-								}else{
-									if(r.data.animated){ albumAddVid(r.data.mp4) }
-									else if(r.data.link){ albumAddImg(r.data.link) }
-								}
-								if(album.length){ hzPanel.loadImg(this.src, album[0]) }
-							}
-						});
-						return;
-					}else{ break }
-				case 'redd.it': //doesn't work, reddit API requires Oath2 authorization even for public data.  leaving this stub for future possibilities.
-					debug('reddit ajax: '+target.href+'.json');
-					pageLoad = $.ajax({ src:curUrl, url:target.href+'.json', beforeSend:function(h){ h.setRequestHeader('Authorization','client_id QCe6ZqwvD5XQFQ') },
+		var p = target.hostname.split('.').reverse();
+		switch((p[1]+'.'+p[0]).toLowerCase()){
+			case 'imgur.com':
+				if(prefs.hImgur){
+					p = target.pathname.split('/');
+					switch(p[1].toLowerCase()){
+						case 'a':
+							target.href = 'https://api.imgur.com/3/album/'+p[2]+'/images';
+							break;
+						case 'gallery':
+							target.href = 'https://api.imgur.com/3/gallery/'+p[2]+'/images';
+							break;
+						default:
+							target.href = 'https://api.imgur.com/3/image/'+p.pop().split('.')[0];
+					}
+					debug('imgur ajax: '+target.href);
+					pageLoad = $.ajax({ src:curUrl, url:target.href, beforeSend:function(h){ h.setRequestHeader('Authorization','Client-ID 7353f63c8f28d05') },
 						success:function(r){
-//							console.log(r);
+							if(r.data.length){
+								for(var i=0; i<r.data.length; ++i){
+									if(r.data[i].animated){ albumAddVid(r.data[i].mp4) }
+									else if(r.data[i].link){ albumAddImg(r.data[i].link) }
+								}
+							}else{
+								if(r.data.animated){ albumAddVid(r.data.mp4) }
+								else if(r.data.link){ albumAddImg(r.data.link) }
+							}
+							if(album.length){ hzPanel.loadImg(this.src, album[0]) }
 						}
 					});
-					break;
-			}
-			if(scrapeList.test(target.hostname)){ scrape(target.href) }							
-			hzPanel.loadImg(curUrl, target.href);
+					return;
+				}
+				break;
+			case 'redd.it': //doesn't work, reddit API requires Oath2 authorization even for public data.  leaving this stub for future possibilities.
+				debug('reddit ajax: '+target.href+'.json');
+				pageLoad = $.ajax({ src:curUrl, url:target.href+'.json', beforeSend:function(h){ h.setRequestHeader('Authorization','client_id QCe6ZqwvD5XQFQ') },
+					success:function(r){
+//							console.log(r);
+					}
+				});
+				break;
 		}
+		if(scrapeList.test(target.hostname)){ scrape(target.href) }							
+		hzPanel.loadImg(curUrl, target.href);
 	}
 }
 function mouseOff(e){ mouseOn() }
@@ -173,7 +173,7 @@ function mouseOff(e){ mouseOn() }
 document.addEventListener('DOMContentLoaded', function(){
 	var alinks = document.getElementsByTagName('a');
 	debug('found links: '+alinks.length);
-	for (var i=0, l=alinks.length; i < l; i++) {
+	for(var i=0; i<alinks.length; ++i){
 		if(!/^javascript:/.test(alinks[i].href)){
 			alinks[i].addEventListener('mouseenter', mouseOn, false);
 			alinks[i].addEventListener('mouseleave', mouseOff, false);
@@ -181,15 +181,12 @@ document.addEventListener('DOMContentLoaded', function(){
 	}
 
 	hzPanel = document.createElement('div');
+	hzPanel.id = 'hzPanel';
 	hzPanel.show = function(width, height){
-		var x = width;
-		var y = height;
-		var r = window.devicePixelRatio * (prefs.maxSize / 100);
-		var maxX = window.innerWidth * r;
-		var maxY = window.innerHeight * r;
+		var x=width, y=height;
+		const r=window.devicePixelRatio*(prefs.maxSize/100), maxX=window.innerWidth*r, maxY=window.innerHeight*r;
 		if((x > maxX) || (y > maxY)){
-			var rX = maxX / x;
-			var rY = maxY / y;
+			var rX = maxX / x, rY = maxY / y;
 			if(rX < rY){
 				x = Math.floor(x * rX);
 				y = Math.floor(y * rX);
@@ -197,12 +194,6 @@ document.addEventListener('DOMContentLoaded', function(){
 				x = Math.floor(x * rY);
 				y = Math.floor(y * rY);
 			}
-		}
-		if(hzPanel.style.display != 'block'){
-			hzPanel.style.display = 'block';
-			document.addEventListener('scroll', mouseOff, false);
-			document.addEventListener('wheel', wheel, false);
-			debug('hzPanel show: '+x+','+y);
 		}
 		hzPanel.style.width = x+'px';
 		hzPanel.style.height = y+'px';
@@ -214,78 +205,68 @@ document.addEventListener('DOMContentLoaded', function(){
 			d.setAttribute('style', prefs.textLoc);
 			hzPanel.appendChild(d);
 		}
+		if(hzPanel.style.display != 'block'){
+			debug('hzPanel show: '+x+','+y);
+			hzPanel.style.display = 'block';
+			document.addEventListener('scroll', mouseOff, false);
+			document.addEventListener('wheel', wheel, false);
+		}
 		if(prefs.addHist > 0){ wait = setTimeout(function(){ port.postMessage({ req:'addHist', url:curUrl })}, prefs.addHist) }
 	}
 	hzPanel.hide = function(){
 		if(hzPanel.style.display != 'none'){
+			debug('hzPanel hide');
 			hzPanel.style.display = 'none';
 			document.removeEventListener('scroll', mouseOff, false);
 			document.removeEventListener('wheel', wheel, false);
-			debug('hzPanel hide');
 		}
-		album = [];
-		hzPanel.vid.src = '';
-		hzPanel.img.src = '';
 	}
-	hzPanel.img = document.createElement('img');
-	hzPanel.img.addEventListener('load', function(){ hzPanel.showImg(hzPanel.img.url, hzPanel.img.src) });
 	hzPanel.loadImg = function(url, src){
 		if(/mp4|webm/i.test(src.split('.').pop())){ hzPanel.loadVid(url, src) }
-		else if(hzPanel.img.src != src){
-			hzPanel.vid.src = '';
-			hzPanel.img.url = url;
-			hzPanel.img.src = src;
+		else{
 			debug('img load: '+src);
+			hzPanel.img = document.createElement('img');
+			hzPanel.img.addEventListener('load', function(){ hzPanel.showImg(url, src) });
+			hzPanel.img.src = src;
 		}
 	}
 	hzPanel.showImg = function(url, src){
 		if(url == curUrl){
 			var x = prefs.delay - (new Date().getTime() - mark);
 			if(x > 0){
-				wait = setTimeout( function(){ hzPanel.showImg(url, src) }, x);
+				wait = setTimeout(function(){ hzPanel.showImg(url, src) }, x);
 			}else{
+				debug('img show: '+src);
 				while(hzPanel.lastChild){ hzPanel.removeChild(hzPanel.lastChild) }
 				hzPanel.appendChild(hzPanel.img);
 				hzPanel.show(hzPanel.img.naturalWidth, hzPanel.img.naturalHeight);
-				debug('img show: '+src);
 			}
-		}else{
-			hzPanel.hide();
 		}
 	}
-	hzPanel.vid = document.createElement('video');
-	hzPanel.vid.autoplay = true;
-	hzPanel.vid.loop = true;
-	hzPanel.vid.muted = true;
-	hzPanel.vid.addEventListener('canplaythrough', function(){ hzPanel.showVid(hzPanel.vid.url, hzPanel.vid.src) });
 	hzPanel.loadVid = function(url, src){
-		if(hzPanel.vid.src != src){
-			hzPanel.img.src = '';
-			hzPanel.vid.url = url;
-			hzPanel.vid.src = src;
-			hzPanel.vid.load();
-			debug('vid load: '+src);
-		}
+		debug('vid load: '+src);
+		hzPanel.vid = document.createElement('video');
+		hzPanel.vid.addEventListener('canplaythrough', function(){ hzPanel.showVid(url, src) });
+		hzPanel.vid.autoplay = true;
+		hzPanel.vid.loop = true;
+		hzPanel.vid.muted = true;
+		hzPanel.vid.src = src;
+		hzPanel.vid.load();
 	}
 	hzPanel.showVid = function(url, src){
 		if(url == curUrl){
 			var x = prefs.delay - (new Date().getTime() - mark);
 			if(x > 0){
-				wait = setTimeout( function(){ hzPanel.showVid(url, src) }, x);
+				wait = setTimeout(function(){ hzPanel.showVid(url, src) }, x);
 			}else{
+				debug('vid show: '+src);
 				while(hzPanel.lastChild){ hzPanel.removeChild(hzPanel.lastChild) }
 				hzPanel.appendChild(hzPanel.vid);
 				hzPanel.show(hzPanel.vid.videoWidth, hzPanel.vid.videoHeight);
 				hzPanel.vid.play();
-				debug('vid show: '+src);
 			}
-		}else{
-			hzPanel.hide();
 		}
 	}
-	hzPanel.id = 'hzPanel';
-	hzPanel.style.width = "100px";
-	hzPanel.style.height = "100px";
 	document.body.appendChild(hzPanel);
 	
 	document.addEventListener('keydown', keyPress, false);

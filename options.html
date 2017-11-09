@@ -3,15 +3,16 @@
 		<meta charset="utf-8"/>
 	<style>
 		body { font:san-serif; }
-		table { border:1px; text-align:center; width:100%; }
+		button { margin:5px 20px 5px 20px }
+		form { margin:0px auto; padding:20px; text-align:center; }
 		textarea { height:auto; }
 		.label { text-align:right; }
 		.out { border:0px; width:60px; vertical-align:top; }
 	</style>
 	</head>
 	<body>
-		<form>
-			<table caption="Options">
+		<form><fieldset><legend>Options</legend>
+			<table>
 				<tr>
 					<td class="label">Popup Delay</td>
 					<td><input id="delay" type="range" min="0" max="2000" step="100" title="Delay, expressed in milliseconds, before the image/video popup shows after mouse hover."/> <input id="delayOut" type="text" class="out"/></td>
@@ -27,7 +28,7 @@
 				<tr>
 					<td class="label">Album Text Location</td>
 					<td>
-						<select id="textLoc" title="Location of the text (num/num of) that appears when displaying an album of multiple images / videos."/>
+						<select id="textLoc" title="Location of the text (num/num of) that appears when displaying an album of multiple images/videos."/>
 							<option value="top:6px; left:6px;">top left</option>
 							<option value="top:6px; left:50%;">top center</option>
 							<option value="top:6px; right:8px;">top right</option>
@@ -39,15 +40,15 @@
 				</tr>
 				<tr>
 					<td class="label">Enable Keyboard Commands</td>
-					<td><input id="keys" type="checkbox" title="Check to enable keyboard commands (ctrl+alt+Z to toggle mod on/off for page, arrow navigation in albums)."/></td>
+					<td><input id="keys" type="checkbox" title="Check to enable keyboard commands (ctrl+alt+Z to toggle mod on/off for page, left/right arrow navigation in albums)."/></td>
 				</tr>
 				<tr>
 					<td class="label">Block List</td>
-					<td><textarea id="srcBlock" cols="60" rows="2" title="HooverZoom will turn itself off while browsing any of these sites, comma separated list will go into a regex test."></textarea></td>
+					<td><textarea id="srcBlock" cols="60" rows="2" title="HooverZoom will turn itself off while browsing any of these sites, comma separated list will go into a regex test of the hostname."></textarea></td>
 				</tr>
 				<tr>
 					<td class="label">Scrape List</td>
-					<td><textarea id="scrapeList" cols="60" rows="6" title="In addition to special handlers for sites like imgur.com, link hostnames that match any of these will be generically scraped for indirect media.  List is regex with comma separation, putting a single period here will scrape _everything_, blank will scrape nothing."></textarea></td>
+					<td><textarea id="scrapeList" cols="60" rows="6" title="In addition to special handlers for sites like imgur.com, link hostnames that match any of these will be generically scraped for indirect media.  List is regex with comma separation; putting a single period here will scrape _everything_, blank will scrape nothing."></textarea></td>
 				</tr>
 				<tr>
 					<td class="label">Scrape List Block</td>
@@ -63,12 +64,12 @@
 				</tr>
 				<tr>
 					<td colspan="99" style="text-align:center">
-						<button type="reset" title="Reset all setting to default values.">Reset</button>
-						<button type="submit" title="Save any settings changes.">Save</button>
+						<button type="reset" title="Reset all settings to default values and save.">Reset</button>
+						<button type="submit">Save</button>
 					</td>
 				</tr>
 			</table>
-		</form>
+		</fieldset></form>
 		<script src="options.js"></script>
 	</body>
 </html>
