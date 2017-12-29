@@ -14,6 +14,10 @@
 		<form><fieldset><legend>Options</legend>
 			<table>
 				<tr>
+					<td colspan="99" style="text-align:center">
+						<h3>Hover Over Setting for a Description</h3>
+					</td>
+				<tr>
 					<td class="label">Popup Delay</td>
 					<td><input id="delay" type="range" min="0" max="2000" step="100" title="Delay, expressed in milliseconds, before the image/video popup shows after mouse hover."/> <input id="delayOut" type="text" class="out"/></td>
 				</tr>
@@ -51,7 +55,7 @@
 					<td><textarea id="scrapeList" cols="60" rows="6" title="In addition to special handlers for sites like imgur.com, link hostnames that match any of these will be generically scraped for indirect media.  List is regex with comma separation; putting a single period here will scrape _everything_, blank will scrape nothing."></textarea></td>
 				</tr>
 				<tr>
-					<td class="label">Scrape List Block</td>
+					<td class="label">Scrape Block List</td>
 					<td><textarea id="scrapeListBlock" cols="60" rows="2" title="A comma separated list of items to ignore when scraping; generic logos, etc."></textarea></td>
 				</tr>
 				<tr>

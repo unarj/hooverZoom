@@ -4,8 +4,14 @@ port.onMessage.addListener(function(m){
 	if(m.prefs){ 
 		prefs = m.prefs;
 		debug('prefs loaded');
-		if(prefs.scrapeList){ scrapeList = RegExp(prefs.scrapeList.replace(/ /g,'').replace(/,/g,'|')) }
-		if(prefs.scrapeListBlock){ scrapeListBlock = RegExp(prefs.scrapeListBlock.replace(/ /g,'').replace(/,/g,'|')) }
+		if(prefs.scrapeList){
+			scrapeList = RegExp(prefs.scrapeList.replace(/ /g,'').replace(/,/g,'|'));
+			debug('scrapeList: '+scrapeList);
+		}
+		if(prefs.scrapeListBlock){
+			scrapeListBlock = RegExp(prefs.scrapeListBlock.replace(/ /g,'').replace(/,/g,'|'));
+			debug('scrapeListBlock: '+scrapeListBlock);
+		}
 		prefs.enabled = true;
 		if(prefs.srcBlock){
 			if(RegExp(prefs.srcBlock.replace(/ /g,'').replace(/,/g,'|')).test(location.hostname)){
@@ -17,30 +23,35 @@ port.onMessage.addListener(function(m){
 });
 port.postMessage({ req:'getPrefs' });
 
-$.ajaxSetup({ cache:false, error:function(r){ debug('ajax error: '+r.responseText) }});
+var album=[], albumIndex=0, curUrl='', hzPanel, mark, pageload=$.ajax(), prefs={}, scrapeList, scrapeListBlock, srcBlock, wait;
+$.ajaxSetup({ 
+	cache:false,
+	done:function(r){ console.log(r) },
+	error:function(r){
+		if(r.responseText){ debug('ajax error: '+r.responseText) }
+		else if(r.statusText == 'abort'){ debug('ajax aborted.') }
+		else{ debug(r); console.log(r); }
+	}
+});
 
-var album=[], albumIndex=0, curUrl='', hzPanel, mark, pageLoad=$.ajax(), prefs = {}, scrapeList, scrapeListBlock, srcBlock, wait;
-
-function albumAddImg(i){
-	if(scrapeListBlock.test(i)){ 
-		debug('blocked: '+i);
-	}else{
+function albumAddImg(src, img){
+	if(src == curUrl){
+		debug('album adding image: '+img);
 		setTimeout(function(){
 			var e = document.createElement('img');
-			e.src = i;
+			e.src = img;
 		}, album.length * 500);
-		album.push(i);
+		album.push(img);
 	}
 }
-function albumAddVid(v){
-	if(scrapeListBlock.test(v)){ 
-		debug('blocked: '+v);
-	}else{
+function albumAddVid(src, vid){
+	if(src == curUrl){
+		debug('album adding video: '+vid);
 		setTimeout(function(){
 			var e = document.createElement('video');
-			e.src = v;
+			e.src = vid;
 		}, album.length * 500);
-		album.push(v);
+		album.push(vid);
 	}
 }
 
@@ -71,27 +82,40 @@ function keyPress(e){
 	}
 }
 
+
 var parser = new DOMParser();
 function scrape(u){
-	pageLoad = $.ajax({ src:curUrl, url:u,
-		success:function(r){
-			debug('scrape: '+this.url);
-			var m = parser.parseFromString(r,'text/html').getElementsByTagName('meta');
+	var scraper = new XMLHttpRequest();
+	scraper.src = curUrl;
+	scraper.addEventListener('load', function(e){
+		if(this.responseText){
+			var m = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('meta');
 			var j = m.length;
 			for(var i=0; i<j; ++i){
-				if(m[i].getAttribute('property') == 'og:video'){ albumAddVid(m[i].getAttribute('content')) }
-			}
-			if(album.length){ debug('scrape videos found: '+album.length) }
-			else{
-				for(var i=0; i<j; ++i){
-					if(m[i].getAttribute('property') == 'og:image'){ albumAddImg(m[i].getAttribute('content')) }
+				if(m[i].getAttribute('property') == 'og:video'){ 
+					var vid = m[i].getAttribute('content');
+					if(scrapeListBlock.test(vid)){ debug('blocked video: '+vid) }
+					else{ albumAddVid(this.src, vid) }
 				}
-				if(album.length){ debug('scrape images found: '+album.length) }
+			}
+			if(!album.length){
+				for(var i=0; i<j; ++i){
+					if(m[i].getAttribute('property') == 'og:image'){
+						var img = m[i].getAttribute('content');
+						if(scrapeListBlock.test(img)){ debug('blocked image: '+img) }
+						else{ albumAddImg(this.src, img) }
+					}
+				}
 			}
 			if(album.length){ hzPanel.loadImg(this.src, album[0]) }
+			debug('scraping done.');
 		}
 	});
+	debug('scraping: '+u);
+	scraper.open('GET', u);
+	scraper.send();
 }
+
 
 function wheel(e){
 	if(album.length > 1){
@@ -113,7 +137,8 @@ function wheel(e){
 var target = document.createElement('a');
 function mouseOn(e){
 	clearTimeout(wait);
-	pageLoad.abort();
+//	pageLoad.abort();
+//	scraper.abort();
 	curUrl = '';
 	hzPanel.hide();
 	album = [];
@@ -134,37 +159,53 @@ function mouseOn(e){
 						case 'gallery':
 							target.href = 'https://api.imgur.com/3/gallery/'+p[2]+'/images';
 							break;
+						case 'r': //doesn't seem to work, Imgur API returns bad data...
+							target.href = 'https://api.imgur.com/3/gallery/r/'+p[2]+'/'+p[3];
+							break;
 						default:
 							target.href = 'https://api.imgur.com/3/image/'+p.pop().split('.')[0];
 					}
-					debug('imgur ajax: '+target.href);
-					pageLoad = $.ajax({ src:curUrl, url:target.href, beforeSend:function(h){ h.setRequestHeader('Authorization','Client-ID 7353f63c8f28d05') },
-						success:function(r){
-							if(r.data.length){
-								for(var i=0; i<r.data.length; ++i){
-									if(r.data[i].animated){ albumAddVid(r.data[i].mp4) }
-									else if(r.data[i].link){ albumAddImg(r.data[i].link) }
+					var loader = new XMLHttpRequest();
+					loader.src = curUrl;
+					loader.addEventListener('load', function(e){
+						debug(this.responseText);
+						if(this.responseText){
+							var d = JSON.parse(this.responseText);
+							var l = d.length;
+							if(d.length){
+								for(var i=0; i<l; ++i){
+									if(d[i].animated){ albumAddVid(this.src, d[i].mp4) }
+									else if(d[i].link){ albumAddImg(this.src, d[i].link) }
 								}
 							}else{
-								if(r.data.animated){ albumAddVid(r.data.mp4) }
-								else if(r.data.link){ albumAddImg(r.data.link) }
+								if(d.animated){ albumAddVid(this.src, d.mp4) }
+								else if(d.link){ albumAddImg(this.src, d.link) }
 							}
 							if(album.length){ hzPanel.loadImg(this.src, album[0]) }
+							debug('imgur load done.');
 						}
 					});
+					debug('imgur load: '+target.href);
+					loader.open('GET', target.href);
+					loader.setRequestHeader('Authorization','Client-ID b9330e9ae084b7e')
+					loader.send();
 					return;
 				}
 				break;
 			case 'redd.it': //doesn't work, reddit API requires Oath2 authorization even for public data.  leaving this stub for future possibilities.
-				debug('reddit ajax: '+target.href+'.json');
-				pageLoad = $.ajax({ src:curUrl, url:target.href+'.json', beforeSend:function(h){ h.setRequestHeader('Authorization','client_id QCe6ZqwvD5XQFQ') },
-					success:function(r){
+//				debug('reddit ajax: '+target.href+'.json');
+//				pageLoad = $.ajax({ src:curUrl, url:target.href+'.json', beforeSend:function(h){ h.setRequestHeader('Authorization','client_id QCe6ZqwvD5XQFQ') },
+//					success:function(r){
 //							console.log(r);
-					}
-				});
+//					}
+//				});
 				break;
 		}
-		if(scrapeList.test(target.hostname)){ scrape(target.href) }							
+		if(scrapeList.test(target.hostname)){
+			debug('scraping: '+target.href);
+			scrape(target.href);
+//			console.log(pageLoad);
+		}							
 		hzPanel.loadImg(curUrl, target.href);
 	}
 }
