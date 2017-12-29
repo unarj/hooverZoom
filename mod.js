@@ -23,16 +23,7 @@ port.onMessage.addListener(function(m){
 });
 port.postMessage({ req:'getPrefs' });
 
-var album=[], albumIndex=0, curUrl='', hzPanel, mark, pageload=$.ajax(), prefs={}, scrapeList, scrapeListBlock, srcBlock, wait;
-$.ajaxSetup({ 
-	cache:false,
-	done:function(r){ console.log(r) },
-	error:function(r){
-		if(r.responseText){ debug('ajax error: '+r.responseText) }
-		else if(r.statusText == 'abort'){ debug('ajax aborted.') }
-		else{ debug(r); console.log(r); }
-	}
-});
+var album=[], albumIndex=0, curUrl='', hzPanel, mark, prefs={}, scrapeList, scrapeListBlock, srcBlock, wait;
 
 function albumAddImg(src, img){
 	if(src == curUrl){
@@ -89,12 +80,13 @@ function scrape(u){
 	scraper.src = curUrl;
 	scraper.addEventListener('load', function(e){
 		if(this.responseText){
+			debug('scraping: '+u);
 			var m = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('meta');
 			var j = m.length;
 			for(var i=0; i<j; ++i){
-				if(m[i].getAttribute('property') == 'og:video'){ 
+				if(m[i].getAttribute('property') == 'og:video'){
 					var vid = m[i].getAttribute('content');
-					if(scrapeListBlock.test(vid)){ debug('blocked video: '+vid) }
+					if(scrapeListBlock && scrapeListBlock.test(vid)){ debug('blocked video: '+vid) }
 					else{ albumAddVid(this.src, vid) }
 				}
 			}
@@ -102,16 +94,14 @@ function scrape(u){
 				for(var i=0; i<j; ++i){
 					if(m[i].getAttribute('property') == 'og:image'){
 						var img = m[i].getAttribute('content');
-						if(scrapeListBlock.test(img)){ debug('blocked image: '+img) }
+						if(scrapeListBlock && scrapeListBlock.test(img)){ debug('blocked image: '+img) }
 						else{ albumAddImg(this.src, img) }
 					}
 				}
 			}
 			if(album.length){ hzPanel.loadImg(this.src, album[0]) }
-			debug('scraping done.');
 		}
 	});
-	debug('scraping: '+u);
 	scraper.open('GET', u);
 	scraper.send();
 }
@@ -201,11 +191,7 @@ function mouseOn(e){
 //				});
 				break;
 		}
-		if(scrapeList.test(target.hostname)){
-			debug('scraping: '+target.href);
-			scrape(target.href);
-//			console.log(pageLoad);
-		}							
+		if(scrapeList && scrapeList.test(target.hostname)){ scrape(target.href) }							
 		hzPanel.loadImg(curUrl, target.href);
 	}
 }
