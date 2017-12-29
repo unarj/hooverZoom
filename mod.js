@@ -76,24 +76,24 @@ function keyPress(e){
 
 var parser = new DOMParser();
 function scrape(u){
-	var scraper = new XMLHttpRequest();
-	scraper.src = curUrl;
-	scraper.addEventListener('load', function(e){
+	var loader = new XMLHttpRequest();
+	loader.src = curUrl;
+	loader.addEventListener('load', function(e){
 		if(this.responseText){
 			debug('scraping: '+u);
-			var m = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('meta');
-			var j = m.length;
-			for(var i=0; i<j; ++i){
-				if(m[i].getAttribute('property') == 'og:video'){
-					var vid = m[i].getAttribute('content');
+			var d = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('meta');
+			var l = d.length;
+			for(var i=0; i<l; ++i){
+				if(d[i].getAttribute('property') == 'og:video'){
+					var vid = d[i].getAttribute('content');
 					if(scrapeListBlock && scrapeListBlock.test(vid)){ debug('blocked video: '+vid) }
 					else{ albumAddVid(this.src, vid) }
 				}
 			}
 			if(!album.length){
-				for(var i=0; i<j; ++i){
-					if(m[i].getAttribute('property') == 'og:image'){
-						var img = m[i].getAttribute('content');
+				for(var i=0; i<l; ++i){
+					if(d[i].getAttribute('property') == 'og:image'){
+						var img = d[i].getAttribute('content');
 						if(scrapeListBlock && scrapeListBlock.test(img)){ debug('blocked image: '+img) }
 						else{ albumAddImg(this.src, img) }
 					}
@@ -102,8 +102,8 @@ function scrape(u){
 			if(album.length){ hzPanel.loadImg(this.src, album[0]) }
 		}
 	});
-	scraper.open('GET', u);
-	scraper.send();
+	loader.open('GET', u);
+	loader.send();
 }
 
 
@@ -127,8 +127,6 @@ function wheel(e){
 var target = document.createElement('a');
 function mouseOn(e){
 	clearTimeout(wait);
-//	pageLoad.abort();
-//	scraper.abort();
 	curUrl = '';
 	hzPanel.hide();
 	album = [];
@@ -161,8 +159,8 @@ function mouseOn(e){
 						debug(this.responseText);
 						if(this.responseText){
 							var d = JSON.parse(this.responseText);
-							var l = d.length;
 							if(d.length){
+								var l = d.length;
 								for(var i=0; i<l; ++i){
 									if(d[i].animated){ albumAddVid(this.src, d[i].mp4) }
 									else if(d[i].link){ albumAddImg(this.src, d[i].link) }
@@ -177,18 +175,32 @@ function mouseOn(e){
 					});
 					debug('imgur load: '+target.href);
 					loader.open('GET', target.href);
-					loader.setRequestHeader('Authorization','Client-ID b9330e9ae084b7e')
+					loader.setRequestHeader('Authorization','Client-ID 7353f63c8f28d05')
 					loader.send();
 					return;
 				}
 				break;
 			case 'redd.it': //doesn't work, reddit API requires Oath2 authorization even for public data.  leaving this stub for future possibilities.
-//				debug('reddit ajax: '+target.href+'.json');
-//				pageLoad = $.ajax({ src:curUrl, url:target.href+'.json', beforeSend:function(h){ h.setRequestHeader('Authorization','client_id QCe6ZqwvD5XQFQ') },
-//					success:function(r){
-//							console.log(r);
-//					}
-//				});
+				break;
+			case 'tinypic.com':
+				if(prefs.hTinypic){
+					var loader = new XMLHttpRequest();
+					loader.src = curUrl;
+					loader.addEventListener('load', function(e){
+						var d = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('input');
+						var l = d.length;
+						for(var i=0; i<l; ++i){
+							if(d[i].getAttribute('id') == 'direct-url'){
+								albumAddImg(this.src, d[i].getAttribute('value'));
+							}
+						}
+						if(album.length){ hzPanel.loadImg(this.src, album[0]) }
+						debug('tinypic load done.');
+					});
+					debug('tinypic load: '+target.href);
+					loader.open('GET', target.href);
+					loader.send();
+				}
 				break;
 		}
 		if(scrapeList && scrapeList.test(target.hostname)){ scrape(target.href) }							

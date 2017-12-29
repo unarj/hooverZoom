@@ -10,7 +10,7 @@ port.onMessage.addListener(function(m){
 }, debug);
 port.postMessage({ req:'getPrefs' });
 
-var addHist, addHistOut, debugPref, delay, delayOut, hImgur, keys, maxSize, maxSizeOut, scrapeList, srcBlock, textLoc;
+var addHist, addHistOut, debugPref, delay, delayOut, hImgur, hTinypic, keys, maxSize, maxSizeOut, scrapeList, srcBlock, textLoc;
 
 function refresh(){
 	debug('refreshing');
@@ -20,6 +20,7 @@ function refresh(){
 	delay.value = prefs.delay;
 	delayOut.value = prefs.delay+'ms';
 	hImgur.checked = prefs.hImgur;
+	hTinypic.checked = prefs.hTinypic;
 	keys.checked = prefs.keys;
 	maxSize.value = prefs.maxSize;
 	maxSizeOut.value = prefs.maxSize+'%';
@@ -39,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function(){
 	delayOut = document.getElementById('delayOut');
 	delay.oninput = function(){ delayOut.value = delay.value+'ms' }
 	hImgur = document.getElementById('hImgur');
+	hTinypic = document.getElementById('hTinypic');
 	keys = document.getElementById('keys');
 	maxSize = document.getElementById('maxSize');
 	maxSizeOut = document.getElementById('maxSizeOut');
@@ -53,6 +55,7 @@ document.addEventListener('DOMContentLoaded', function(){
 		prefs.debug = debugPref.checked;
 		prefs.delay = delay.value;
 		prefs.hImgur = hImgur.checked;
+		prefs.hTinypic = hTinypic.checked;
 		prefs.keys = keys.checked;
 		prefs.maxSize = maxSize.value;
 		prefs.scrapeList = scrapeList.value;
