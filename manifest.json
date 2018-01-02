@@ -18,7 +18,7 @@
 		"matches": ["*://*/*"],
 		"run_at": "document_start",
 		"all_frames": false,
-		"js": ["jquery.js", "mod.js"],
+		"js": ["mod.js"],
 		"css": ["mod.css"]
 	}],
 	"options_ui": {
