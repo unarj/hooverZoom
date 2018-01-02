@@ -4,8 +4,8 @@
 	"applications": {
 		"gecko": {"id": "jid1-ypAaFtWSGV9ANQ@jetpack"}
 	},
-	"version": "1.57.3",
-	"description": "** Mozilla won't display insecure (HTTP) media on a secure (HTTPS) page now, this is causing blocked popups.\n\n** Imgur is experiencing API issues, disable the Imgur handler and make sure imgur.com is included in the Scrape List as a temporary work-around.",
+	"version": "1.57.4",
+	"description": "** Issues with Imgur API, make sure imgur.com is included in the Scrape List as a temporary work-around.",
 	"permissions": [
 		"<all_urls>",
 		"history",

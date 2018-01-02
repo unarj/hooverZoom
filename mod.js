@@ -73,14 +73,16 @@ function keyPress(e){
 	}
 }
 
-
+var xmlr = new XMLHttpRequest();
+xmlr.onerror = function(e){ debug(this.response) }
 var parser = new DOMParser();
-function scrape(u){
-	var loader = new XMLHttpRequest();
-	loader.src = curUrl;
-	loader.addEventListener('load', function(e){
+function scrape(url){
+//	xmlr = new XMLHttpRequest();
+	xmlr.open('GET', url);
+	xmlr.src = curUrl;
+	xmlr.onload = function(e){
 		if(this.responseText){
-			debug('scraping: '+u);
+			debug('scraping: '+url);
 			var d = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('meta');
 			var l = d.length;
 			for(var i=0; i<l; ++i){
@@ -101,9 +103,8 @@ function scrape(u){
 			}
 			if(album.length){ hzPanel.loadImg(this.src, album[0]) }
 		}
-	});
-	loader.open('GET', u);
-	loader.send();
+	}
+	xmlr.send();
 }
 
 
@@ -124,9 +125,12 @@ function wheel(e){
 	}
 }
 
+var apir = new XMLHttpRequest();
+apir.onerror = function(e){ debug(this.response) }
 var target = document.createElement('a');
 function mouseOn(e){
 	clearTimeout(wait);
+//	xmlr.abort();
 	curUrl = '';
 	hzPanel.hide();
 	album = [];
@@ -139,24 +143,26 @@ function mouseOn(e){
 		switch((p[1]+'.'+p[0]).toLowerCase()){
 			case 'imgur.com':
 				if(prefs.hImgur){
+					var t = target.href;
 					p = target.pathname.split('/');
 					switch(p[1].toLowerCase()){
 						case 'a':
-							target.href = 'https://api.imgur.com/3/album/'+p[2]+'/images';
+							t = 'https://api.imgur.com/3/album/'+p[2]+'/images';
 							break;
 						case 'gallery':
-							target.href = 'https://api.imgur.com/3/gallery/'+p[2]+'/images';
+							t = 'https://api.imgur.com/3/gallery/'+p[2]+'/images';
 							break;
 						case 'r': //doesn't seem to work, Imgur API returns bad data...
-							target.href = 'https://api.imgur.com/3/gallery/r/'+p[2]+'/'+p[3];
+							t = 'https://api.imgur.com/3/gallery/r/'+p[2]+'/'+p[3];
 							break;
 						default:
-							target.href = 'https://api.imgur.com/3/image/'+p.pop().split('.')[0];
+							t = 'https://api.imgur.com/3/image/'+p.pop().split('.')[0];
 					}
-					var loader = new XMLHttpRequest();
-					loader.src = curUrl;
-					loader.addEventListener('load', function(e){
-						debug(this.responseText);
+					debug('imgur load: '+t);
+					apir.open('GET', t);
+					apir.src = curUrl;
+					apir.onload = function(e){
+						debug(this.response);
 						if(this.responseText){
 							var d = JSON.parse(this.responseText);
 							if(d.length){
@@ -172,21 +178,19 @@ function mouseOn(e){
 							if(album.length){ hzPanel.loadImg(this.src, album[0]) }
 							debug('imgur load done.');
 						}
-					});
-					debug('imgur load: '+target.href);
-					loader.open('GET', target.href);
-					loader.setRequestHeader('Authorization','Client-ID 7353f63c8f28d05')
-					loader.send();
-					return;
+					}
+					apir.setRequestHeader('Authorization','Client-ID a70d05102a4b4f7');
+					apir.send();
 				}
 				break;
-			case 'redd.it': //doesn't work, reddit API requires Oath2 authorization even for public data.  leaving this stub for future possibilities.
+			case 'redd.it': //doesn't work, reddit API requires Oath2 auth even for public data.  leaving this stub for future possibilities.
 				break;
 			case 'tinypic.com':
 				if(prefs.hTinypic){
-					var loader = new XMLHttpRequest();
-					loader.src = curUrl;
-					loader.addEventListener('load', function(e){
+					debug('tinypic load: '+target.href);
+					apir.open('GET', target.href);
+					apir.src = curUrl;
+					apir.onload = function(e){
 						var d = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('input');
 						var l = d.length;
 						for(var i=0; i<l; ++i){
@@ -196,15 +200,13 @@ function mouseOn(e){
 						}
 						if(album.length){ hzPanel.loadImg(this.src, album[0]) }
 						debug('tinypic load done.');
-					});
-					debug('tinypic load: '+target.href);
-					loader.open('GET', target.href);
-					loader.send();
+					}
+					apir.send();
 				}
 				break;
 		}
-		if(scrapeList && scrapeList.test(target.hostname)){ scrape(target.href) }							
 		hzPanel.loadImg(curUrl, target.href);
+		if(scrapeList && scrapeList.test(target.hostname)){ scrape(target.href) }							
 	}
 }
 function mouseOff(e){ mouseOn() }
