@@ -4,8 +4,8 @@
 	"applications": {
 		"gecko": {"id": "jid1-ypAaFtWSGV9ANQ@jetpack"}
 	},
-	"version": "1.57.4",
-	"description": "** Issues with Imgur API, make sure imgur.com is included in the Scrape List as a temporary work-around.",
+	"version": "1.57.5",
+	"description": "** Imgur API will blacklist an IP after lots of requests, looking for a fix.",
 	"permissions": [
 		"<all_urls>",
 		"history",

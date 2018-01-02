@@ -76,10 +76,9 @@ function keyPress(e){
 var xmlr = new XMLHttpRequest();
 xmlr.onerror = function(e){ debug(this.response) }
 var parser = new DOMParser();
-function scrape(url){
-//	xmlr = new XMLHttpRequest();
+function scrape(src, url){
 	xmlr.open('GET', url);
-	xmlr.src = curUrl;
+	xmlr.src = src;
 	xmlr.onload = function(e){
 		if(this.responseText){
 			debug('scraping: '+url);
@@ -125,12 +124,9 @@ function wheel(e){
 	}
 }
 
-var apir = new XMLHttpRequest();
-apir.onerror = function(e){ debug(this.response) }
 var target = document.createElement('a');
 function mouseOn(e){
 	clearTimeout(wait);
-//	xmlr.abort();
 	curUrl = '';
 	hzPanel.hide();
 	album = [];
@@ -159,38 +155,43 @@ function mouseOn(e){
 							t = 'https://api.imgur.com/3/image/'+p.pop().split('.')[0];
 					}
 					debug('imgur load: '+t);
-					apir.open('GET', t);
-					apir.src = curUrl;
-					apir.onload = function(e){
-						debug(this.response);
-						if(this.responseText){
-							var d = JSON.parse(this.responseText);
-							if(d.length){
-								var l = d.length;
-								for(var i=0; i<l; ++i){
-									if(d[i].animated){ albumAddVid(this.src, d[i].mp4) }
-									else if(d[i].link){ albumAddImg(this.src, d[i].link) }
-								}
-							}else{
-								if(d.animated){ albumAddVid(this.src, d.mp4) }
-								else if(d.link){ albumAddImg(this.src, d.link) }
+					xmlr.open('GET', t);
+					xmlr.src = curUrl;
+					xmlr.onload = function(e){
+//						console.log(this);
+						var r = JSON.parse(this.response);
+							if(r.data.length){
+							var l = r.data.length;
+							for(var i=0; i<l; ++i){
+								if(r.data[i].animated){ albumAddVid(this.src, r.data[i].mp4) }
+								else if(r.data[i].link){ albumAddImg(this.src, r.data[i].link) }
 							}
-							if(album.length){ hzPanel.loadImg(this.src, album[0]) }
+						}else{
+							if(r.data.animated){ albumAddVid(this.src, r.data.mp4) }
+							else if(r.data.link){ albumAddImg(this.src, r.data.link) }
+						}
+						if(album.length){
 							debug('imgur load done.');
+							hzPanel.loadImg(this.src, album[0]);
+						}else{
+							debug('imgur no hits.');
+							hzPanel.loadImg(curUrl, target.href);
+							scrape(this.src, this.src);
 						}
 					}
-					apir.setRequestHeader('Authorization','Client-ID a70d05102a4b4f7');
-					apir.send();
+					xmlr.setRequestHeader('Authorization','Client-ID a70d05102a4b4f7');
+					xmlr.send();
 				}
-				break;
-			case 'redd.it': //doesn't work, reddit API requires Oath2 auth even for public data.  leaving this stub for future possibilities.
-				break;
+				return;
+//			case 'redd.it':
+//doesn't work, reddit API requires Oath2 auth even for public data.  leaving this stub for future possibilities.
+//				break;
 			case 'tinypic.com':
 				if(prefs.hTinypic){
 					debug('tinypic load: '+target.href);
-					apir.open('GET', target.href);
-					apir.src = curUrl;
-					apir.onload = function(e){
+					xmlr.open('GET', target.href);
+					xmlr.src = curUrl;
+					xmlr.onload = function(e){
 						var d = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('input');
 						var l = d.length;
 						for(var i=0; i<l; ++i){
@@ -198,15 +199,21 @@ function mouseOn(e){
 								albumAddImg(this.src, d[i].getAttribute('value'));
 							}
 						}
-						if(album.length){ hzPanel.loadImg(this.src, album[0]) }
-						debug('tinypic load done.');
+						if(album.length){
+							debug('tinypic load done.');
+							hzPanel.loadImg(this.src, album[0]);
+						}else{
+							debug('tinypic no hits.');
+							hzPanel.loadImg(curUrl, target.href);
+							scrape(this.src, this.src);
+						}
 					}
-					apir.send();
+					xmlr.send();
 				}
-				break;
+				return;
 		}
 		hzPanel.loadImg(curUrl, target.href);
-		if(scrapeList && scrapeList.test(target.hostname)){ scrape(target.href) }							
+		if(scrapeList && scrapeList.test(target.hostname)){ scrape(curUrl, target.href) }							
 	}
 }
 function mouseOff(e){ mouseOn() }
