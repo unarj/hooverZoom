@@ -25,27 +25,6 @@ port.postMessage({ req:'getPrefs' });
 
 var album=[], albumIndex=0, curUrl='', hzPanel, mark, prefs={}, scrapeList, scrapeListBlock, srcBlock, wait;
 
-function albumAddImg(src, img){
-	if(src == curUrl){
-		debug('album adding image: '+img);
-		setTimeout(function(){
-			var e = document.createElement('img');
-			e.src = img;
-		}, album.length * 500);
-		album.push(img);
-	}
-}
-function albumAddVid(src, vid){
-	if(src == curUrl){
-		debug('album adding video: '+vid);
-		setTimeout(function(){
-			var e = document.createElement('video');
-			e.src = vid;
-		}, album.length * 500);
-		album.push(vid);
-	}
-}
-
 function keyPress(e){
 	if(prefs.keys){
 		if(e.ctrlKey && e.altKey && e.keyCode == 90){
@@ -74,38 +53,51 @@ function keyPress(e){
 }
 
 var xmlr = new XMLHttpRequest();
+xmlr.albumAdd = function(src){
+	if(this.orig == curUrl){
+		debug('album adding media: '+src);
+		setTimeout(function(){
+			var e;
+			if(/mp4|webm/i.test(src.split('.').pop())){	e = document.createElement('video')	}
+			else{ e = document.createElement('img') }
+			e.src = src;
+		}, album.length * 500);
+		album.push(src);
+	}
+}
+xmlr.checkFor = ['og:video:secure_url', 'og:video:url', 'og:video', 'og:image:secure_url', 'og:image:url', 'og:image'];
 xmlr.onerror = function(e){ debug(this.response) }
 var parser = new DOMParser();
-function scrape(src, url){
-	xmlr.open('GET', url);
-	xmlr.src = src;
+function scrape(url, src){
+	if(!src){ src = url }
+	xmlr.orig = url;
+	xmlr.open('GET', src);
 	xmlr.onload = function(e){
 		if(this.responseText){
-			debug('scraping: '+url);
-			var d = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('meta');
-			var l = d.length;
-			for(var i=0; i<l; ++i){
-				if(d[i].getAttribute('property') == 'og:video'){
-					var vid = d[i].getAttribute('content');
-					if(scrapeListBlock && scrapeListBlock.test(vid)){ debug('blocked video: '+vid) }
-					else{ albumAddVid(this.src, vid) }
-				}
-			}
-			if(!album.length){
-				for(var i=0; i<l; ++i){
-					if(d[i].getAttribute('property') == 'og:image'){
-						var img = d[i].getAttribute('content');
-						if(scrapeListBlock && scrapeListBlock.test(img)){ debug('blocked image: '+img) }
-						else{ albumAddImg(this.src, img) }
+			debug('scraping: '+src);
+			var cl = this.checkFor.length;
+			var data = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('meta');
+			var dl = data.length;
+			var hit = false;
+			for(var i=0; i<cl; ++i){
+				if(!hit){
+					for(var j=0; j<dl; ++j){
+						if(data[j].getAttribute('property') == this.checkFor[i]){
+							var x = data[j].getAttribute('content');
+							if(scrapeListBlock && scrapeListBlock.test(x)){ debug('blocked media: '+x) }
+							else{ this.albumAdd(x) }
+						}
+					}
+					if(album.length){
+						hit = true;
+						hzPanel.loadImg(this.orig, album[0]);
 					}
 				}
 			}
-			if(album.length){ hzPanel.loadImg(this.src, album[0]) }
 		}
 	}
 	xmlr.send();
 }
-
 
 function wheel(e){
 	if(album.length > 1){
@@ -156,33 +148,33 @@ function mouseOn(e){
 					}
 					debug('imgur load: '+t);
 					xmlr.open('GET', t);
-					xmlr.src = curUrl;
+					xmlr.orig = curUrl;
 					xmlr.onload = function(e){
-//						console.log(this);
+//						console.log(this.response);
 						var r = JSON.parse(this.response);
 							if(r.data.length){
 							var l = r.data.length;
 							for(var i=0; i<l; ++i){
-								if(r.data[i].animated){ albumAddVid(this.src, r.data[i].mp4) }
-								else if(r.data[i].link){ albumAddImg(this.src, r.data[i].link) }
+								if(r.data[i].animated){ this.albumAdd(r.data[i].mp4) }
+								else if(r.data[i].link){ this.albumAdd(r.data[i].link) }
 							}
 						}else{
-							if(r.data.animated){ albumAddVid(this.src, r.data.mp4) }
-							else if(r.data.link){ albumAddImg(this.src, r.data.link) }
+							if(r.data.animated){ this.albumAdd(r.data.mp4) }
+							else if(r.data.link){ this.albumAdd(r.data.link) }
 						}
 						if(album.length){
 							debug('imgur load done.');
-							hzPanel.loadImg(this.src, album[0]);
+							hzPanel.loadImg(this.orig, album[0]);
 						}else{
 							debug('imgur no hits.');
-							hzPanel.loadImg(curUrl, target.href);
-							scrape(this.src, this.src);
+							hzPanel.loadImg(this.orig);
+							scrape(this.orig);
 						}
 					}
 					xmlr.setRequestHeader('Authorization','Client-ID a70d05102a4b4f7');
 					xmlr.send();
+					return;
 				}
-				return;
 //			case 'redd.it':
 //doesn't work, reddit API requires Oath2 auth even for public data.  leaving this stub for future possibilities.
 //				break;
@@ -190,29 +182,29 @@ function mouseOn(e){
 				if(prefs.hTinypic){
 					debug('tinypic load: '+target.href);
 					xmlr.open('GET', target.href);
-					xmlr.src = curUrl;
+					xmlr.orig = curUrl;
 					xmlr.onload = function(e){
 						var d = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('input');
 						var l = d.length;
 						for(var i=0; i<l; ++i){
 							if(d[i].getAttribute('id') == 'direct-url'){
-								albumAddImg(this.src, d[i].getAttribute('value'));
+								this.albumAdd(d[i].getAttribute('value'));
 							}
 						}
 						if(album.length){
 							debug('tinypic load done.');
-							hzPanel.loadImg(this.src, album[0]);
+							hzPanel.loadImg(this.orig, album[0]);
 						}else{
 							debug('tinypic no hits.');
-							hzPanel.loadImg(curUrl, target.href);
-							scrape(this.src, this.src);
+							hzPanel.loadImg(this.orig);
+							scrape(this.orig);
 						}
 					}
 					xmlr.send();
+					return;
 				}
-				return;
 		}
-		hzPanel.loadImg(curUrl, target.href);
+		hzPanel.loadImg(target.href);
 		if(scrapeList && scrapeList.test(target.hostname)){ scrape(curUrl, target.href) }							
 	}
 }
@@ -270,6 +262,7 @@ document.addEventListener('DOMContentLoaded', function(){
 		}
 	}
 	hzPanel.loadImg = function(url, src){
+		if(!src){ src = url }
 		if(/mp4|webm/i.test(src.split('.').pop())){ hzPanel.loadVid(url, src) }
 		else{
 			debug('img load: '+src);
@@ -316,6 +309,6 @@ document.addEventListener('DOMContentLoaded', function(){
 		}
 	}
 	document.body.appendChild(hzPanel);
-	
+
 	document.addEventListener('keydown', keyPress, false);
 });

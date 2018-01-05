@@ -4,8 +4,8 @@
 	"applications": {
 		"gecko": {"id": "jid1-ypAaFtWSGV9ANQ@jetpack"}
 	},
-	"version": "1.57.5",
-	"description": "** Imgur API will blacklist an IP after lots of requests, looking for a fix.",
+	"version": "1.57.6",
+	"description": "A compact add-on for displaying media on mouseover.",
 	"permissions": [
 		"<all_urls>",
 		"history",
