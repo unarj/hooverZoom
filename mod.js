@@ -2,19 +2,15 @@ function debug(s){ if(prefs.debug){ console.log('mod: '+s) }}
 const port = browser.runtime.connect();
 port.onMessage.addListener(function(m){
 	if(m.prefs){ 
+		debug('prefs loading');
 		prefs = m.prefs;
-		debug('prefs loaded');
-		if(prefs.scrapeList){
-			scrapeList = RegExp(prefs.scrapeList.replace(/ /g,'').replace(/,/g,'|'));
-			debug('scrapeList: '+scrapeList);
-		}
-		if(prefs.scrapeListBlock){
-			scrapeListBlock = RegExp(prefs.scrapeListBlock.replace(/ /g,'').replace(/,/g,'|'));
-			debug('scrapeListBlock: '+scrapeListBlock);
-		}
+		if(prefs.scrapeList){ scrapeList = RegExp(prefs.scrapeList.replace(/ /g,'').replace(/,/g,'|')),'i' }else{ scrapeList = RegExp('^\s\S') }
+		debug('scrapeList: '+scrapeList);
+		if(prefs.scrapeListBlock){ scrapeListBlock = RegExp(prefs.scrapeListBlock.replace(/ /g,'').replace(/,/g,'|')),'i' }else{ scrapeListBlock = RegExp('^\s\S') }
+		debug('scrapeListBlock: '+scrapeListBlock);
 		prefs.enabled = true;
 		if(prefs.srcBlock){
-			if(RegExp(prefs.srcBlock.replace(/ /g,'').replace(/,/g,'|')).test(location.hostname)){
+			if(RegExp(prefs.srcBlock.replace(/ /g,'').replace(/,/g,'|'),'i').test(location.hostname)){
 				debug('page URL found in block list');
 				prefs.enabled = false;
 			}
@@ -70,30 +66,32 @@ xmlr.onerror = function(e){ debug(this.response) }
 var parser = new DOMParser();
 function scrape(url, src){
 	if(!src){ src = url }
-	xmlr.orig = url;
 	xmlr.open('GET', src);
+	xmlr.orig = url;
 	xmlr.onload = function(e){
-		if(this.responseText){
-			debug('scraping: '+src);
-			var cl = this.checkFor.length;
-			var data = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('meta');
-			var dl = data.length;
-			var hit = false;
-			for(var i=0; i<cl; ++i){
-				if(!hit){
-					for(var j=0; j<dl; ++j){
-						if(data[j].getAttribute('property') == this.checkFor[i]){
-							var x = data[j].getAttribute('content');
-							if(scrapeListBlock && scrapeListBlock.test(x)){ debug('blocked media: '+x) }
-							else{ this.albumAdd(x) }
-						}
-					}
-					if(album.length){
-						hit = true;
-						hzPanel.loadImg(this.orig, album[0]);
+		debug('scrape: '+src);
+		var cl = this.checkFor.length;
+		var data = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('meta');
+		var dl = data.length;
+		var hit = false;
+		for(var i=0; i<cl; ++i){
+			if(!hit){
+				for(var j=0; j<dl; ++j){
+					if(data[j].getAttribute('property') == this.checkFor[i]){
+						var x = data[j].getAttribute('content');
+						if(scrapeListBlock && scrapeListBlock.test(x)){ debug('blocked media: '+x) }
+						else{ this.albumAdd(x) }
 					}
 				}
+				if(album.length){
+					hit = true;
+					hzPanel.loadImg(this.orig, album[0]);
+				}
 			}
+		}
+		if(!hit){
+			debug('scrape: no hits');
+			hzPanel.loadImg(this.orig);
 		}
 	}
 	xmlr.send();
@@ -131,28 +129,27 @@ function mouseOn(e){
 		switch((p[1]+'.'+p[0]).toLowerCase()){
 			case 'imgur.com':
 				if(prefs.hImgur){
-					var t = target.href;
 					p = target.pathname.split('/');
 					switch(p[1].toLowerCase()){
 						case 'a':
-							t = 'https://api.imgur.com/3/album/'+p[2]+'/images';
+							target.href = 'https://api.imgur.com/3/album/'+p[2]+'/images';
 							break;
 						case 'gallery':
-							t = 'https://api.imgur.com/3/gallery/'+p[2]+'/images';
+							target.href = 'https://api.imgur.com/3/gallery/'+p[2]+'/images';
 							break;
 						case 'r': //doesn't seem to work, Imgur API returns bad data...
-							t = 'https://api.imgur.com/3/gallery/r/'+p[2]+'/'+p[3];
+							target.href = 'https://api.imgur.com/3/gallery/r/'+p[2]+'/'+p[3];
 							break;
 						default:
-							t = 'https://api.imgur.com/3/image/'+p.pop().split('.')[0];
+							target.href = 'https://api.imgur.com/3/image/'+p.pop().split('.')[0];
 					}
-					debug('imgur load: '+t);
-					xmlr.open('GET', t);
+					debug('imgur load: '+target.href);
+					xmlr.open('GET', target.href);
 					xmlr.orig = curUrl;
 					xmlr.onload = function(e){
 //						console.log(this.response);
 						var r = JSON.parse(this.response);
-							if(r.data.length){
+						if(r.data.length){
 							var l = r.data.length;
 							for(var i=0; i<l; ++i){
 								if(r.data[i].animated){ this.albumAdd(r.data[i].mp4) }
@@ -163,11 +160,10 @@ function mouseOn(e){
 							else if(r.data.link){ this.albumAdd(r.data.link) }
 						}
 						if(album.length){
-							debug('imgur load done.');
+							debug('imgur: load done');
 							hzPanel.loadImg(this.orig, album[0]);
 						}else{
-							debug('imgur no hits.');
-							hzPanel.loadImg(this.orig);
+							debug('imgur: no hits');
 							scrape(this.orig);
 						}
 					}
@@ -192,11 +188,10 @@ function mouseOn(e){
 							}
 						}
 						if(album.length){
-							debug('tinypic load done.');
+							debug('tinypic: load done');
 							hzPanel.loadImg(this.orig, album[0]);
 						}else{
-							debug('tinypic no hits.');
-							hzPanel.loadImg(this.orig);
+							debug('tinypic: no hits');
 							scrape(this.orig);
 						}
 					}
@@ -204,13 +199,13 @@ function mouseOn(e){
 					return;
 				}
 		}
-		hzPanel.loadImg(target.href);
-		if(scrapeList && scrapeList.test(target.hostname)){ scrape(curUrl, target.href) }							
+		if(scrapeList.test(target.hostname)){ scrape(target.href) }
+		else{ hzPanel.loadImg(target.href) }		
 	}
 }
 function mouseOff(e){ mouseOn() }
 
-document.addEventListener('DOMContentLoaded', function(){
+document.addEventListener('DOMContentLoaded', function(e){
 	var alinks = document.getElementsByTagName('a');
 	debug('found links: '+alinks.length);
 	for(var i=0; i<alinks.length; ++i){
@@ -223,10 +218,9 @@ document.addEventListener('DOMContentLoaded', function(){
 	hzPanel = document.createElement('div');
 	hzPanel.id = 'hzPanel';
 	hzPanel.show = function(width, height){
-		var x=width, y=height;
-		const r=window.devicePixelRatio*(prefs.maxSize/100), maxX=window.innerWidth*r, maxY=window.innerHeight*r;
+		var x=width, y=height, r=window.devicePixelRatio*(prefs.maxSize/100), maxX=window.innerWidth*r, maxY=window.innerHeight*r;
 		if((x > maxX) || (y > maxY)){
-			var rX = maxX / x, rY = maxY / y;
+			var rX=maxX/x, rY=maxY/y;
 			if(rX < rY){
 				x = Math.floor(x * rX);
 				y = Math.floor(y * rX);
