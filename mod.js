@@ -1,5 +1,7 @@
 function debug(s){ if(prefs.debug){ console.log('mod: '+s) }}
 const port = browser.runtime.connect();
+
+var prefs={}, scrapeList, scrapeListBlock, srcBlock
 port.onMessage.addListener(function(m){
 	if(m.prefs){ 
 		debug('prefs loading');
@@ -9,17 +11,13 @@ port.onMessage.addListener(function(m){
 		if(prefs.scrapeListBlock){ scrapeListBlock = RegExp(prefs.scrapeListBlock.replace(/ /g,'').replace(/,/g,'|')),'i' }else{ scrapeListBlock = RegExp('^\s\S') }
 		debug('scrapeListBlock: '+scrapeListBlock);
 		prefs.enabled = true;
-		if(prefs.srcBlock){
-			if(RegExp(prefs.srcBlock.replace(/ /g,'').replace(/,/g,'|'),'i').test(location.hostname)){
-				debug('page URL found in block list');
-				prefs.enabled = false;
-			}
+		if(prefs.srcBlock && RegExp(prefs.srcBlock.replace(/ /g,'').replace(/,/g,'|'),'i').test(location.hostname)){
+			debug('page URL found in block list');
+			prefs.enabled = false;
 		}
 	}
 });
 port.postMessage({ req:'getPrefs' });
-
-var album=[], albumIndex=0, curUrl='', hzPanel, mark, prefs={}, scrapeList, scrapeListBlock, srcBlock, wait;
 
 function keyPress(e){
 	if(prefs.keys){
@@ -51,7 +49,7 @@ function keyPress(e){
 var xmlr = new XMLHttpRequest();
 xmlr.albumAdd = function(src){
 	if(this.orig == curUrl){
-		debug('album adding media: '+src);
+		debug('album add: '+src);
 		setTimeout(function(){
 			var e;
 			if(/mp4|webm/i.test(src.split('.').pop())){	e = document.createElement('video')	}
@@ -114,14 +112,9 @@ function wheel(e){
 	}
 }
 
-var target = document.createElement('a');
+var album=[], albumIndex=0, curUrl='', mark, target = document.createElement('a');
 function mouseOn(e){
-	clearTimeout(wait);
-	curUrl = '';
-	hzPanel.hide();
-	album = [];
-	albumIndex = 0;
-	if(e && prefs.enabled){
+	if(prefs.enabled){
 		mark = new Date().getTime();
 		curUrl = e.target.toString();
 		target.href = curUrl;
@@ -147,7 +140,6 @@ function mouseOn(e){
 					xmlr.open('GET', target.href);
 					xmlr.orig = curUrl;
 					xmlr.onload = function(e){
-//						console.log(this.response);
 						var r = JSON.parse(this.response);
 						if(r.data.length){
 							var l = r.data.length;
@@ -203,8 +195,16 @@ function mouseOn(e){
 		else{ hzPanel.loadImg(target.href) }		
 	}
 }
-function mouseOff(e){ mouseOn() }
+function mouseOff(e){
+	clearTimeout(wait);
+	xmlr.abort();
+	curUrl = '';
+	hzPanel.hide();
+	album = [];
+	albumIndex = 0;
+}
 
+var hzPanel, wait;
 document.addEventListener('DOMContentLoaded', function(e){
 	var alinks = document.getElementsByTagName('a');
 	debug('found links: '+alinks.length);
