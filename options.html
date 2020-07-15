@@ -14,8 +14,8 @@
 		<form><fieldset><legend>Options</legend>
 			<table>
 				<tr>
-					<td colspan="99" style="text-align:center">
-						<h3>Hover Over Setting for a Description</h3>
+					<td colspan="99">
+						<h4 style="text-align:center">Hover Over Setting for Description</h4>
 					</td>
 				<tr>
 					<td class="label">Popup Delay</td>
@@ -48,19 +48,23 @@
 				</tr>
 				<tr>
 					<td class="label">Block List</td>
-					<td><textarea id="srcBlock" cols="60" rows="2" title="HooverZoom will turn itself off while browsing any of these sites, comma separated list will go into a regex test of the hostname."></textarea></td>
+					<td><textarea id="srcBlock" cols="54" rows="2" title="HooverZoom will turn itself off while browsing any of these sites, comma separated list will go into a regex test of the hostname."></textarea></td>
 				</tr>
 				<tr>
 					<td class="label">Scrape List</td>
-					<td><textarea id="scrapeList" cols="60" rows="6" title="In addition to special handlers for sites like imgur.com, link hostnames that match any of these will be generically scraped for indirect media.  List is regex with comma separation; putting a single period here will scrape _everything_, blank will scrape nothing."></textarea></td>
+					<td><textarea id="scrapeList" cols="54" rows="8" title="In addition to special handlers for sites like imgur.com, link hostnames that match any of these will be generically scraped for indirect media.  List is regex with comma separation; putting a single period here will scrape _everything_, blank will scrape nothing."></textarea></td>
 				</tr>
 				<tr>
 					<td class="label">Scrape Block List</td>
-					<td><textarea id="scrapeListBlock" cols="60" rows="2" title="A comma separated list of items to ignore when scraping; generic logos, etc."></textarea></td>
+					<td><textarea id="scrapeListBlock" cols="54" rows="2" title="A comma separated list of items to ignore when scraping; generic logos, etc."></textarea></td>
 				</tr>
 				<tr>
 					<td class="label">Imgur Handler</td>
 					<td><input id="hImgur" type="checkbox" title="Enable/disable the special imgur.com link handler."/></td>
+				</tr>
+				<tr>
+					<td class="label">Reddit Handler</td>
+					<td><input id="hReddit" type="checkbox" title="Enable/disable the special redd.it link handler."/></td>
 				</tr>
 				<tr>
 					<td class="label">Tinypic Handler</td>

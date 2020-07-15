@@ -4,7 +4,7 @@
 	"applications": {
 		"gecko": {"id": "jid1-ypAaFtWSGV9ANQ@jetpack"}
 	},
-	"version": "1.58.1",
+	"version": "1.78.0",
 	"description": "A compact add-on for displaying media on mouseover.",
 	"permissions": [
 		"<all_urls>",
@@ -16,10 +16,9 @@
 	},
 	"content_scripts": [{
 		"matches": ["*://*/*"],
-		"run_at": "document_start",
-		"all_frames": false,
 		"js": ["mod.js"],
-		"css": ["mod.css"]
+		"css": ["mod.css"],
+		"run_at": "document_start"
 	}],
 	"options_ui": {
 		"page": "options.html"

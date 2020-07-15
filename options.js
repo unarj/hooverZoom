@@ -10,7 +10,7 @@ port.onMessage.addListener(function(m){
 }, debug);
 port.postMessage({ req:'getPrefs' });
 
-var addHist, addHistOut, debugPref, delay, delayOut, hImgur, hTinypic, keys, maxSize, maxSizeOut, scrapeList, srcBlock, textLoc;
+var addHist, addHistOut, debugPref, delay, delayOut, hImgur, hReddit, hTinypic, keys, maxSize, maxSizeOut, scrapeList, srcBlock, textLoc;
 
 function refresh(){
 	debug('refreshing');
@@ -20,6 +20,7 @@ function refresh(){
 	delay.value = prefs.delay;
 	delayOut.value = prefs.delay+'ms';
 	hImgur.checked = prefs.hImgur;
+	hReddit.checked = prefs.hReddit;
 	hTinypic.checked = prefs.hTinypic;
 	keys.checked = prefs.keys;
 	maxSize.value = prefs.maxSize;
@@ -40,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function(){
 	delayOut = document.getElementById('delayOut');
 	delay.oninput = function(){ delayOut.value = delay.value+'ms' }
 	hImgur = document.getElementById('hImgur');
+	hReddit = document.getElementById('hReddit');
 	hTinypic = document.getElementById('hTinypic');
 	keys = document.getElementById('keys');
 	maxSize = document.getElementById('maxSize');
@@ -55,6 +57,7 @@ document.addEventListener('DOMContentLoaded', function(){
 		prefs.debug = debugPref.checked;
 		prefs.delay = delay.value;
 		prefs.hImgur = hImgur.checked;
+		prefs.hReddit = hReddit.checked;
 		prefs.hTinypic = hTinypic.checked;
 		prefs.keys = keys.checked;
 		prefs.maxSize = maxSize.value;

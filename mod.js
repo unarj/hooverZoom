@@ -46,6 +46,7 @@ function keyPress(e){
 	}
 }
 
+var parser = new DOMParser();
 var xmlr = new XMLHttpRequest();
 xmlr.albumAdd = function(src){
 	if(this.orig == curUrl){
@@ -61,37 +62,88 @@ xmlr.albumAdd = function(src){
 }
 xmlr.checkFor = ['og:video:secure_url', 'og:video:url', 'og:video', 'og:image:secure_url', 'og:image:url', 'og:image'];
 xmlr.onerror = function(e){ debug(this.response) }
-var parser = new DOMParser();
-function scrape(url, src){
-	if(!src){ src = url }
-	xmlr.open('GET', src);
-	xmlr.orig = url;
-	xmlr.onload = function(e){
-		debug('scrape: '+src);
-		var cl = this.checkFor.length;
-		var data = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('meta');
-		var dl = data.length;
-		var hit = false;
-		for(var i=0; i<cl; ++i){
-			if(!hit){
-				for(var j=0; j<dl; ++j){
-					if(data[j].getAttribute('property') == this.checkFor[i]){
-						var x = data[j].getAttribute('content');
-						if(scrapeListBlock && scrapeListBlock.test(x)){ debug('blocked media: '+x) }
-						else{ this.albumAdd(x) }
-					}
-				}
-				if(album.length){
-					hit = true;
-					hzPanel.loadImg(this.orig, album[0]);
+xmlr.scrape = function(e){
+	debug('scrape: '+this.orig)
+	var data = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('meta');
+	for(var i=0; i<this.checkFor.length; ++i){
+		if(!hit){
+			for(var j=0; j<data.length; ++j){
+				if(data[j].getAttribute('property') == this.checkFor[i]){
+					var x = data[j].getAttribute('content');
+					if(scrapeListBlock && scrapeListBlock.test(x)){ debug('blocked media: '+x) }
+					else{ this.albumAdd(x) }
 				}
 			}
-		}
-		if(!hit){
-			debug('scrape: no hits');
-			hzPanel.loadImg(this.orig);
+			if(album.length){
+				hzPanel.loadImg(this.orig, album[0]);
+			}
 		}
 	}
+}
+xmlr.scrapeImgur = function(e){
+	debug('scrape imgur: '+this.orig);
+	var r = JSON.parse(this.response);
+	if(r.data.length){
+		for(var i=0; i<r.data.length; ++i){
+			if(r.data[i].animated){ this.albumAdd(r.data[i].mp4) }
+			else if(r.data[i].link){ this.albumAdd(r.data[i].link) }
+		}
+	}else{
+		if(r.data.animated){ this.albumAdd(r.data.mp4) }
+		else if(r.data.link){ this.albumAdd(r.data.link) }
+	}
+	if(album.length){
+		hzPanel.loadImg(this.orig, album[0]);
+	}else{
+		hzScrape(this.orig);
+	}
+}
+xmlr.scrapeReddit = function(e){
+	debug('scrape reddit: '+this.orig);
+	var r = JSON.parse(this.response);
+	var d = r[0].data.children[0].data;
+	if(d.media){
+		hzPanel.loadImg(this.orig, d.media.reddit_video.fallback_url.split('?')[0])
+	}else if(d.url){
+		hzPanel.loadImg(this.orig, d.url)
+	}else{ 
+		debug('reddit: no hits');
+		hzScrape(this.orig);
+	}
+}
+xmlr.scrapeVReddit = function(e){
+	debug('scrape vreddit: '+this.orig);
+	var data = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('link');
+	for(var i=0; i<data.length; ++i){
+		if(data[i].rel == 'canonical'){
+			xmlr.open('GET', data[i].href+'.json');
+			xmlr.onload = xmlr.scrapeReddit;
+			xmlr.send();
+		}
+	}
+}
+xmlr.scrapeTinypic = function(e){
+	debug('scrape tinypic: '+this.orig);
+	var d = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('input');
+	for(var i=0; i<d.length; ++i){
+		if(d[i].getAttribute('id') == 'direct-url'){
+			this.albumAdd(d[i].getAttribute('value'));
+		}
+	}
+	if(album.length){
+		debug('tinypic: load done');
+		hzPanel.loadImg(this.orig, album[0]);
+	}else{
+		debug('tinypic: no hits');
+		hzScrape(this.orig);
+	}
+}
+function hzScrape(url, src){
+	if(!src){ src = url }
+	debug('scraping: '+url)
+	xmlr.open('GET', url);
+	xmlr.orig = src;
+	xmlr.onload = xmlr.scrape;
 	xmlr.send();
 }
 
@@ -136,63 +188,40 @@ function mouseOn(e){
 						default:
 							target.href = 'https://api.imgur.com/3/image/'+p.pop().split('.')[0];
 					}
-					debug('imgur load: '+target.href);
 					xmlr.open('GET', target.href);
 					xmlr.orig = curUrl;
-					xmlr.onload = function(e){
-						var r = JSON.parse(this.response);
-						if(r.data.length){
-							var l = r.data.length;
-							for(var i=0; i<l; ++i){
-								if(r.data[i].animated){ this.albumAdd(r.data[i].mp4) }
-								else if(r.data[i].link){ this.albumAdd(r.data[i].link) }
-							}
-						}else{
-							if(r.data.animated){ this.albumAdd(r.data.mp4) }
-							else if(r.data.link){ this.albumAdd(r.data.link) }
-						}
-						if(album.length){
-							debug('imgur: load done');
-							hzPanel.loadImg(this.orig, album[0]);
-						}else{
-							debug('imgur: no hits');
-							scrape(this.orig);
-						}
-					}
 					xmlr.setRequestHeader('Authorization','Client-ID a70d05102a4b4f7');
+					xmlr.onload = xmlr.scrapeImgur;
 					xmlr.send();
-					return;
 				}
-//			case 'redd.it':
-//doesn't work, reddit API requires Oath2 auth even for public data.  leaving this stub for future possibilities.
-//				break;
+				break;
+			case 'redd.it':
+			case 'reddit.com':
+				if(prefs.hReddit){
+					if(p[2] == 'v'){
+						xmlr.open('GET', target.href);
+						xmlr.orig = curUrl;
+						xmlr.onload = xmlr.scrapeVReddit;
+						xmlr.send();
+					}else{
+						xmlr.open('GET', target.href+'.json');
+						xmlr.orig = curUrl;
+						xmlr.onload = xmlr.scrapeReddit;
+						xmlr.send();
+					}
+				}
+				break;
 			case 'tinypic.com':
 				if(prefs.hTinypic){
-					debug('tinypic load: '+target.href);
 					xmlr.open('GET', target.href);
 					xmlr.orig = curUrl;
-					xmlr.onload = function(e){
-						var d = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('input');
-						var l = d.length;
-						for(var i=0; i<l; ++i){
-							if(d[i].getAttribute('id') == 'direct-url'){
-								this.albumAdd(d[i].getAttribute('value'));
-							}
-						}
-						if(album.length){
-							debug('tinypic: load done');
-							hzPanel.loadImg(this.orig, album[0]);
-						}else{
-							debug('tinypic: no hits');
-							scrape(this.orig);
-						}
-					}
+					xmlr.onload = xmlr.scrapeTinypic;
 					xmlr.send();
-					return;
 				}
+				break;
 		}
-		if(scrapeList.test(target.hostname)){ scrape(target.href) }
-		else{ hzPanel.loadImg(target.href) }		
+		if(scrapeList.test(target.hostname)){ console.log('hit'); hzScrape(target.href) }
+		hzPanel.loadImg(target.href);
 	}
 }
 function mouseOff(e){
@@ -206,15 +235,6 @@ function mouseOff(e){
 
 var hzPanel, wait;
 document.addEventListener('DOMContentLoaded', function(e){
-	var alinks = document.getElementsByTagName('a');
-	debug('found links: '+alinks.length);
-	for(var i=0; i<alinks.length; ++i){
-		if(!/^javascript:/.test(alinks[i].href)){
-			alinks[i].addEventListener('mouseenter', mouseOn, false);
-			alinks[i].addEventListener('mouseleave', mouseOff, false);
-		}
-	}
-
 	hzPanel = document.createElement('div');
 	hzPanel.id = 'hzPanel';
 	hzPanel.show = function(width, height){
@@ -306,3 +326,20 @@ document.addEventListener('DOMContentLoaded', function(e){
 
 	document.addEventListener('keydown', keyPress, false);
 });
+
+function hzTag(){
+	var alinks = document.getElementsByTagName('a');
+	var x = 0;
+	for(var i=0; i<alinks.length; ++i){
+		if(!alinks[i].hzTagged && !/^javascript:/.test(alinks[i].href)){
+			alinks[i].addEventListener('mouseenter', mouseOn, false);
+			alinks[i].addEventListener('mouseleave', mouseOff, false);
+			alinks[i].hzTagged = true;
+			++x;
+		}
+	}
+	debug('tagged '+x+' links');
+}
+var domo = new MutationObserver(hzTag);
+domo.observe(document.documentElement,{characterData:true,childlist:true,subtree:true});
+window.addEventListener('load', hzTag);
