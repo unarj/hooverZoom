@@ -46,8 +46,8 @@ function keyPress(e){
 	}
 }
 
-var parser = new DOMParser();
 var xmlr = new XMLHttpRequest();
+xmlr.parser = new DOMParser();
 xmlr.albumAdd = function(src){
 	if(this.orig == curUrl){
 		debug('album add: '+src);
@@ -60,23 +60,22 @@ xmlr.albumAdd = function(src){
 		album.push(src);
 	}
 }
-xmlr.checkFor = ['og:video:secure_url', 'og:video:url', 'og:video', 'og:image:secure_url', 'og:image:url', 'og:image'];
+xmlr.scrapeFor = ['og:video:secure_url', 'og:video:url', 'og:video', 'og:image:secure_url', 'og:image:url', 'og:image']
 xmlr.onerror = function(e){ debug(this.response) }
 xmlr.scrape = function(e){
 	debug('scrape: '+this.orig)
-	var data = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('meta');
-	for(var i=0; i<this.checkFor.length; ++i){
-		if(!hit){
-			for(var j=0; j<data.length; ++j){
-				if(data[j].getAttribute('property') == this.checkFor[i]){
-					var x = data[j].getAttribute('content');
-					if(scrapeListBlock && scrapeListBlock.test(x)){ debug('blocked media: '+x) }
-					else{ this.albumAdd(x) }
-				}
+	var data = this.parser.parseFromString(this.responseText,'text/html').getElementsByTagName('meta');
+	for(var i=0; i<this.scrapeFor.length; ++i){
+		for(var j=0; j<data.length; ++j){
+			if(data[j].getAttribute('property') == this.scrapeFor[i]){
+				var x = data[j].getAttribute('content');
+				if(scrapeListBlock && scrapeListBlock.test(x)){ debug('blocked media: '+x) }
+				else{ this.albumAdd(x) }
 			}
-			if(album.length){
-				hzPanel.loadImg(this.orig, album[0]);
-			}
+		}
+		if(album.length){
+			hzPanel.loadImg(this.orig, album[0]);
+			return;
 		}
 	}
 }
@@ -95,6 +94,7 @@ xmlr.scrapeImgur = function(e){
 	if(album.length){
 		hzPanel.loadImg(this.orig, album[0]);
 	}else{
+		debug('scrape imgur: no hits');
 		hzScrape(this.orig);
 	}
 }
@@ -107,13 +107,13 @@ xmlr.scrapeReddit = function(e){
 	}else if(d.url){
 		hzPanel.loadImg(this.orig, d.url)
 	}else{ 
-		debug('reddit: no hits');
+		debug('scrape reddit: no hits');
 		hzScrape(this.orig);
 	}
 }
 xmlr.scrapeVReddit = function(e){
 	debug('scrape vreddit: '+this.orig);
-	var data = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('link');
+	var data = this.parser.parseFromString(this.responseText,'text/html').getElementsByTagName('link');
 	for(var i=0; i<data.length; ++i){
 		if(data[i].rel == 'canonical'){
 			xmlr.open('GET', data[i].href+'.json');
@@ -124,25 +124,23 @@ xmlr.scrapeVReddit = function(e){
 }
 xmlr.scrapeTinypic = function(e){
 	debug('scrape tinypic: '+this.orig);
-	var d = parser.parseFromString(this.responseText,'text/html').getElementsByTagName('input');
+	var d = this.parser.parseFromString(this.responseText,'text/html').getElementsByTagName('input');
 	for(var i=0; i<d.length; ++i){
 		if(d[i].getAttribute('id') == 'direct-url'){
 			this.albumAdd(d[i].getAttribute('value'));
 		}
 	}
 	if(album.length){
-		debug('tinypic: load done');
 		hzPanel.loadImg(this.orig, album[0]);
 	}else{
-		debug('tinypic: no hits');
+		debug('scrape tinypic: no hits');
 		hzScrape(this.orig);
 	}
 }
 function hzScrape(url, src){
 	if(!src){ src = url }
-	debug('scraping: '+url)
-	xmlr.open('GET', url);
-	xmlr.orig = src;
+	xmlr.open('GET', src);
+	xmlr.orig = url;
 	xmlr.onload = xmlr.scrape;
 	xmlr.send();
 }
@@ -220,7 +218,7 @@ function mouseOn(e){
 				}
 				break;
 		}
-		if(scrapeList.test(target.hostname)){ console.log('hit'); hzScrape(target.href) }
+		if(scrapeList.test(target.hostname)){ hzScrape(target.href) }
 		hzPanel.loadImg(target.href);
 	}
 }
