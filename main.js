@@ -21,7 +21,7 @@ const sto = browser.storage.sync;
 function checkPrefs(p){
 	if(!p){ var p = {} }
 	var	op = JSON.stringify(prefs);
-	for(var k in defs){
+	for(k of defs){
 		prefs[k] = (p[k] == undefined) ? defs[k] : p[k]
 		debug(k+" : "+p[k])
 	}
