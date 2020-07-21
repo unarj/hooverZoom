@@ -64,8 +64,8 @@ xmlr.onerror = function(e){ debug(this.response) }
 xmlr.scrape = function(e){
 	debug('scrape: '+this.orig)
 	var data = this.parser.parseFromString(this.responseText,'text/html').getElementsByTagName('meta');
-	for(i of ['og:video:secure_url','og:video:url','og:video','og:image:secure_url','og:image:url','og:image']){
-		for(d of data){
+	for(let i of ['og:video:secure_url','og:video:url','og:video','og:image:secure_url','og:image:url','og:image']){
+		for(let d of data){
 			if(d.getAttribute('property') == i){
 				var x = d.getAttribute('content');
 				if(scrapeListBlock && scrapeListBlock.test(x)){ debug('blocked media: '+x) }
@@ -82,7 +82,7 @@ xmlr.scrapeImgur = function(e){
 	debug('scrape imgur: '+this.orig);
 	var r = JSON.parse(this.response);
 	if(r.data.length){
-		for(d of r.data){
+		for(let d of r.data){
 			if(d.animated){ this.albumAdd(d.mp4) }
 			else if(d.link){ this.albumAdd(d.link) }
 		}
@@ -112,7 +112,7 @@ xmlr.scrapeReddit = function(e){
 xmlr.scrapeVReddit = function(e){
 	debug('scrape vreddit: '+this.orig);
 	var data = this.parser.parseFromString(this.responseText,'text/html').getElementsByTagName('link');
-	for(d of data){
+	for(let d of data){
 		if(d.rel == 'canonical'){
 			xmlr.open('GET', d.href+'.json');
 			xmlr.onload = xmlr.scrapeReddit;
@@ -123,7 +123,7 @@ xmlr.scrapeVReddit = function(e){
 xmlr.scrapeTinypic = function(e){
 	debug('scrape tinypic: '+this.orig);
 	var data = this.parser.parseFromString(this.responseText,'text/html').getElementsByTagName('input');
-	for(d of data){
+	for(let d of data){
 		if(d.getAttribute('id') == 'direct-url'){ this.albumAdd(d.getAttribute('value')) }
 	}
 	if(album.length){
@@ -324,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function(e){
 function hzTag(){
 	var alinks = document.getElementsByTagName('a');
 	var x = 0;
-	for(a of alinks){
+	for(let a of alinks){
 		if(!a.hzTagged && !/^javascript:/.test(a.href)){
 			a.addEventListener('mouseenter', mouseOn, false);
 			a.addEventListener('mouseleave', mouseOff, false);
