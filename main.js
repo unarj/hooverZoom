@@ -10,7 +10,7 @@ const defs = {
 	hTinypic:true,
 	keys:true,
 	maxSize:'95',
-	scrapeList:'500px.com, artstation.com, craigslist.org, deviantart.com, dropbox.com, explosm.net, goo.gl, ibb.co, imdb.com, imgflip.com, imgtc.com, facebook.com, fav.me, flic.kr, flickr.com, gifly.org, gfycat.com, giphy.com, imgly.org, imly.me, instagram.com, livememe.com, makeameme.org, redgifs.com, streamable.com, tumblr.com, twitter.com, vid.me, vidble.com, vine.co, wikipedia.org',
+	scrapeList:'500px.com, artstation.com, craigslist.org, deviantart.com, dropbox.com, explosm.net, facebook.com, fav.me, flic.kr, flickr.com, gfycat.com, gifly.org, giphy.com, goo.gl, ibb.co, imdb.com, imgflip.com, imgly.org, imgtc.com, imly.me, instagram.com, livememe.com, makeameme.org, redgifs.com, streamable.com, tumblr.com, twitter.com, vid.me, vidble.com, vine.co, wikipedia.org',
 	scrapeListBlock:'icon.png, profile_images',
 	srcBlock:'craigslist.org, flickr.com, imgur.com',
 	textLoc:'bottom:6px; left:50%;'
