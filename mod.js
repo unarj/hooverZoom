@@ -100,7 +100,12 @@ xmlr.scrapeReddit = function(e){
 	debug('scrape reddit: '+this.orig);
 	var r = JSON.parse(this.response);
 	var d = r[0].data.children[0].data;
-	if(d.media){
+	for(let i in d.media_metadata){
+		this.albumAdd(d.media_metadata[i].p[0].u.split('?')[0].replace('preview','i'));
+	}
+	if(album.length){
+		hzPanel.loadImg(this.orig, album[0])
+	}else if(d.media){
 		hzPanel.loadImg(this.orig, d.media.reddit_video.fallback_url.split('?')[0])
 	}else if(d.url){
 		hzPanel.loadImg(this.orig, d.url)
