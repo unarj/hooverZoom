@@ -60,7 +60,7 @@ xmlr.albumAdd = function(src){
 		album.push(src);
 	}
 }
-xmlr.onerror = function(e){ debug(this.response) }
+xmlr.onerror = function(e){ debug('scrape error :'+this.response) }
 xmlr.scrape = function(e){
 	debug('scrape: '+this.orig)
 	var data = this.parser.parseFromString(this.responseText,'text/html').getElementsByTagName('meta');
@@ -106,7 +106,7 @@ xmlr.scrapeReddit = function(e){
 	if(album.length){
 		hzPanel.loadImg(this.orig, album[0])
 	}else if(d.media){
-		hzPanel.loadImg(this.orig, d.media.reddit_video.fallback_url.split('?')[0])
+		hzPanel.loadVid(this.orig, d.media.reddit_video.fallback_url.split('?')[0])
 	}else if(d.url){
 		hzPanel.loadImg(this.orig, d.url)
 	}else{ 
