@@ -1,36 +1,52 @@
-function debug(s){ if(prefs.debug){ console.log('mod: '+s) }}
+function debug(s){ if(hzPrefs.debug){ console.log('mod: '+s) }}
 const port = browser.runtime.connect();
 
-var prefs={}, scrapeList, scrapeListBlock, srcBlock
+var hzPrefs={}, hzScrapeList='', hzScrapeListBlock='';
 port.onMessage.addListener(function(m){
 	if(m.prefs){ 
 		debug('prefs loading');
-		prefs = m.prefs;
-		if(prefs.scrapeList){ scrapeList = RegExp(prefs.scrapeList.replace(/ /g,'').replace(/,/g,'|')),'i' }else{ scrapeList = RegExp('^\s\S') }
-		debug('scrapeList: '+scrapeList);
-		if(prefs.scrapeListBlock){ scrapeListBlock = RegExp(prefs.scrapeListBlock.replace(/ /g,'').replace(/,/g,'|')),'i' }else{ scrapeListBlock = RegExp('^\s\S') }
-		debug('scrapeListBlock: '+scrapeListBlock);
-		prefs.enabled = true;
-		if(prefs.srcBlock && RegExp(prefs.srcBlock.replace(/ /g,'').replace(/,/g,'|'),'i').test(location.hostname)){
+		hzPrefs = m.prefs;
+		if(hzPrefs.scrapeList){ hzScrapeList = RegExp(hzPrefs.scrapeList.replace(/ /g,'').replace(/,/g,'|')),'i' }else{ hzScrapeList = RegExp('^\s\S') }
+		debug('scrapeList: '+hzScrapeList);
+		if(hzPrefs.scrapeListBlock){ hzScrapeListBlock = RegExp(hzPrefs.scrapeListBlock.replace(/ /g,'').replace(/,/g,'|')),'i' }else{ hzScrapeListBlock = RegExp('^\s\S') }
+		debug('scrapeListBlock: '+hzScrapeListBlock);
+		hzPrefs.enabled = true;
+		if(hzPrefs.srcBlock && RegExp(hzPrefs.srcBlock.replace(/ /g,'').replace(/,/g,'|'),'i').test(location.hostname)){
 			debug('page URL found in block list');
-			prefs.enabled = false;
+			hzPrefs.enabled = false;
 		}
 	}
 });
 port.postMessage({ req:'getPrefs' });
 
+var hzAlbum=[], hzAlbumIndex=0;
+function hzWheel(e){
+	if(hzAlbum.length > 1){
+		e.preventDefault();
+		if(e.deltaY > 0){ 
+			debug('scroll next: '+(hzAlbumIndex+1)+'/'+hzAlbum.length);
+			++hzAlbumIndex;
+			if(hzAlbumIndex > hzAlbum.length - 1){ hzAlbumIndex = 0 }
+		}else if(e.deltaY < 0){
+			debug('scroll prev: '+(hzAlbumIndex+1)+'/'+hzAlbum.length);
+			--hzAlbumIndex;
+			if(hzAlbumIndex < 0){ hzAlbumIndex = hzAlbum.length - 1 }
+		}
+		hzPanel.loadImg(curUrl, hzAlbum[hzAlbumIndex]);
+	}
+}
 function keyPress(e){
-	if(prefs.keys){
+	if(hzPrefs.keys){
 		if(e.ctrlKey && e.altKey && e.keyCode == 90){
-			if(prefs.enabled){
+			if(hzPrefs.enabled){
 				debug('disabled');
-				prefs.enabled = false;
+				hzPrefs.enabled = false;
 				hzPanel.hide();
 			}else{ 
 				debug('enabled');
-				prefs.enabled = true;
+				hzPrefs.enabled = true;
 			}
-		}else if(prefs.enabled){
+		}else if(hzPrefs.enabled){
 			if(!(e.ctrlKey || e.shiftKey || e.altKey || e.metaKey)){
 				switch(e.keyCode){
 					case 37: //left
@@ -40,15 +56,15 @@ function keyPress(e){
 						e.deltaY = 1;
 						break;
 				}
-				if(e.deltaY){ wheel(e) }
+				if(e.deltaY){ hzWheel(e) }
 			}
 		}
 	}
 }
 
-var xmlr = new XMLHttpRequest();
-xmlr.parser = new DOMParser();
-xmlr.albumAdd = function(src){
+var hzXmlr = new XMLHttpRequest();
+hzXmlr.parser = new DOMParser();
+hzXmlr.albumAdd = function(src){
 	if(this.orig == curUrl){
 		debug('album add: '+src);
 		setTimeout(function(){
@@ -56,29 +72,29 @@ xmlr.albumAdd = function(src){
 			if(/mp4|webm/i.test(src.split('.').pop())){	e = document.createElement('video')	}
 			else{ e = document.createElement('img') }
 			e.src = src;
-		}, album.length * 500);
-		album.push(src);
+		}, hzAlbum.length * 500);
+		hzAlbum.push(src);
 	}
 }
-xmlr.onerror = function(e){ debug('scrape error :'+this.response) }
-xmlr.scrape = function(e){
+hzXmlr.onerror = function(e){ debug('scrape error :'+this.response) }
+hzXmlr.scrape = function(e){
 	debug('scrape: '+this.orig)
 	var data = this.parser.parseFromString(this.responseText,'text/html').getElementsByTagName('meta');
 	for(let i of ['og:video:secure_url','og:video:url','og:video','og:image:secure_url','og:image:url','og:image']){
 		for(let d of data){
 			if(d.getAttribute('property') == i){
 				var x = d.getAttribute('content');
-				if(scrapeListBlock && scrapeListBlock.test(x)){ debug('blocked media: '+x) }
+				if(hzScrapeListBlock && hzScrapeListBlock.test(x)){ debug('blocked media: '+x) }
 				else{ this.albumAdd(x) }
 			}
 		}
-		if(album.length){
-			hzPanel.loadImg(this.orig, album[0]);
+		if(hzAlbum.length){
+			hzPanel.loadImg(this.orig, hzAlbum[0]);
 			return;
 		}
 	}
 }
-xmlr.scrapeImgur = function(e){
+hzXmlr.scrapeImgur = function(e){
 	debug('scrape imgur: '+this.orig);
 	var r = JSON.parse(this.response);
 	if(r.data.length){
@@ -94,17 +110,17 @@ xmlr.scrapeImgur = function(e){
 			hzScrape(this.orig);
 		}
 	}
-	if(album.length){ hzPanel.loadImg(this.orig, album[0]) }
+	if(hzAlbum.length){ hzPanel.loadImg(this.orig, hzAlbum[0]) }
 }
-xmlr.scrapeReddit = function(e){
+hzXmlr.scrapeReddit = function(e){
 	debug('scrape reddit: '+this.orig);
 	var r = JSON.parse(this.response);
 	var d = r[0].data.children[0].data;
 	for(let i in d.media_metadata){
 		this.albumAdd(d.media_metadata[i].p[0].u.split('?')[0].replace('preview','i'));
 	}
-	if(album.length){
-		hzPanel.loadImg(this.orig, album[0])
+	if(hzAlbum.length){
+		hzPanel.loadImg(this.orig, hzAlbum[0])
 	}else if(d.media){
 		hzPanel.loadVid(this.orig, d.media.reddit_video.fallback_url.split('?')[0])
 	}else if(d.url){
@@ -114,25 +130,25 @@ xmlr.scrapeReddit = function(e){
 		hzScrape(this.orig);
 	}
 }
-xmlr.scrapeVReddit = function(e){
+hzXmlr.scrapeVReddit = function(e){
 	debug('scrape vreddit: '+this.orig);
 	var data = this.parser.parseFromString(this.responseText,'text/html').getElementsByTagName('link');
 	for(let d of data){
 		if(d.rel == 'canonical'){
-			xmlr.open('GET', d.href+'.json');
-			xmlr.onload = xmlr.scrapeReddit;
-			xmlr.send();
+			hzXmlr.open('GET', d.href+'.json');
+			hzXmlr.onload = hzXmlr.scrapeReddit;
+			hzXmlr.send();
 		}
 	}
 }
-xmlr.scrapeTinypic = function(e){
+hzXmlr.scrapeTinypic = function(e){
 	debug('scrape tinypic: '+this.orig);
 	var data = this.parser.parseFromString(this.responseText,'text/html').getElementsByTagName('input');
 	for(let d of data){
 		if(d.getAttribute('id') == 'direct-url'){ this.albumAdd(d.getAttribute('value')) }
 	}
-	if(album.length){
-		hzPanel.loadImg(this.orig, album[0]);
+	if(hzAlbum.length){
+		hzPanel.loadImg(this.orig, hzAlbum[0]);
 	}else{
 		debug('scrape tinypic: no hits');
 		hzScrape(this.orig);
@@ -140,104 +156,87 @@ xmlr.scrapeTinypic = function(e){
 }
 function hzScrape(url, src){
 	if(!src){ src = url }
-	xmlr.open('GET', src);
-	xmlr.orig = url;
-	xmlr.onload = xmlr.scrape;
-	xmlr.send();
+	hzXmlr.open('GET', src);
+	hzXmlr.orig = url;
+	hzXmlr.onload = hzXmlr.scrape;
+	hzXmlr.send();
 }
 
-function wheel(e){
-	if(album.length > 1){
-		e.preventDefault();
-		e.stopPropagation();
-		if(e.deltaY > 0){ 
-			debug('scroll next: '+(albumIndex+1)+'/'+album.length);
-			++albumIndex;
-			if(albumIndex > album.length - 1){ albumIndex = 0 }
-		}else if(e.deltaY < 0){
-			debug('scroll prev: '+(albumIndex+1)+'/'+album.length);
-			--albumIndex;
-			if(albumIndex < 0){ albumIndex = album.length - 1 }
-		}
-		hzPanel.loadImg(curUrl, album[albumIndex]);
-	}
-}
-
-var album=[], albumIndex=0, curUrl='', mark, target = document.createElement('a');
-function mouseOn(e){
-	if(prefs.enabled){
+var curUrl='', mark='', hzTarget = document.createElement('a');
+function hzMouseOn(e){
+	if(hzPrefs.enabled){
 		mark = new Date().getTime();
 		curUrl = e.target.toString();
-		target.href = curUrl;
-		var p = target.hostname.split('.').reverse();
+		hzTarget.href = curUrl;
+		var p = hzTarget.hostname.split('.').reverse();
 		switch((p[1]+'.'+p[0]).toLowerCase()){
 			case 'imgur.com':
-				if(prefs.hImgur){
-					p = target.pathname.split('/');
+				if(hzPrefs.hImgur){
+					p = hzTarget.pathname.split('/');
 					switch(p[1].toLowerCase()){
 						case 'a':
-							target.href = 'https://api.imgur.com/3/album/'+p[2]+'/images';
+							hzTarget.href = 'https://api.imgur.com/3/album/'+p[2]+'/images';
 							break;
 						case 'gallery':
-							target.href = 'https://api.imgur.com/3/gallery/'+p[2]+'/images';
+							hzTarget.href = 'https://api.imgur.com/3/gallery/'+p[2]+'/images';
 							break;
 						case 'r': //doesn't seem to work, Imgur API returns bad data...
-							target.href = 'https://api.imgur.com/3/gallery/r/'+p[2]+'/'+p[3];
+							hzTarget.href = 'https://api.imgur.com/3/gallery/r/'+p[2]+'/'+p[3];
 							break;
 						default:
-							target.href = 'https://api.imgur.com/3/image/'+p.pop().split('.')[0];
+							hzTarget.href = 'https://api.imgur.com/3/image/'+p.pop().split('.')[0];
 					}
-					xmlr.open('GET', target.href);
-					xmlr.orig = curUrl;
-					xmlr.setRequestHeader('Authorization','Client-ID a70d05102a4b4f7');
-					xmlr.onload = xmlr.scrapeImgur;
-					xmlr.send();
+					hzXmlr.open('GET', hzTarget.href);
+					hzXmlr.orig = curUrl;
+					hzXmlr.setRequestHeader('Authorization','Client-ID a70d05102a4b4f7');
+					hzXmlr.onload = hzXmlr.scrapeImgur;
+					hzXmlr.send();
 				}
 				break;
 			case 'redd.it':
 			case 'reddit.com':
-				if(prefs.hReddit){
+				if(hzPrefs.hReddit){
 					if(p[2] == 'v'){
-						xmlr.open('GET', target.href);
-						xmlr.orig = curUrl;
-						xmlr.onload = xmlr.scrapeVReddit;
-						xmlr.send();
+						hzXmlr.open('GET', hzTarget.href);
+						hzXmlr.orig = curUrl;
+						hzXmlr.onload = hzXmlr.scrapeVReddit;
+						hzXmlr.send();
 					}else{
-						xmlr.open('GET', target.href+'.json');
-						xmlr.orig = curUrl;
-						xmlr.onload = xmlr.scrapeReddit;
-						xmlr.send();
+						hzXmlr.open('GET', hzTarget.href+'.json');
+						hzXmlr.orig = curUrl;
+						hzXmlr.onload = hzXmlr.scrapeReddit;
+						hzXmlr.send();
 					}
 				}
 				break;
 			case 'tinypic.com':
-				if(prefs.hTinypic){
-					xmlr.open('GET', target.href);
-					xmlr.orig = curUrl;
-					xmlr.onload = xmlr.scrapeTinypic;
-					xmlr.send();
+				if(hzPrefs.hTinypic){
+					hzXmlr.open('GET', hzTarget.href);
+					hzXmlr.orig = curUrl;
+					hzXmlr.onload = hzXmlr.scrapeTinypic;
+					hzXmlr.send();
 				}
 				break;
 		}
-		if(scrapeList.test(target.hostname)){ hzScrape(target.href) }
-		hzPanel.loadImg(target.href);
+		if(hzScrapeList.test(hzTarget.hostname)){ hzScrape(hzTarget.href) }
+		hzPanel.loadImg(hzTarget.href);
 	}
 }
-function mouseOff(e){
-	clearTimeout(wait);
-	xmlr.abort();
+function hzMouseOff(e){
+	clearTimeout(hzWait);
+	hzXmlr.abort();
 	curUrl = '';
 	hzPanel.hide();
-	album = [];
-	albumIndex = 0;
+	hzAlbum = [];
+	hzAlbumIndex = 0;
 }
 
-var hzPanel, wait;
+var hzPanel, hzWait;
 document.addEventListener('DOMContentLoaded', function(e){
 	hzPanel = document.createElement('div');
 	hzPanel.id = 'hzPanel';
 	hzPanel.show = function(width, height){
-		var x=width, y=height, r=window.devicePixelRatio*(prefs.maxSize/100), maxX=window.innerWidth*r, maxY=window.innerHeight*r;
+		var x=width, y=height, r=window.devicePixelRatio*(hzPrefs.maxSize/100), maxX=window.innerWidth*r, maxY=window.innerHeight*r;
 		if((x > maxX) || (y > maxY)){
 			var rX=maxX/x, rY=maxY/y;
 			if(rX < rY){
@@ -252,26 +251,26 @@ document.addEventListener('DOMContentLoaded', function(e){
 		hzPanel.style.height = y+'px';
 		hzPanel.style.marginLeft = Math.floor(x / -2)+'px';
 		hzPanel.style.marginTop = Math.floor(y / -2)+'px';
-		if(album.length > 1){
+		if(hzAlbum.length > 1){
 			var d = document.createElement('div');
-			d.appendChild(document.createTextNode((albumIndex+1)+'/'+album.length));
-			d.setAttribute('style', prefs.textLoc);
+			d.appendChild(document.createTextNode((hzAlbumIndex+1)+'/'+hzAlbum.length));
+			d.setAttribute('style', hzPrefs.textLoc);
 			hzPanel.appendChild(d);
 		}
 		if(hzPanel.style.display != 'block'){
 			debug('hzPanel show: '+x+','+y);
 			hzPanel.style.display = 'block';
-			document.addEventListener('scroll', mouseOff, false);
-			document.addEventListener('wheel', wheel, false);
+			document.addEventListener('scroll', hzMouseOff);
+			document.addEventListener('wheel', hzWheel, {passive:false});
 		}
-		if(prefs.addHist > 0){ wait = setTimeout(function(){ port.postMessage({ req:'addHist', url:curUrl })}, prefs.addHist) }
+		if(hzPrefs.addHist > 0){ hzWait = setTimeout(function(){ port.postMessage({ req:'addHist', url:curUrl })}, hzPrefs.addHist) }
 	}
 	hzPanel.hide = function(){
 		if(hzPanel.style.display != 'none'){
 			debug('hzPanel hide');
 			hzPanel.style.display = 'none';
-			document.removeEventListener('scroll', mouseOff, false);
-			document.removeEventListener('wheel', wheel, false);
+			document.removeEventListener('scroll', hzMouseOff);
+			document.removeEventListener('wheel', hzWheel);
 		}
 	}
 	hzPanel.loadImg = function(url, src){
@@ -286,9 +285,9 @@ document.addEventListener('DOMContentLoaded', function(e){
 	}
 	hzPanel.showImg = function(url, src){
 		if(url == curUrl){
-			var x = prefs.delay - (new Date().getTime() - mark);
+			var x = hzPrefs.delay - (new Date().getTime() - mark);
 			if(x > 0){
-				wait = setTimeout(function(){ hzPanel.showImg(url, src) }, x);
+				hzWait = setTimeout(function(){ hzPanel.showImg(url, src) }, x);
 			}else{
 				debug('img show: '+src);
 				while(hzPanel.lastChild){ hzPanel.removeChild(hzPanel.lastChild) }
@@ -309,9 +308,9 @@ document.addEventListener('DOMContentLoaded', function(e){
 	}
 	hzPanel.showVid = function(url, src){
 		if(url == curUrl){
-			var x = prefs.delay - (new Date().getTime() - mark);
+			var x = hzPrefs.delay - (new Date().getTime() - mark);
 			if(x > 0){
-				wait = setTimeout(function(){ hzPanel.showVid(url, src) }, x);
+				hzWait = setTimeout(function(){ hzPanel.showVid(url, src) }, x);
 			}else{
 				debug('vid show: '+src);
 				while(hzPanel.lastChild){ hzPanel.removeChild(hzPanel.lastChild) }
@@ -322,7 +321,6 @@ document.addEventListener('DOMContentLoaded', function(e){
 		}
 	}
 	document.body.appendChild(hzPanel);
-
 	document.addEventListener('keydown', keyPress, false);
 });
 
@@ -331,8 +329,8 @@ function hzTag(){
 	var x = 0;
 	for(let a of alinks){
 		if(!a.hzTagged && !/^javascript:/.test(a.href)){
-			a.addEventListener('mouseenter', mouseOn, false);
-			a.addEventListener('mouseleave', mouseOff, false);
+			a.addEventListener('mouseenter', hzMouseOn, false);
+			a.addEventListener('mouseleave', hzMouseOff, false);
 			a.hzTagged = true;
 			++x;
 		}
