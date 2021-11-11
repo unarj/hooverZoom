@@ -1,19 +1,19 @@
 var prefs = {};
-function debug(s){if(prefs.debug){ console.log('options: '+s) }}
+function hzDebug(s){if(prefs.debug){ window.console.log('options: '+s) }}
 const port = browser.runtime.connect();
 port.onMessage.addListener(function(m){
 	if(m.prefs){ 
 		prefs = m.prefs;
-		debug('prefs loaded');
+		hzDebug('prefs loaded');
 		refresh();
 	}
-}, debug);
+}, hzDebug);
 port.postMessage({ req:'getPrefs' });
 
 var addHist, addHistOut, debugPref, delay, delayOut, hImgur, hReddit, hTinypic, keys, maxSize, maxSizeOut, scrapeList, srcBlock, textLoc;
 
 function refresh(){
-	debug('refreshing');
+	hzDebug('refreshing');
 	addHist.value = prefs.addHist;
 	addHistOut.value = prefs.addHist+'ms';
 	debugPref.checked = prefs.debug;

@@ -1,4 +1,4 @@
-function debug(s){ if(prefs.debug){ console.log('main: '+s) }}
+function hzDebug(s){ if(prefs.debug){ window.console.log('main: '+s) }}
 
 const defs = {
 	addHist:'500',
@@ -23,15 +23,15 @@ function checkPrefs(p){
 	var	op = JSON.stringify(prefs);
 	for(let [k,v] of Object.entries(defs)){
 		prefs[k] = (p[k] == undefined) ? v : p[k]
-		debug(k+" : "+prefs[k])
+		hzDebug(k+" : "+prefs[k])
 	}
 	if(JSON.stringify(prefs) != op){
-		debug('prefs have changed');
+		hzDebug('prefs have changed');
 		ports.forEach(function(p){ p.postMessage({ 'prefs':prefs }) });
 		var w = sto.set({ 'prefs':prefs });
-		w.then(function(){ debug('prefs saved to storage') });
+		w.then(function(){ hzDebug('prefs saved to storage') });
 	}else{
-		debug('prefs checked, no changes');
+		hzDebug('prefs checked, no changes');
 	}
 }
 
@@ -40,10 +40,10 @@ var portsNum = 0;
 browser.runtime.onConnect.addListener(function(p){
 	p.num = portsNum;
 	p.onMessage.addListener(function(m){
-		debug('req: '+m.req);
+		hzDebug('req: '+m.req);
 		switch(m.req){
 			case 'addHist':
-				debug('adding to history: '+m.url);
+				hzDebug('adding to history: '+m.url);
 				browser.history.addUrl({ url:m.url });
 				break;
 			case 'getPrefs':
@@ -60,11 +60,11 @@ browser.runtime.onConnect.addListener(function(p){
 				checkPrefs(m.prefs);
 				break;
 			default:
-				debug('unknown request');
+				hzDebug('unknown request');
 		}
 	});
 	p.onDisconnect.addListener(function(){ 
-		debug('port disconnected: '+p.num);
+		hzDebug('port disconnected: '+p.num);
 		ports.splice(ports.findIndex(i => i.num == p.num), 1);
 	});
 	ports.push(p);
