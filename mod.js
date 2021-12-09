@@ -348,3 +348,6 @@ function hzTag(){
 var domo = new MutationObserver(hzTag);
 domo.observe(document.documentElement,{characterData:true,childlist:true,subtree:true});
 window.addEventListener('load', hzTag);
+window.addEventListener('loadend', hzTag);
+window.addEventListener('loadstart', hzTag);
+window.addEventListener('progress', hzTag);
