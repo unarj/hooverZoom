@@ -69,8 +69,14 @@ hzXmlr.albumAdd = function(src){
 		hzDebug('album add: '+src);
 		setTimeout(function(){
 			var e;
-			if(/mp4|webm/i.test(src.split('.').pop())){	e = document.createElement('video')	}
-			else{ e = document.createElement('img') }
+			if(/mp4|webm/i.test(src.split('.').pop())){
+				e = document.createElement('video');
+				e.referrerPolicy = 'no-referrer';
+			}
+			else{
+				e = document.createElement('img');
+				e.referrerPolicy = 'no-referrer';
+			}
 			e.src = src;
 		}, hzAlbum.length * 500);
 		hzAlbum.push(src);
@@ -287,6 +293,7 @@ document.addEventListener('DOMContentLoaded', function(e){
 		else{
 			hzDebug('img load: '+src);
 			hzPanel.img = document.createElement('img');
+			hzPanel.img.referrerPolicy = 'no-referrer';
 			hzPanel.img.addEventListener('load', function(){ hzPanel.showImg(url, src) });
 			hzPanel.img.src = src;
 		}
@@ -307,6 +314,7 @@ document.addEventListener('DOMContentLoaded', function(e){
 	hzPanel.loadVid = function(url, src){
 		hzDebug('vid load: '+src);
 		hzPanel.vid = document.createElement('video');
+		hzPanel.vid.referrerPolicy = 'no-referrer';
 		hzPanel.vid.addEventListener('canplaythrough', function(){ hzPanel.showVid(url, src) });
 		hzPanel.vid.autoplay = true;
 		hzPanel.vid.loop = true;
