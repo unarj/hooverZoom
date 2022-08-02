@@ -341,17 +341,19 @@ document.addEventListener('DOMContentLoaded', function(e){
 });
 
 function hzTag(){
-	var alinks = document.getElementsByTagName('a');
-	var x = 0;
-	for(let a of alinks){
-		if(!a.hzTagged && !/^javascript:/.test(a.href)){
-			a.addEventListener('mouseenter', hzMouseOn, false);
-			a.addEventListener('mouseleave', hzMouseOff, false);
-			a.hzTagged = true;
-			++x;
+	if(hzPrefs.enabled){
+		var alinks = document.getElementsByTagName('a');
+		var x = 0;
+		for(let a of alinks){
+			if(!a.hzTagged && !/^javascript:/.test(a.href)){
+				a.addEventListener('mouseenter', hzMouseOn, false);
+				a.addEventListener('mouseleave', hzMouseOff, false);
+				a.hzTagged = true;
+				++x;
+			}
 		}
+		hzDebug('tagged '+x+' links');
 	}
-	hzDebug('tagged '+x+' links');
 }
 var domo = new MutationObserver(hzTag);
 domo.observe(document.documentElement,{characterData:true,childlist:true,subtree:true});
