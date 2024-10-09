@@ -71,7 +71,7 @@ hzXmlr.albumAdd = function(src){
 			var e;
 			if(/mp4|webm/i.test(src.split('.').pop())){
 				e = document.createElement('video');
-				e.referrerPolicy = 'no-referrer';
+				e.crossorigin = '';
 			}
 			else{
 				e = document.createElement('img');
@@ -121,19 +121,22 @@ hzXmlr.scrapeImgur = function(e){
 hzXmlr.scrapeReddit = function(e){
 	hzDebug('scrape reddit: '+this.responseURL);
 	var r = JSON.parse(this.response);
-	var d = r[0].data.children[0].data;
-	for(let i in d.media_metadata){
-		this.albumAdd(d.media_metadata[i].p[0].u.split('?')[0].replace('preview','i'));
-	}
-	if(hzAlbum.length){
-		hzPanel.loadImg(this.orig, hzAlbum[0])
-	}else if(d.media){
-		hzPanel.loadVid(this.orig, d.media.reddit_video.fallback_url.split('?')[0])
-	}else if(d.url){
-		hzPanel.loadImg(this.orig, d.url)
-	}else{ 
-		hzDebug('scrape reddit: no hits');
-		hzScrape(this.orig);
+	if(r[0]){
+		var d = r[0].data.children[0].data;
+		if(d.gallery_data){
+			for(let i in d.gallery_data.items){
+				hzDebug(d.gallery_data.items[i].media_id);
+				this.albumAdd('https://i.redd.it/'+d.gallery_data.items[i].media_id+'.jpg');
+			}
+			hzPanel.loadImg(this.orig, hzAlbum[0])
+		}else if(d.media){
+			hzPanel.loadVid(this.orig, d.media.reddit_video.fallback_url.split('?')[0])
+		}else if(d.url){
+			hzPanel.loadImg(this.orig, d.url)
+		}else{ 
+			hzDebug('scrape reddit: no hits');
+			hzScrape(this.orig);
+		}
 	}
 }
 hzXmlr.scrapeVReddit = function(e){
@@ -293,8 +296,8 @@ document.addEventListener('DOMContentLoaded', function(e){
 		else{
 			hzDebug('img load: '+src);
 			hzPanel.img = document.createElement('img');
-			hzPanel.img.referrerPolicy = 'no-referrer';
 			hzPanel.img.addEventListener('load', function(){ hzPanel.showImg(url, src) });
+			hzPanel.img.referrerPolicy = 'no-referrer';
 			hzPanel.img.src = src;
 		}
 	}
@@ -314,9 +317,9 @@ document.addEventListener('DOMContentLoaded', function(e){
 	hzPanel.loadVid = function(url, src){
 		hzDebug('vid load: '+src);
 		hzPanel.vid = document.createElement('video');
-		hzPanel.vid.referrerPolicy = 'no-referrer';
 		hzPanel.vid.addEventListener('canplaythrough', function(){ hzPanel.showVid(url, src) });
 		hzPanel.vid.autoplay = true;
+		hzPanel.vid.crossorigin = '';
 		hzPanel.vid.loop = true;
 		hzPanel.vid.muted = true;
 		hzPanel.vid.src = src;
