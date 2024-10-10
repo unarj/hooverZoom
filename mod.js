@@ -24,13 +24,13 @@ function hzWheel(e){
 	if(hzAlbum.length > 1){
 		e.preventDefault();
 		if(e.deltaY > 0){ 
-			hzDebug('scroll next: '+(hzAlbumIndex+1)+'/'+hzAlbum.length);
 			++hzAlbumIndex;
 			if(hzAlbumIndex > hzAlbum.length - 1){ hzAlbumIndex = 0 }
+			hzDebug('scroll next: '+(hzAlbumIndex+1)+'/'+hzAlbum.length);
 		}else if(e.deltaY < 0){
-			hzDebug('scroll prev: '+(hzAlbumIndex+1)+'/'+hzAlbum.length);
 			--hzAlbumIndex;
 			if(hzAlbumIndex < 0){ hzAlbumIndex = hzAlbum.length - 1 }
+			hzDebug('scroll prev: '+(hzAlbumIndex+1)+'/'+hzAlbum.length);
 		}
 		hzPanel.loadImg(curUrl, hzAlbum[hzAlbumIndex]);
 	}
@@ -125,8 +125,7 @@ hzXmlr.scrapeReddit = function(e){
 		var d = r[0].data.children[0].data;
 		if(d.gallery_data){
 			for(let i in d.gallery_data.items){
-				hzDebug(d.gallery_data.items[i].media_id);
-				this.albumAdd('https://i.redd.it/'+d.gallery_data.items[i].media_id+'.jpg');
+				this.albumAdd(d.media_metadata[d.gallery_data.items[i].media_id].p[0].u.split('?')[0].replace('\/preview\.','/i.'));
 			}
 			hzPanel.loadImg(this.orig, hzAlbum[0])
 		}else if(d.media){
