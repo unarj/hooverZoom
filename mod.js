@@ -125,7 +125,7 @@ hzXmlr.scrapeReddit = function(e){
 		var d = r[0].data.children[0].data;
 		if(d.gallery_data){
 			for(let i in d.gallery_data.items){
-				this.albumAdd(d.media_metadata[d.gallery_data.items[i].media_id].p[0].u.split('?')[0].replace('\/preview\.','/i.'));
+				this.albumAdd(d.media_metadata[d.gallery_data.items[i].media_id].s.u.split('?')[0].replace('\/\/preview\.','//i.'));
 			}
 			hzPanel.loadImg(this.orig, hzAlbum[0])
 		}else if(d.media){
