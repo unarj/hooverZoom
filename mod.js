@@ -125,7 +125,14 @@ hzXmlr.scrapeReddit = function(e){
 		var d = r[0].data.children[0].data;
 		if(d.gallery_data){
 			for(let i in d.gallery_data.items){
-				this.albumAdd(d.media_metadata[d.gallery_data.items[i].media_id].s.u.split('?')[0].replace('\/\/preview\.','//i.'));
+				var p = d.media_metadata[d.gallery_data.items[i].media_id];
+				switch(p.m){
+					case 'image/gif':
+						this.albumAdd(p.s.gif);
+						break;
+					default:
+						this.albumAdd(p.s.u.split('?')[0].replace('\/\/preview\.','//i.'));
+				}
 			}
 			hzPanel.loadImg(this.orig, hzAlbum[0])
 		}else if(d.media){
@@ -143,8 +150,8 @@ hzXmlr.scrapeVReddit = function(e){
 	var data = this.parser.parseFromString(this.responseText,'text/html').getElementsByTagName('link');
 	for(let d of data){
 		if(d.rel == 'canonical'){
-			hzXmlr.open('GET', d.href+'.json');
 			hzXmlr.onload = hzXmlr.scrapeReddit;
+			hzXmlr.open('GET', d.href+'.json');
 			hzXmlr.send();
 		}
 	}
@@ -164,9 +171,9 @@ hzXmlr.scrapeTinypic = function(e){
 }
 function hzScrape(url, src){
 	if(!src){ src = url }
+	hzXmlr.onload = hzXmlr.scrape;
 	hzXmlr.open('GET', src);
 	hzXmlr.orig = url;
-	hzXmlr.onload = hzXmlr.scrape;
 	hzXmlr.send();
 }
 
@@ -176,65 +183,66 @@ function hzMouseOn(e){
 		mark = new Date().getTime();
 		curUrl = e.target.toString();
 		hzTarget.href = curUrl;
-		var p = hzTarget.hostname.split('.').reverse();
-		switch((p[1]+'.'+p[0]).toLowerCase()){
-			case 'imgur.com':
-				if(hzPrefs.hImgur){
-					p = hzTarget.pathname.split('/');
-					switch(p[1].toLowerCase()){
-						case 'a':
-							hzXmlr.open('GET', 'https://api.imgur.com/3/album/'+p[2]+'/images');
-							break;
-						case 'gallery':
-							hzXmlr.open('GET', 'https://api.imgur.com/3/gallery/'+p[2]+'/images');
-							break;
-						case 'r': //doesn't seem to work, Imgur API returns bad data...
-							hzXmlr.open('GET', 'https://api.imgur.com/3/gallery/r/'+p[2]+'/'+p[3]);
-							break;
-						default:
-							hzXmlr.open('GET', 'https://api.imgur.com/3/image/'+p.pop().split('.')[0]);
+		var h = hzTarget.hostname.toLowerCase().split('.').reverse();
+		var p = hzTarget.pathname.split('/');
+		out:
+			switch((h[1]+'.'+h[0])){
+				case 'imgur.com':
+					if(hzPrefs.hImgur){
+						switch(p[1]){
+							case 'a':
+								hzXmlr.open('GET', 'https://api.imgur.com/3/album/'+p[2]+'/images');
+								break;
+							case 'gallery':
+								hzXmlr.open('GET', 'https://api.imgur.com/3/gallery/'+p[2]+'/images');
+								break;
+							case 'r': //doesn't seem to work, Imgur API returns bad data...
+								hzXmlr.open('GET', 'https://api.imgur.com/3/gallery/r/'+p[2]+'/'+p[3]);
+								break;
+							default:
+								hzXmlr.open('GET', 'https://api.imgur.com/3/image/'+p.pop().split('.')[0]);
+						}
+						hzXmlr.onload = hzXmlr.scrapeImgur;
+						hzXmlr.orig = curUrl;
+						hzXmlr.setRequestHeader('Authorization','Client-ID a70d05102a4b4f7');
+						hzXmlr.send();
+						break out;
 					}
-					hzXmlr.orig = curUrl;
-					hzXmlr.setRequestHeader('Authorization','Client-ID a70d05102a4b4f7');
-					hzXmlr.onload = hzXmlr.scrapeImgur;
-					hzXmlr.send();
-				}
-				break;
-			case 'redd.it':
-			case 'reddit.com':
-				if(hzPrefs.hReddit){
-					switch(p[2].toLowerCase()){
-						case 'i': //images only no need to scrape
-							break;
-						case 'v':
-							hzXmlr.open('GET', hzTarget.href);
-							hzXmlr.orig = curUrl;
-							hzXmlr.onload = hzXmlr.scrapeVReddit;
-							hzXmlr.send();
-							break;
-						default:
-							p = hzTarget.pathname.split('/');
-							if(p[1].toLowerCase() == 'gallery'){ //hack for seeing into reddit gallery links
-								hzXmlr.open('GET', 'https://www.reddit.com/comments/'+p[2]+'.json');
-							}else{
-								hzXmlr.open('GET', hzTarget.href+'.json');
-							}
-							hzXmlr.orig = curUrl;
-							hzXmlr.onload = hzXmlr.scrapeReddit;
-							hzXmlr.send();
+				case 'redd.it':
+				case 'reddit.com':
+					if(hzPrefs.hReddit){
+						switch(h[2]){
+							case 'i': //direct image links
+								break out;
+							case 'v': //special handler for video links
+								hzXmlr.open('GET', hzTarget.href);
+								hzXmlr.onload = hzXmlr.scrapeVReddit;
+								break;
+							default:
+								switch(p[1]){
+									case 'gallery':
+										hzXmlr.open('GET', 'https://www.reddit.com/comments/'+p[2]+'.json');
+										break;
+									default:
+										hzXmlr.open('GET', hzTarget.href+'.json');
+										hzXmlr.onload = hzXmlr.scrapeReddit;
+								}	
+						}
+						hzXmlr.orig = curUrl;
+						hzXmlr.send();
+						break out;
 					}
-				}
-				break;
-			case 'tinypic.com':
-				if(hzPrefs.hTinypic){
-					hzXmlr.open('GET', hzTarget.href);
-					hzXmlr.orig = curUrl;
-					hzXmlr.onload = hzXmlr.scrapeTinypic;
-					hzXmlr.send();
-				}
-				break;
-		}
-		if(hzScrapeList.test(hzTarget.hostname)){ hzScrape(hzTarget.href) }
+				case 'tinypic.com':
+					if(hzPrefs.hTinypic){
+						hzXmlr.onload = hzXmlr.scrapeTinypic;
+						hzXmlr.open('GET', hzTarget.href);
+						hzXmlr.orig = curUrl;
+						hzXmlr.send();
+						break out;
+					}
+				default:
+					if(hzScrapeList.test(hzTarget.hostname)){ hzScrape(hzTarget.href) }
+			}
 		hzPanel.loadImg(hzTarget.href);
 	}
 }
