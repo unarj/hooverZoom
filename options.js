@@ -25,9 +25,11 @@ function refresh(){
 	keys.checked = prefs.keys;
 	maxSize.value = prefs.maxSize;
 	maxSizeOut.value = prefs.maxSize+'%';
+	regexAutoFormat.checked = prefs.regexAutoFormat;
 	scrapeList.value = prefs.scrapeList;
 	scrapeListBlock.value = prefs.scrapeListBlock;
 	srcBlock.value = prefs.srcBlock;
+	srcBlockInvert.checked = prefs.srcBlockInvert;
 	textLoc.value = prefs.textLoc;
 	debugPref.checked = prefs.debug;
 }
@@ -47,9 +49,11 @@ document.addEventListener('DOMContentLoaded', function(){
 	maxSize = document.getElementById('maxSize');
 	maxSizeOut = document.getElementById('maxSizeOut');
 	maxSize.oninput = function(){ maxSizeOut.value = maxSize.value+'%' }
+	regexAutoFormat = document.getElementById('regexAutoFormat');
 	scrapeList = document.getElementById('scrapeList');
 	scrapeListBlock = document.getElementById('scrapeListBlock');
 	srcBlock = document.getElementById('srcBlock');
+	srcBlockInvert = document.getElementById('srcBlockInvert');
 	textLoc = document.getElementById('textLoc');
 	document.querySelector('form').addEventListener('submit', function(e){
 		e.preventDefault();
@@ -61,9 +65,11 @@ document.addEventListener('DOMContentLoaded', function(){
 		prefs.hTinypic = hTinypic.checked;
 		prefs.keys = keys.checked;
 		prefs.maxSize = maxSize.value;
+		prefs.regexAutoFormat = regexAutoFormat.checked;
 		prefs.scrapeList = scrapeList.value;
 		prefs.scrapeListBlock = scrapeListBlock.value;
 		prefs.srcBlock = srcBlock.value;
+		prefs.srcBlockInvert = srcBlockInvert.checked;
 		prefs.textLoc = textLoc.value;
 		port.postMessage({ req:'savePrefs', 'prefs':prefs })
 	});

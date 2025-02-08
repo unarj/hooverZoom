@@ -2,17 +2,41 @@ function hzDebug(s){ if(hzPrefs.debug){ console.log('mod: '+s) }}
 const port = browser.runtime.connect();
 
 var hzPrefs={}, hzScrapeList='', hzScrapeListBlock='';
-port.onMessage.addListener(function(m){
-	if(m.prefs){ 
+port.onMessage.addListener((m)=>{
+	function rform(x){
+		y = [];
+		x.split(',').forEach(function(i){ if(i=='.'){ y.push(i) }else{ y.push(RegExp.escape(i.trim())+'$') }});
+		return y.join(',');
+	}
+	if(m.prefs){
 		hzDebug('prefs loading');
 		hzPrefs = m.prefs;
-		if(hzPrefs.scrapeList){ hzScrapeList = RegExp(hzPrefs.scrapeList.replace(/ /g,'').replace(/,/g,'|')),'i' }else{ hzScrapeList = RegExp('^\s\S') }
+		if(hzPrefs.scrapeList){
+			if(hzPrefs.regexAutoFormat){ hzPrefs.scrapeList = rform(hzPrefs.scrapeList) }
+			hzScrapeList = RegExp(hzPrefs.scrapeList.replace(/ /g,'').replace(/,/g,'|')),'i'
+		}else{ hzScrapeList = RegExp('^\s\S') }
 		hzDebug('scrapeList: '+hzScrapeList);
-		if(hzPrefs.scrapeListBlock){ hzScrapeListBlock = RegExp(hzPrefs.scrapeListBlock.replace(/ /g,'').replace(/,/g,'|')),'i' }else{ hzScrapeListBlock = RegExp('^\s\S') }
+		if(hzPrefs.scrapeListBlock){
+			if(hzPrefs.regexAutoFormat){ hzPrefs.scrapeListBlock = rform(hzPrefs.scrapeListBlock) }
+			hzScrapeListBlock = RegExp(hzPrefs.scrapeListBlock.replace(/ /g,'').replace(/,/g,'|')),'i' 
+		}else{ hzScrapeListBlock = RegExp('^\s\S') }
 		hzDebug('scrapeListBlock: '+hzScrapeListBlock);
 		hzPrefs.enabled = true;
-		if(hzPrefs.srcBlock && RegExp(hzPrefs.srcBlock.replace(/ /g,'').replace(/,/g,'|'),'i').test(location.hostname)){
-			hzDebug('page URL found in block list');
+		if(hzPrefs.srcBlock){
+			if(hzPrefs.regexAutoFormat){ hzPrefs.srcBlock = rform(hzPrefs.srcBlock) }
+			hzDebug('srcBlock: '+hzPrefs.srcBlock);
+			if(RegExp(hzPrefs.srcBlock.replace(/ /g,'').replace(/,/g,'|'),'i').test(location.hostname)){
+				hzDebug('page URL found in block list');
+				if(!hzPrefs.srcBlockInvert){
+					hzDebug('disabled (normal blocklist)');
+					hzPrefs.enabled = false;
+				}
+			}else if(hzPrefs.srcBlockInvert){
+				hzDebug('disabled (inverted blocklist)');
+				hzPrefs.enabled = false;
+			}
+		}else if(hzPrefs.srcBlockInvert){
+			hzDebug('disabled (inverted empty blocklist)');
 			hzPrefs.enabled = false;
 		}
 	}

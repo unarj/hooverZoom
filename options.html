@@ -47,6 +47,14 @@
 					<td><input id="keys" type="checkbox" title="Check to enable keyboard commands (ctrl+alt+Z to toggle mod on/off for page, left/right arrow navigation in albums)."/></td>
 				</tr>
 				<tr>
+					<td class="label">Regex Auto Format</td>
+					<td><input id="regexAutoFormat" type="checkbox" title="Automatically escapes the lists for exact regex matches, also appends an '$' to the end of each item. Skips single period items (match everything)."/></td>
+				</tr>
+				<tr>
+					<td class="label">Block List Invert</td>
+					<td><input id="srcBlockInvert" type="checkbox" title="Inverts the Block List function so that HooverZoom is _only_ active when a match is made to the list (white list vs black list)"/></td>
+				</tr>
+				<tr>
 					<td class="label">Block List</td>
 					<td><textarea id="srcBlock" cols="54" rows="4" title="HooverZoom will turn itself off while browsing any of these sites, comma separated list will go into a regex test of the hostname."></textarea></td>
 				</tr>
