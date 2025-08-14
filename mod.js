@@ -5,7 +5,7 @@ var hzPrefs={}, hzScrapeList='', hzScrapeListBlock='';
 port.onMessage.addListener((m)=>{
 	function rform(x){
 		y = [];
-		x.split(',').forEach(function(i){ if(i=='.'){ y.push(i) }else{ y.push(RegExp.escape(i.trim())+'$') }});
+		x.split(',').forEach(function(i){ if(i=='.'){ y.push(i) }else{ y.push(i.trim().replace(/[/\-\\^$*+?.()|[\]{}]/g,'\\$&')+'$') }});
 		return y.join(',');
 	}
 	if(m.prefs){
