@@ -125,8 +125,12 @@ hzXmlr.scrape = function(e){
 	}
 }
 hzXmlr.scrapeImgur = function(e){
-	hzDebug('scrape imgur: '+this.responseURL);
-	var r = JSON.parse(this.response);
+	try{
+		var r = JSON.parse(this.response);
+		hzDebug('scrape imgur: '+this.responseURL);
+	}catch(e){
+		hzDebug('scrape imgur: '+this.responseURL+' response is not JSON');
+	}
 	if(r.data.length){
 		for(let d of r.data){
 			if(d.animated){ this.albumAdd(d.mp4) }
@@ -143,9 +147,13 @@ hzXmlr.scrapeImgur = function(e){
 	if(hzAlbum.length){ hzPanel.loadImg(this.orig, hzAlbum[0]) }
 }
 hzXmlr.scrapeReddit = function(e){
-	hzDebug('scrape reddit: '+this.responseURL);
-	var r = JSON.parse(this.response);
-	if(r[0]){
+	try{
+		var r = JSON.parse(this.response);
+		hzDebug('scrape reddit: '+this.responseURL);
+	}catch(e){
+		hzDebug('scrape reddit: '+this.responseURL+' response is not JSON');
+	}
+	if(r){
 		var d = r[0].data.children[0].data;
 		if(d.gallery_data){
 			for(let i in d.gallery_data.items){
@@ -391,7 +399,9 @@ function hzTag(){
 }
 var domo = new MutationObserver(hzTag);
 domo.observe(document.documentElement,{characterData:true,childlist:true,subtree:true});
-window.addEventListener('load', hzTag);
-window.addEventListener('loadend', hzTag);
-window.addEventListener('loadstart', hzTag);
-window.addEventListener('progress', hzTag);
+window.addEventListener('DOMContentLoaded', hzTag);
+//window.addEventListener('load', hzTag);
+//window.addEventListener('loadend', hzTag);
+//window.addEventListener('loadstart', hzTag);
+//window.addEventListener('progress', hzTag);
+//EOF
