@@ -153,7 +153,7 @@ hzXmlr.scrapeReddit = function(e){
 	}catch(e){
 		hzDebug('scrape reddit: '+this.responseURL+' response is not JSON');
 	}
-	if(r && r[0].data.children[0].data){
+	if(r && r[0] && r[0].data.children[0].data){
 		var d = r[0].data.children[0].data;
 		if(d.gallery_data){
 			for(let i in d.gallery_data.items){
@@ -403,9 +403,6 @@ function hzTag(){
 }
 var domo = new MutationObserver(hzTag);
 domo.observe(document.documentElement,{characterData:true,childlist:true,subtree:true});
-window.addEventListener('DOMContentLoaded', hzTag);
-//window.addEventListener('load', hzTag);
-//window.addEventListener('loadend', hzTag);
-//window.addEventListener('loadstart', hzTag);
-//window.addEventListener('progress', hzTag);
+document.addEventListener('DOMContentLoaded', hzTag);
+window.addEventListener('load', hzTag);
 //EOF
