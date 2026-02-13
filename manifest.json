@@ -1,27 +1,24 @@
 {
 	"manifest_version": 2,
 	"name": "hooverZoom",
-	"applications": {
-		"gecko": {"id": "jid1-ypAaFtWSGV9ANQ@jetpack"}
+	"version": "2.140.7a",
+	"browser_specific_settings": {
+		"gecko": {
+			"id": "jid1-ypAaFtWSGV9ANQ@jetpack",
+			"data_collection_permissions": {
+				"required": [ "none" ]
+			}
+		}
 	},
-	"version": "2.140.7",
 	"description": "A compact add-on for displaying media on mouseover.",
-	"permissions": [
-		"<all_urls>",
-		"history",
-		"storage"
-	],
-	"background": {
-		"scripts": ["main.js"]
-	},
+	"permissions": [ "<all_urls>", "history", "storage" ],
+	"background": { "scripts": [ "main.js" ] },
 	"content_scripts": [{
 		"matches": ["http://*/*", "https://*/*"],
 		"all_frames": true,
-		"js": ["mod.js"],
-		"css": ["mod.css"],
+		"js": [ "mod.js" ],
+		"css": [ "mod.css" ],
 		"run_at": "document_start"
 	}],
-	"options_ui": {
-		"page": "options.html"
-	}
+	"options_ui": { "page": "options.html" }
 }

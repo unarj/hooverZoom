@@ -153,7 +153,7 @@ hzXmlr.scrapeReddit = function(e){
 	}catch(e){
 		hzDebug('scrape reddit: '+this.responseURL+' response is not JSON');
 	}
-	if(r){
+	if(r && r[0].data.children[0].data){
 		var d = r[0].data.children[0].data;
 		if(d.gallery_data){
 			for(let i in d.gallery_data.items){
@@ -205,6 +205,7 @@ function hzScrape(url, src){
 	if(!src){ src = url }
 	hzXmlr.onload = hzXmlr.scrape;
 	hzXmlr.open('GET', src);
+	hzXmlr.setRequestHeader('Access-Control-Allow-Headers','*');
 	hzXmlr.orig = url;
 	hzXmlr.send();
 }
@@ -237,6 +238,7 @@ function hzMouseOn(e){
 						hzXmlr.onload = hzXmlr.scrapeImgur;
 						hzXmlr.orig = curUrl;
 						hzXmlr.setRequestHeader('Authorization','Client-ID a70d05102a4b4f7');
+						hzXmlr.setRequestHeader('Access-Control-Allow-Headers','*');
 						hzXmlr.send();
 						break out;
 					}
@@ -261,6 +263,7 @@ function hzMouseOn(e){
 								}	
 						}
 						hzXmlr.orig = curUrl;
+						hzXmlr.setRequestHeader('Access-Control-Allow-Headers','*');
 						hzXmlr.send();
 						break out;
 					}
@@ -269,6 +272,7 @@ function hzMouseOn(e){
 						hzXmlr.onload = hzXmlr.scrapeTinypic;
 						hzXmlr.open('GET', hzTarget.href);
 						hzXmlr.orig = curUrl;
+						hzXmlr.setRequestHeader('Access-Control-Allow-Headers','*');
 						hzXmlr.send();
 						break out;
 					}
