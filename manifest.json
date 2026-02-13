@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "hooverZoom",
-	"version": "2.140.7a",
+	"version": "2.140.7.1",
 	"browser_specific_settings": {
 		"gecko": {
 			"id": "jid1-ypAaFtWSGV9ANQ@jetpack",
