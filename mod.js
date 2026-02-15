@@ -255,10 +255,10 @@ function hzMouseOn(e){
 							default:
 								switch(p[1]){
 									case 'gallery':
-										hzXmlr.open('GET', 'https://www.reddit.com/comments/'+p[2]+'.json');
+										hzXmlr.open('GET', 'https://www.reddit.com/comments/'+p[2]+'.json?raw_json=1');
 										break;
 									default:
-										hzXmlr.open('GET', hzTarget.href+'.json');
+										hzXmlr.open('GET', hzTarget.href+'.json?raw_json=1');
 										hzXmlr.onload = hzXmlr.scrapeReddit;
 								}	
 						}
@@ -401,8 +401,9 @@ function hzTag(){
 		hzDebug('tagged '+x+' links');
 	}
 }
-var domo = new MutationObserver(hzTag);
-domo.observe(document.documentElement,{characterData:true,childlist:true,subtree:true});
-document.addEventListener('DOMContentLoaded', hzTag);
+//var domo = new MutationObserver(hzTag);
+//domo.observe(document.documentElement,{characterData:true,childlist:true,subtree:true});
+window.addEventListener('DOMContentLoaded', hzTag);
 window.addEventListener('load', hzTag);
+window.addEventListener('scroll', hzTag, {passive:true});
 //EOF
