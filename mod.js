@@ -150,42 +150,39 @@ hzXmlr.scrapeReddit = function(e){
 	try{
 		var r = JSON.parse(this.response);
 		hzDebug('scrape reddit: '+this.responseURL);
+		if(r[0]){
+			var d = r[0].data.children[0].data;
+			if(d.gallery_data){
+				for(let i in d.gallery_data.items){
+					var p = d.media_metadata[d.gallery_data.items[i].media_id];
+					switch(p.m){
+						case 'image/gif':
+							this.albumAdd(p.s.gif);
+							break;
+						default:
+							this.albumAdd(p.s.u.split('?')[0].replace('\/\/preview\.','//i.'));
+					}
+				}
+				hzPanel.loadImg(this.orig, hzAlbum[0]);
+			}else if(d.media){
+				hzPanel.loadVid(this.orig, d.media.reddit_video.fallback_url.split('?')[0])
+			}else if(d.url){
+				hzPanel.loadImg(this.orig, d.url);
+			}else{ 
+				hzDebug('scrape reddit: no hits');
+				hzScrape(this.orig);
+			}
+		}
 	}catch(e){
 		hzDebug('scrape reddit: '+this.responseURL+' response is not JSON');
-	}
-	if(r && r[0] && r[0].data.children[0].data){
-		var d = r[0].data.children[0].data;
-		if(d.gallery_data){
-			for(let i in d.gallery_data.items){
-				var p = d.media_metadata[d.gallery_data.items[i].media_id];
-				switch(p.m){
-					case 'image/gif':
-						this.albumAdd(p.s.gif);
-						break;
-					default:
-						this.albumAdd(p.s.u.split('?')[0].replace('\/\/preview\.','//i.'));
-				}
-			}
-			hzPanel.loadImg(this.orig, hzAlbum[0])
-		}else if(d.media){
-			hzPanel.loadVid(this.orig, d.media.reddit_video.fallback_url.split('?')[0])
-		}else if(d.url){
-			hzPanel.loadImg(this.orig, d.url)
-		}else{ 
-			hzDebug('scrape reddit: no hits');
-			hzScrape(this.orig);
-		}
 	}
 }
 hzXmlr.scrapeVReddit = function(e){
 	hzDebug('scrape vreddit: '+this.responseURL);
-	var data = this.parser.parseFromString(this.responseText,'text/html').getElementsByTagName('link');
-	for(let d of data){
-		if(d.rel == 'canonical'){
-			hzXmlr.onload = hzXmlr.scrapeReddit;
-			hzXmlr.open('GET', d.href+'.json');
-			hzXmlr.send();
-		}
+	for(let d of this.parser.parseFromString(this.responseText,'text/html').getElementsByTagName('shreddit-player')){
+		var j = JSON.parse(d.getAttribute('packaged-media-json'));
+		hzDebug(j.playbackMp4s.permutations.at(-1).source.url);
+		hzPanel.loadVid(this.orig, j.playbackMp4s.permutations.at(-1).source.url);
 	}
 }
 hzXmlr.scrapeTinypic = function(e){
