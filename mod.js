@@ -147,31 +147,28 @@ hzXmlr.scrapeImgur = function(e){
 	if(hzAlbum.length){ hzPanel.loadImg(this.orig, hzAlbum[0]) }
 }
 hzXmlr.scrapeReddit = function(e){
+	hzDebug('scrape reddit: '+this.responseURL);
 	try{
-		var r = JSON.parse(this.response);
-		hzDebug('scrape reddit: '+this.responseURL);
-		if(r[0]){
-			var d = r[0].data.children[0].data;
-			if(d.gallery_data){
-				for(let i in d.gallery_data.items){
-					var p = d.media_metadata[d.gallery_data.items[i].media_id];
-					switch(p.m){
-						case 'image/gif':
-							this.albumAdd(p.s.gif);
-							break;
-						default:
-							this.albumAdd(p.s.u.split('?')[0].replace('\/\/preview\.','//i.'));
-					}
+		var d = JSON.parse(this.response)[0].data.children[0].data;
+		if(d.gallery_data){
+			for(let i in d.gallery_data.items){
+				var p = d.media_metadata[d.gallery_data.items[i].media_id];
+				switch(p.m){
+					case 'image/gif':
+						this.albumAdd(p.s.gif);
+						break;
+					default:
+						this.albumAdd(p.s.u.split('?')[0].replace('\/\/preview\.','//i.'));
 				}
-				hzPanel.loadImg(this.orig, hzAlbum[0]);
-			}else if(d.media){
-				hzPanel.loadVid(this.orig, d.media.reddit_video.fallback_url.split('?')[0])
-			}else if(d.url){
-				hzPanel.loadImg(this.orig, d.url);
-			}else{ 
-				hzDebug('scrape reddit: no hits');
-				hzScrape(this.orig);
 			}
+			hzPanel.loadImg(this.orig, hzAlbum[0]);
+		}else if(d.media){
+			hzPanel.loadVid(this.orig, d.media.reddit_video.fallback_url.split('?')[0])
+		}else if(d.url){
+			hzPanel.loadImg(this.orig, d.url);
+		}else{ 
+			hzDebug('scrape reddit: no hits');
+			hzScrape(this.orig);
 		}
 	}catch(e){
 		hzDebug('scrape reddit: '+this.responseURL+' response is not JSON');
@@ -179,11 +176,17 @@ hzXmlr.scrapeReddit = function(e){
 }
 hzXmlr.scrapeVReddit = function(e){
 	hzDebug('scrape vreddit: '+this.responseURL);
+	var j = null
 	for(let d of this.parser.parseFromString(this.responseText,'text/html').getElementsByTagName('shreddit-player')){
-		var j = JSON.parse(d.getAttribute('packaged-media-json'));
-		hzDebug(j.playbackMp4s.permutations.at(-1).source.url);
+		j = JSON.parse(d.getAttribute('packaged-media-json'));
 		hzPanel.loadVid(this.orig, j.playbackMp4s.permutations.at(-1).source.url);
 	}
+	if(!j){
+		hzDebug('scrape vreddit: no hits, trying normal reddit scrape');
+		hzXmlr.open('GET', this.responseURL+'.json?raw_json=1');
+		hzXmlr.onload = hzXmlr.scrapeReddit;
+		hzXmlr.send();
+	}	
 }
 hzXmlr.scrapeTinypic = function(e){
 	hzDebug('scrape tinypic: '+this.orig);
